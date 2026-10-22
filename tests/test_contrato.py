@@ -9,6 +9,7 @@ from agente import config, contrato, modelo
 from agente import orquestador as orq
 from agente.datos import FuenteMuestra
 from tests.conftest import leer_jsonl, pregunta
+from tests.falsos import GUION_CASO3, ModeloGuion
 
 CASOS = ["caso1", "caso2", "caso3"]
 
@@ -30,7 +31,7 @@ def test_la_traza_cumple_su_esquema_y_cuenta_la_corrida(entorno):
     assert [e["paso"] for e in eventos] == list(range(1, len(eventos) + 1))
     acciones = [e["accion"] for e in eventos]
     assert acciones[0] == "recibir_pregunta" and acciones[-1] == "entregar"
-    assert "consultar" in acciones and "encolar" in acciones
+    assert "pensar" in acciones and "encolar" in acciones
 
 
 def test_en_modo_muestra_una_regla_aprueba_y_queda_registrado(entorno):
@@ -41,7 +42,8 @@ def test_en_modo_muestra_una_regla_aprueba_y_queda_registrado(entorno):
     assert r["aprobacion"] == {"item_id": item["item_id"], "estado": "aprobada"}
 
 
-def test_sin_investigador_el_agente_se_abstiene_en_vez_de_inventar(entorno):
+def test_sin_corrida_grabada_el_agente_se_abstiene_en_vez_de_inventar(entorno, monkeypatch):
+    monkeypatch.setattr(orq, "corrida_grabada", lambda cfg, p: None)
     r = orq.correr(pregunta("caso3"))
     assert r["estado"] == "abstencion" and r["conclusion"] is None and r["abstencion"]["razon"]
     assert "IO no da una conclusión" in r["informe_md"]
@@ -119,7 +121,9 @@ def test_timeout_del_motor_reintenta_una_vez_y_no_rompe_la_corrida(entorno, monk
             MotorLento.llamadas += 1
             raise TimeoutError("io-engine no respondió en 60 s")
 
-    monkeypatch.setattr(orq.datos, "crear", lambda cfg: MotorLento())
+    monkeypatch.setattr(orq.datos, "crear", lambda cfg, extra=None: MotorLento())
+    monkeypatch.setattr(orq.modelo, "crear", lambda cfg, turnos=None: ModeloGuion(
+        [GUION_CASO3[0], GUION_CASO3[1], {"accion": "abstenerse", "razon": "El motor no responde."}]))
     r = orq.correr(pregunta("caso3"))
     contrato.validar_respuesta(r)
     assert MotorLento.llamadas == 2
@@ -129,10 +133,10 @@ def test_timeout_del_motor_reintenta_una_vez_y_no_rompe_la_corrida(entorno, monk
 
 
 def test_alerta_de_gasto(entorno, monkeypatch):
-    caro = modelo.ModeloMuestra()
+    caro = ModeloGuion([{"accion": "abstenerse", "razon": "prueba"}])
     caro.costo_usd = 5.0
     monkeypatch.setenv("AGENTE_PRESUPUESTO_USD", "1")
-    monkeypatch.setattr(orq.modelo, "crear", lambda cfg: caro)
+    monkeypatch.setattr(orq.modelo, "crear", lambda cfg, turnos=None: caro)
     r = orq.correr(pregunta("caso3"))
     eventos = leer_jsonl(entorno / "logs" / f"{r['run_id']}.jsonl")
     assert any(e["accion"] == "alerta_gasto" and e["estado"] == "alerta" for e in eventos)

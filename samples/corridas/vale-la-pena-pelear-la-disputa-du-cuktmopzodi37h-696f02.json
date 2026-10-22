@@ -1,0 +1,111 @@
+{
+  "_synthetic": true,
+  "nombre": "vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+  "pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?",
+  "origen": "corrida real 20261022T184225-5f73e6: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-22T18:44:53+00:00",
+  "estado": "concluida",
+  "turnos": [
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"consultar\", \"hipotesis\": \"H_du_cuKtmopzODI37h\", \"sql\": \"SELECT disputa_id, monto, motivo, estado, abierta_en, vence_en, nivel_riesgo, pais_facturacion, pais_ip, envio_id, transportista, region, estado_envio, prueba_entrega, tipo_destino, prometido_en, entregado_en, entrega_confirmada, entrega_tarde, extraviado, dias_atraso, zona_con_atrasos, pedidos_previos, disputas_previas, reclamo_previo, senal_cliente_nuevo, senal_riesgo_alto, senal_pais_distinto, senal_punto_retiro, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"accion\": \"concluir\", \"conclusion\": \"Sí, vale la pena pelear la disputa du_cuKtmopzODI37h de 129.9 USD. El envío fue entregado y confirmado con firma, el cliente no hizo ningún reclamo previo, no hay señales de fraude (país de facturación e IP iguales, cliente no nuevo, riesgo normal), y ya tiene 4 pedidos previos sin disputas anteriores.\", \"recomendacion\": \"Pelear la disputa presentando la prueba de entrega (firma) y el historial del cliente, ya que cumple las condiciones para ganarla: entrega confirmada y sin reclamo previo.\"}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "",
+      "modelo": "meterless/auto"
+    },
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"Vale la pena pelear esta disputa porque el pedido fue entregado con firma, el cliente no reclamó antes y no hay señales de fraude.\"}]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"sostenida\", \"razon\": \"De los datos de la disputa: el envío está entregado con prueba de firma, llegó a tiempo, el cliente tiene 4 pedidos previos y 0 disputas previas, no hizo ningún reclamo de soporte previo, el nivel de riesgo es normal, el país de facturación y la IP coinciden (ambos CO), y no hay señales de fraude. Por tanto, cumple las condiciones para pelearla: entrega confirmada y sin reclamo previo.\", \"evidencia\": [\"E1\"]}, {\"accion\": \"concluir\", \"conclusion\": \"Sí, vale la pena pelear esta disputa. El cliente dice no reconocer un cobro de 129.9 dólares, pero el pedido fue entregado y confirmado con firma, el cliente ya hizo 4 compras previas sin disputas, no reclamó antes y no hay señales de fraude.\", \"recomendacion\": \"Pelear la disputa presentando la prueba de entrega con firma y el historial de compras del cliente. Como el envío fue entregado y no hubo reclamo previo, hay buenas probabilidades de ganar.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    }
+  ],
+  "consultas": {
+    "SELECT disputa_id, monto, motivo, estado, abierta_en, vence_en, nivel_riesgo, pais_facturacion, pais_ip, envio_id, transportista, region, estado_envio, prueba_entrega, tipo_destino, prometido_en, entregado_en, entrega_confirmada, entrega_tarde, extraviado, dias_atraso, zona_con_atrasos, pedidos_previos, disputas_previas, reclamo_previo, senal_cliente_nuevo, senal_riesgo_alto, senal_pais_distinto, senal_punto_retiro, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h'": {
+      "ok": true,
+      "columnas": [
+        "disputa_id",
+        "monto",
+        "motivo",
+        "estado",
+        "abierta_en",
+        "vence_en",
+        "nivel_riesgo",
+        "pais_facturacion",
+        "pais_ip",
+        "envio_id",
+        "transportista",
+        "region",
+        "estado_envio",
+        "prueba_entrega",
+        "tipo_destino",
+        "prometido_en",
+        "entregado_en",
+        "entrega_confirmada",
+        "entrega_tarde",
+        "extraviado",
+        "dias_atraso",
+        "zona_con_atrasos",
+        "pedidos_previos",
+        "disputas_previas",
+        "reclamo_previo",
+        "senal_cliente_nuevo",
+        "senal_riesgo_alto",
+        "senal_pais_distinto",
+        "senal_punto_retiro",
+        "senales_fraude",
+        "sospecha_fraude",
+        "causa_operativa",
+        "vale_pelear",
+        "decision",
+        "razon_decision"
+      ],
+      "filas": [
+        {
+          "disputa_id": "du_cuKtmopzODI37h",
+          "monto": 129.9,
+          "motivo": "unrecognized",
+          "estado": "needs_response",
+          "abierta_en": "2026-09-29 15:00:00",
+          "vence_en": "2026-10-13 23:00:00",
+          "nivel_riesgo": "normal",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO",
+          "envio_id": "CS-31574",
+          "transportista": "CargoSur",
+          "region": "Centro",
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "tipo_destino": "domicilio",
+          "prometido_en": "2026-09-07",
+          "entregado_en": "2026-09-06",
+          "entrega_confirmada": true,
+          "entrega_tarde": false,
+          "extraviado": false,
+          "dias_atraso": 0,
+          "zona_con_atrasos": false,
+          "pedidos_previos": 4,
+          "disputas_previas": 0,
+          "reclamo_previo": false,
+          "senal_cliente_nuevo": false,
+          "senal_riesgo_alto": false,
+          "senal_pais_distinto": false,
+          "senal_punto_retiro": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "causa_operativa": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo"
+        }
+      ],
+      "n_filas": 1,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

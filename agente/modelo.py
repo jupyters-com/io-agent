@@ -1,35 +1,67 @@
 """El modelo de lenguaje, siempre a través de Meterless Nightshift (proveedor principal).
 
-- ModeloMuestra (SAMPLE_MODE=true): no llama a nada; devuelve texto fijo. Sin credenciales.
-- ModeloNightshift: API compatible con OpenAI en METERLESS_BASE_URL, con el contrato de la guía:
-  Authorization Bearer, meterless-app y meterless-scope. Tiene tope de tiempo y lleva la cuenta
-  de tokens y costo para la alerta de gasto.
-
-El esqueleto todavía no usa el modelo para investigar: eso llega en el Paso 10 (JPTRS-67)
-y la integración completa de Meterless en el Paso 13 (JPTRS-68).
+- ModeloNightshift (SAMPLE_MODE=false): API compatible con OpenAI en METERLESS_BASE_URL, con el
+  contrato de la guía (Authorization Bearer, meterless-app, meterless-scope). Tope de tiempo por
+  llamada y cuenta de tokens y costo para la alerta de gasto.
+- ModeloGrabado (SAMPLE_MODE=true): repite, en orden, las respuestas que Nemotron dio en una
+  corrida real grabada (samples/corridas/). Nunca respuestas escritas a mano.
+- Grabadora: envuelve al modelo real y guarda lo que responde, para crear esas grabaciones.
 """
 
 import json
+import time
 import urllib.error
 import urllib.request
 
+REINTENTAR = (429, 500, 502, 503, 504)
 
-class ModeloMuestra:
-    nombre = "muestra"
 
-    def __init__(self):
-        self.tokens, self.costo_usd = 0, 0.0
+class StreamCortado(RuntimeError):
+    """Nightshift cerró el stream con un error o sin mandar respuesta (p. ej. provider_deadline)."""
 
-    def completar(self, mensajes: list[dict]) -> dict:
-        return {"texto": "", "modelo": "muestra", "tokens": 0, "costo_usd": 0.0}
+
+def _juntar_stream(respuesta) -> dict:
+    """Arma una respuesta normal a partir de un stream SSE (líneas "data: {...}")."""
+    texto, modelo, uso, termino = [], None, {}, False
+    for linea in respuesta:
+        linea = linea.decode("utf-8", "replace").strip()
+        if not linea.startswith("data:"):
+            continue
+        dato = linea[5:].strip()
+        if dato == "[DONE]":
+            termino = True
+            break
+        parte = json.loads(dato)
+        if parte.get("error"):
+            error = parte["error"]
+            detalle = error.get("meterless_detail") or error.get("message") if isinstance(error, dict) else error
+            raise StreamCortado(f"Nightshift cortó la respuesta: {detalle}")
+        modelo = parte.get("model", modelo)
+        uso = parte.get("usage") or uso
+        for opcion in parte.get("choices", []):
+            texto.append((opcion.get("delta") or {}).get("content") or "")
+            termino = termino or bool(opcion.get("finish_reason"))
+    if not "".join(texto).strip():
+        raise StreamCortado("Nightshift cerró la respuesta sin contenido"
+                            + ("" if termino else " (se cortó antes de terminar, posible provider_deadline)"))
+    return {"model": modelo, "choices": [{"message": {"content": "".join(texto)}}], "usage": uso}
+
+
+class SinMasRespuestas(RuntimeError):
+    """El modelo grabado ya no tiene respuestas para esta corrida."""
 
 
 class ModeloNightshift:
     nombre = "nightshift"
 
-    def __init__(self, url: str, token: str, modelo: str, timeout_s: float):
+    def __init__(self, url: str, token: str, modelo: str, timeout_s: float, reintentos: int = 2,
+                 espera_s: float = 5.0, extra: dict | None = None, sin_pensar: bool = False,
+                 stream: bool = False):
         self.url, self.token, self.modelo, self.timeout_s = url, token, modelo, timeout_s
+        self.extra, self.sin_pensar, self.stream = dict(extra or {}), sin_pensar, stream
+        self.reintentos, self.espera_s = reintentos, espera_s
         self.tokens, self.costo_usd = 0, 0.0
+        self.reintentos_usados = 0
 
     def _post(self, cuerpo: dict) -> dict:  # separado para poder simularlo en las pruebas
         pedido = urllib.request.Request(
@@ -38,22 +70,105 @@ class ModeloNightshift:
             headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json",
                      "meterless-app": "io-agent", "meterless-scope": "user"})
         with urllib.request.urlopen(pedido, timeout=self.timeout_s) as r:
-            return json.loads(r.read().decode("utf-8"))
+            if not cuerpo.get("stream"):
+                return json.loads(r.read().decode("utf-8"))
+            return _juntar_stream(r)
+
+    def cuerpo(self, mensajes: list[dict]) -> dict:
+        if self.sin_pensar:
+            if mensajes and mensajes[0]["role"] == "system":
+                mensajes = [{"role": "system", "content": "/no_think\n" + mensajes[0]["content"]}, *mensajes[1:]]
+            else:
+                mensajes = [{"role": "system", "content": "/no_think"}, *mensajes]
+        cuerpo = {"model": self.modelo, "messages": mensajes, **self.extra}
+        if self.stream:
+            cuerpo.update(stream=True, stream_options={"include_usage": True})
+        return cuerpo
 
     def completar(self, mensajes: list[dict]) -> dict:
         if not self.token:
             raise PermissionError("Falta METERLESS_RUNTIME_TOKEN en .env.local")
-        r = self._post({"model": self.modelo, "messages": mensajes})
+        intento = 0
+        while True:
+            try:
+                r = self._post(self.cuerpo(mensajes))
+                break
+            except urllib.error.HTTPError as e:
+                detalle = e.read().decode("utf-8", "replace")[:300] if e.fp else ""
+                if e.code in REINTENTAR and intento < self.reintentos:
+                    intento += 1
+                    self.reintentos_usados += 1
+                    time.sleep(self.espera_s * intento)
+                    continue
+                raise RuntimeError(f"Nightshift respondió HTTP {e.code} {e.reason}"
+                                   + (f": {detalle}" if detalle else "")) from e
+            except StreamCortado as e:
+                if intento < self.reintentos:
+                    intento += 1
+                    self.reintentos_usados += 1
+                    time.sleep(self.espera_s * intento)
+                    continue
+                raise RuntimeError(f"{e} (tras {intento} reintento(s))") from e
+            except (TimeoutError, urllib.error.URLError) as e:
+                es_tiempo = isinstance(e, TimeoutError) or "timed out" in str(e)
+                if es_tiempo and intento < self.reintentos:
+                    intento += 1
+                    self.reintentos_usados += 1
+                    time.sleep(self.espera_s * intento)
+                    continue
+                if es_tiempo:
+                    raise RuntimeError(f"Nightshift no respondió dentro de {self.timeout_s:g} s "
+                                       f"(AGENTE_TIMEOUT_S), tras {intento} reintento(s)") from e
+                raise
         uso = r.get("usage") or {}
         tokens = int(uso.get("total_tokens", 0))
         costo = float(uso.get("cost", uso.get("cost_usd", 0.0)) or 0.0)
         self.tokens += tokens
         self.costo_usd += costo
-        return {"texto": r["choices"][0]["message"]["content"], "modelo": r.get("model", self.modelo),
+        return {"texto": r["choices"][0]["message"]["content"] or "", "modelo": r.get("model", self.modelo),
                 "tokens": tokens, "costo_usd": costo}
 
 
-def crear(cfg):
+class ModeloGrabado:
+    nombre = "grabado"
+
+    def __init__(self, turnos: list[dict], modelo: str = "grabado"):
+        # Las respuestas vacías de grabaciones viejas eran cortes de Nightshift (provider_deadline);
+        # hoy esos cortes se reintentan y no cuentan como vuelta, así que al repetir se saltan.
+        turnos = [t for t in turnos if str(t.get("texto", "")).strip()]
+        self.turnos, self.modelo, self.i = turnos, modelo, 0
+        self.tokens, self.costo_usd = 0, 0.0
+
+    def completar(self, mensajes: list[dict]) -> dict:
+        if self.i >= len(self.turnos):
+            raise SinMasRespuestas("No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra.")
+        t = self.turnos[self.i]
+        self.i += 1
+        return {"texto": t["texto"], "modelo": t.get("modelo", self.modelo), "tokens": 0, "costo_usd": 0.0}
+
+
+class Grabadora:
+    def __init__(self, modelo):
+        self.modelo, self.turnos = modelo, []
+        self.nombre = modelo.nombre
+
+    @property
+    def tokens(self):
+        return self.modelo.tokens
+
+    @property
+    def costo_usd(self):
+        return self.modelo.costo_usd
+
+    def completar(self, mensajes):
+        r = self.modelo.completar(mensajes)
+        self.turnos.append({"texto": r["texto"], "modelo": r["modelo"]})
+        return r
+
+
+def crear(cfg, turnos=None):
     if cfg.modo_muestra:
-        return ModeloMuestra()
-    return ModeloNightshift(cfg.meterless_url, cfg.meterless_token, cfg.meterless_modelo, cfg.timeout_s)
+        return ModeloGrabado(turnos or [])
+    return ModeloNightshift(cfg.meterless_url, cfg.meterless_token, cfg.meterless_modelo, cfg.timeout_s,
+                            extra=cfg.meterless_extra, sin_pensar=cfg.sin_pensar, stream=cfg.stream,
+                            reintentos=cfg.reintentos_modelo, espera_s=10.0)

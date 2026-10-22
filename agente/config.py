@@ -3,6 +3,7 @@
 .env.local nunca se sube al repo. En modo de muestra no hace falta ninguna clave.
 """
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,6 +38,10 @@ class Config:
     meterless_url: str
     meterless_token: str
     meterless_modelo: str
+    meterless_extra: dict     # campos extra para el pedido al modelo (p. ej. apagar el "pensamiento")
+    sin_pensar: bool          # antepone /no_think al prompt de sistema (modelos Nemotron con razonamiento)
+    stream: bool              # pide la respuesta por partes (evita cortes por tiempo en respuestas largas)
+    reintentos_modelo: int    # reintentos por llamada al modelo si Nightshift corta o falla
 
     @property
     def modo(self) -> str:
@@ -52,9 +57,13 @@ def cargar() -> Config:
         logs=Path(os.getenv("AGENTE_LOGS", RAIZ / "logs")),
         salidas=Path(os.getenv("AGENTE_SALIDAS", RAIZ / "salidas")),
         timeout_s=float(os.getenv("AGENTE_TIMEOUT_S", "60")),
-        max_iteraciones=int(os.getenv("AGENTE_MAX_ITERACIONES", "8")),
+        max_iteraciones=int(os.getenv("AGENTE_MAX_ITERACIONES", "16")),
         presupuesto_usd=float(os.getenv("AGENTE_PRESUPUESTO_USD", "1.0")),
         meterless_url=os.getenv("METERLESS_BASE_URL", "http://127.0.0.1:8088/v1").rstrip("/"),
         meterless_token=os.getenv("METERLESS_RUNTIME_TOKEN", ""),
         meterless_modelo=os.getenv("METERLESS_MODEL", "nvidia/nemotron-3.5-super-vl-120b-a12b"),
+        meterless_extra=json.loads(os.getenv("METERLESS_EXTRA_BODY", "") or "{}"),
+        sin_pensar=_si(os.getenv("AGENTE_SIN_PENSAR", "false")),
+        stream=_si(os.getenv("METERLESS_STREAM", "false")),
+        reintentos_modelo=int(os.getenv("AGENTE_REINTENTOS_MODELO", "2")),
     )
