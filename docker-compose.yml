@@ -1,0 +1,12 @@
+# docker compose run --rm agente          -> corre el caso 3 en modo de muestra
+# La traza queda en ./logs y la respuesta + informe en ./salidas.
+services:
+  agente:
+    build: .
+    image: io-agent
+    volumes:
+      - ./logs:/app/logs
+      - ./salidas:/app/salidas
+    env_file:
+      - path: .env.local
+        required: false

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "traza.schema.json",
+  "title": "Evento de la traza JSONL (una línea por evento)",
+  "type": "object",
+  "required": ["ts", "run_id", "paso", "agente", "destino", "accion", "entrada", "salida", "estado", "reintentos", "ms"],
+  "additionalProperties": false,
+  "properties": {
+    "ts": {"type": "string", "description": "ISO 8601 UTC"},
+    "run_id": {"type": "string"},
+    "paso": {"type": "integer", "minimum": 1, "description": "orden del evento dentro de la corrida"},
+    "agente": {"enum": ["orquestador", "investigador", "evaluador", "cola"]},
+    "destino": {"type": "string", "description": "a quién le habla: io-engine.consultar, modelo, cola, salida…"},
+    "accion": {"type": "string"},
+    "entrada": {"type": "string", "maxLength": 300, "description": "resumen de lo que entró"},
+    "salida": {"type": "string", "maxLength": 300, "description": "resumen de lo que salió"},
+    "estado": {"enum": ["ok", "error", "alerta", "omitido"]},
+    "reintentos": {"type": "integer", "minimum": 0},
+    "ms": {"type": "number", "minimum": 0}
+  }
+}
