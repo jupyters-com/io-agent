@@ -124,7 +124,18 @@ def informe(r: dict) -> str:
             p += [f"**{e['id']}** · {estado}", "", "```sql", e["sql"].strip(), "```", "", _tabla(e["filas"]), ""]
     else:
         p.append("_No se consultaron datos._")
-    p += ["", "## Qué conviene hacer", "", r["recomendacion"] or "_Sin recomendación: no hay conclusión._", "",
-          "---", f"Aprobación: **{r['aprobacion']['estado']}** · modo {r['modo']} · "
+    p += ["", "## Qué conviene hacer", "", r["recomendacion"] or "_Sin recomendación: no hay conclusión._", ""]
+    if r.get("cola"):
+        nombres = {"respuesta_banco": "Respuesta al banco", "no_pelear": "No pelear", "grupo": "El grupo"}
+        p += ["### Cola de aprobación", "",
+              "IO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo "
+              "revisa y lo envía una persona.", ""]
+        for c in r["cola"]:
+            marca = "✅ aprobada" if c["estado"] == "aprobada" else "⛔ rechazada"
+            p += [f"**{nombres.get(c['tipo'], c['tipo'])}" + (f" · {c['disputa_id']}" if c["disputa_id"] else "")
+                  + f"** · {marca} · `{c['item_id']}`", "", f"_Política: {c['motivo']}_", ""]
+            if c.get("borrador"):
+                p += ["> " + linea if linea else ">" for linea in c["borrador"].splitlines()] + [""]
+    p += ["---", f"Aprobación: **{r['aprobacion']['estado']}** · modo {r['modo']} · "
           f"consultas: {r['metricas']['consultas']} · {r['metricas']['ms']:.0f} ms"]
     return "\n".join(p) + "\n"

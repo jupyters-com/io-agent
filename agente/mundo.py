@@ -249,6 +249,7 @@ class MundoAgente:
         self.motor: WorldModel | None = None
         self.contexto = id_contexto("corrida", run_id)
         self.verificadas = 0
+        self.anclas: dict[str, list[str]] = {}
 
     def _con_limite(self, accion, fn, avisar_apagado=True):
         if not self.cfg.mundo_activo:
@@ -361,7 +362,7 @@ class MundoAgente:
             for d in dict.fromkeys(ID_DISPUTA.findall(texto)):
                 eid = id_entidad("disputa", d)
                 if eid in vistos:
-                    ancladas.append((d, motor.donde_se_vio(eid, self.contexto)))
+                    ancladas.append((d, motor.donde_se_vio(eid, self.contexto), "disputa"))
                 else:
                     parecido = next((e["attrs"]["clave_externa"] for e in motor.de_tipo("disputa")
                                      if e["attrs"]["clave_externa"].lower() == d.lower()
@@ -375,7 +376,7 @@ class MundoAgente:
                     if not nombre or not re.search(rf"\b{re.escape(_sin_acentos(nombre))}\b", plano):
                         continue  # se busca con su mayúscula: "Norte" es la región, "norte" no
                     if e["id"] in vistos:
-                        ancladas.append((nombre, motor.donde_se_vio(e["id"], self.contexto)))
+                        ancladas.append((nombre, motor.donde_se_vio(e["id"], self.contexto), tipo))
                     else:
                         problemas.append(f"Nombras {'la región' if tipo == 'region' else 'el transportista'} "
                                          f"{nombre}, pero ninguna consulta de esta corrida lo devolvió: consúltalo o "
@@ -386,8 +387,11 @@ class MundoAgente:
             return []
         ancladas, problemas = r
         self.verificadas = len(ancladas)
+        self.anclas = {}  # tipo -> nombres anclados de la última conclusión (la cola arma el grupo con esto)
+        for nombre, _, tipo in ancladas:
+            self.anclas.setdefault(tipo, []).append(nombre)
         self.traza.evento("mundo", "evaluador", "anclar", entrada=texto[:300],
-                          salida=("; ".join(f"{n} ({', '.join(refs) or '-'})" for n, refs in ancladas) or "nada que anclar")
+                          salida=("; ".join(f"{n} ({', '.join(refs) or '-'})" for n, refs, _ in ancladas) or "nada que anclar")
                                  + (" · sin anclar: " + " ".join(problemas) if problemas else ""),
                           estado="alerta" if problemas else "ok")
         return problemas

@@ -36,10 +36,11 @@ def test_la_traza_cumple_su_esquema_y_cuenta_la_corrida(entorno):
 
 def test_en_modo_muestra_una_regla_aprueba_y_queda_registrado(entorno):
     r = orq.correr(pregunta("caso1"))
-    (item,) = leer_jsonl(entorno / "logs" / "cola_aprobacion.jsonl")
+    item = leer_jsonl(entorno / "logs" / "cola_aprobacion.jsonl")[0]
     contrato.validar_aprobacion(item)
-    assert item["estado"] == "aprobada" and item["decidido_por"] == "regla:auto_muestra"
-    assert r["aprobacion"] == {"item_id": item["item_id"], "estado": "aprobada"}
+    esperado = "aprobada" if r["estado"] == "concluida" else "rechazada"
+    assert item["tipo"] == "conclusion" and item["estado"] == esperado and item["decidido_por"] == "regla:politica_v1"
+    assert r["aprobacion"] == {"item_id": item["item_id"], "estado": esperado}
 
 
 def test_sin_corrida_grabada_el_agente_se_abstiene_en_vez_de_inventar(entorno, monkeypatch):
@@ -65,7 +66,7 @@ def concluida():
         "evidencia": [{"id": "E1", "sql": "SELECT 1", "motor": "duckdb", "ok": True,
                        "filas": [{"n": 14}], "n_filas": 1, "error": None}],
         "recomendacion": "Reclamar al transportista.", "abstencion": None,
-        "aprobacion": {"item_id": "AP-t", "estado": "aprobada"},
+        "aprobacion": {"item_id": "AP-t", "estado": "aprobada"}, "cola": [],
         "metricas": {"iteraciones": 1, "consultas": 1, "ms": 1.0, "tokens": 0, "costo_usd": 0.0},
         "informe_md": "",
     }
@@ -96,7 +97,7 @@ def test_el_contrato_rechaza_respuestas_mal_formadas(concluida, romper, mensaje)
 
 
 def test_aprobacion_decidida_sin_quien_se_rechaza():
-    item = {"item_id": "AP-x", "run_id": "x", "tipo": "respuesta", "estado": "aprobada",
+    item = {"item_id": "AP-x", "run_id": "x", "tipo": "conclusion", "estado": "aprobada",
             "creado_en": "t", "decidido_en": "t", "decidido_por": None, "motivo": None, "resumen": "r"}
     with pytest.raises(contrato.ContratoRoto, match="quién lo decidió"):
         contrato.validar_aprobacion(item)

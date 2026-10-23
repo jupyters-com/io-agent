@@ -25,6 +25,7 @@ from agente import contrato, datos, modelo
 from agente.investigador import Investigador
 from agente.memoria import Memoria
 from agente.mundo import MundoAgente
+from agente.preparador import Preparador
 from agente.traza import Cronometro, Traza
 
 PANORAMA = """
@@ -117,6 +118,17 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
         resultado = investigador.investigar(pregunta, memoria=contexto)
         memoria.aprender(pregunta, run_id, resultado, investigador.motivos_devueltos)
 
+        # Paso 11: separar las disputas, redactar las respuestas al banco y dejarlas en la cola (no se envía nada)
+        def consultar_evidencia(sql):
+            r = _consultar(fuente, sql, traza, cfg, etiqueta="preparación")
+            e = {"id": f"E{len(resultado['evidencia']) + 1}", "sql": " ".join(sql.split()), "motor": r.get("motor"),
+                 "ok": bool(r.get("ok")), "filas": r.get("filas", []), "n_filas": int(r.get("n_filas", 0)),
+                 "error": r.get("error")}
+            resultado["evidencia"].append(e)
+            registrar_evidencia(e, "preparacion")
+            return e
+        entradas = Preparador(consultar_evidencia, traza).preparar(pregunta, resultado, mundo.anclas, cfg.mundo_activo)
+
         if llm.costo_usd > cfg.presupuesto_usd:
             traza.evento("orquestador", "modelo", "alerta_gasto",
                          salida=f"gasto {llm.costo_usd:.4f} USD > presupuesto {cfg.presupuesto_usd} USD",
@@ -127,7 +139,7 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
             "estado": resultado["estado"], "conclusion": resultado["conclusion"],
             "hipotesis": resultado["hipotesis"], "evidencia": resultado["evidencia"],
             "recomendacion": resultado["recomendacion"], "abstencion": resultado["abstencion"],
-            "aprobacion": {"item_id": "", "estado": "pendiente"},
+            "aprobacion": {"item_id": "", "estado": "pendiente"}, "cola": [],
             "metricas": {"iteraciones": resultado["iteraciones"], "consultas": len(resultado["evidencia"]),
                          "ms": 0.0, "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6),
                          "devoluciones": investigador.n_devoluciones, "memorias_usadas": len(memoria.usadas),
@@ -135,13 +147,23 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
             "informe_md": "",
         }
 
-        item = cola_mod.ColaAprobacion(cfg.logs).encolar(
-            run_id, respuesta["conclusion"] or respuesta["abstencion"]["razon"], cfg.modo_muestra)
-        contrato.validar_aprobacion(item)
-        traza.evento("cola", "cola_aprobacion", "encolar", entrada=item["resumen"],
-                     salida=f"{item['item_id']} · {item['estado']}"
-                            + (f" por {item['decidido_por']}" if item["decidido_por"] else ""))
-        respuesta["aprobacion"] = {"item_id": item["item_id"], "estado": item["estado"]}
+        cola = cola_mod.ColaAprobacion(cfg.logs)
+        conclusion = {"tipo": "conclusion", "estado_corrida": resultado["estado"],
+                      "resumen": respuesta["conclusion"] or respuesta["abstencion"]["razon"],
+                      "evidencia": sorted({ref for h in resultado["hipotesis"] for ref in h["evidencia"]})}
+        for n, entrada in enumerate([conclusion, *entradas]):
+            item = contrato.validar_aprobacion(cola.encolar(run_id, entrada, n))
+            traza.evento("cola", "cola_aprobacion", "encolar",
+                         entrada=f"{item['tipo']}" + (f" {item['disputa_id']}" if item["disputa_id"] else "")
+                                 + f" · {item['resumen']}",
+                         salida=f"{item['item_id']} · {item['estado']} por {item['decidido_por']} · {item['motivo']}",
+                         estado="ok" if item["estado"] == "aprobada" else "alerta")
+            resumen = {k: item[k] for k in ("item_id", "tipo", "disputa_id", "estado", "motivo", "borrador")}
+            if n == 0:
+                respuesta["aprobacion"] = {"item_id": item["item_id"], "estado": item["estado"]}
+            else:
+                respuesta["cola"].append(resumen)
+        respuesta["metricas"]["consultas"] = len(resultado["evidencia"])
 
     respuesta["metricas"]["ms"] = round(total.ms, 1)
     respuesta["informe_md"] = contrato.informe(respuesta)

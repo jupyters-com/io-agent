@@ -44,9 +44,11 @@ for entrada in sorted((RAIZ / "ejemplos").glob("*_entrada.json")):
         m = r["metricas"]
         filas.append((caso, "con Meterless" if con else "sin Meterless", r["estado"], m["iteraciones"],
                       m["devoluciones"], m["consultas"], m["memorias_usadas"], m["entidades_ancladas"],
+                      f"{sum(c['estado'] == 'aprobada' for c in r['cola'])}/{len(r['cola'])}",
                       f"logs/{r['run_id']}.jsonl", corrida))
 
-titulos = ("caso", "meterless", "estado", "vueltas", "devoluciones", "consultas", "memorias", "ancladas", "traza",
+titulos = ("caso", "meterless", "estado", "vueltas", "devoluciones", "consultas", "memorias", "ancladas",
+           "cola aprob.", "traza",
            "corrida")
 anchos = [max(len(str(x)) for x in col) for col in zip(titulos, *filas)]
 for fila in (titulos, *filas):
