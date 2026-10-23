@@ -1,0 +1,201 @@
+{
+  "version": "0.1",
+  "run_id": "20261023T211039-ae4287",
+  "pregunta": "¿Vale la pena pelear la disputa du_LHXBZK1JYA14wp?",
+  "modo": "real",
+  "estado": "concluida",
+  "conclusion": "Sí, es conveniente pelear la disputa du_LHXBZK1JYA14wp de 49.39 dólares porque la entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear la disputa porque la entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude.",
+      "veredicto": "sostenida",
+      "razon": "La entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude (0 señales), por lo que vale la pena pelear.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear la disputa porque hay sospecha de fraude en este caso.",
+      "veredicto": "descartada",
+      "razon": "No hay sospecha de fraude: el cliente tiene 2 pedidos previos, el riesgo es normal, la IP y la facturación son el mismo país, y el envío fue a domicilio, por lo que hay 0 señales de fraude y no hay base para descartar la pelea.",
+      "evidencia": [
+        "E1"
+      ]
+    }
+  ],
+  "evidencia": [
+    {
+      "id": "E1",
+      "sql": "SELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_LHXBZK1JYA14wp",
+          "motivo": "fraudulent",
+          "monto": 49.39,
+          "estado": "lost",
+          "estado_envio": "entregado",
+          "prueba_entrega": "foto",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "causa_operativa": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "entregado_en": "2026-08-01",
+          "prometido_en": "2026-08-01",
+          "extraviado": false,
+          "pedidos_previos": 2,
+          "nivel_riesgo": "normal",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO",
+          "tipo_destino": "domicilio"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_LHXBZK1JYA14wp",
+          "motivo": "fraudulent",
+          "monto": 49.39,
+          "estado": "lost",
+          "estado_envio": "entregado",
+          "prueba_entrega": "foto",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "causa_operativa": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "entregado_en": "2026-08-01",
+          "prometido_en": "2026-08-01",
+          "extraviado": false,
+          "pedidos_previos": 2,
+          "nivel_riesgo": "normal",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO",
+          "tipo_destino": "domicilio"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E3",
+      "sql": "SELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_LHXBZK1JYA14wp",
+          "motivo": "fraudulent",
+          "monto": 49.39,
+          "estado": "lost",
+          "estado_envio": "entregado",
+          "prueba_entrega": "foto",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "causa_operativa": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "entregado_en": "2026-08-01",
+          "prometido_en": "2026-08-01",
+          "extraviado": false,
+          "pedidos_previos": 2,
+          "nivel_riesgo": "normal",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO",
+          "tipo_destino": "domicilio"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E4",
+      "sql": "SELECT disputa_id, pedido_id, cliente_id, motivo, estado, monto, abierta_en, vence_en, transportista, region, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, reclamo_previo, pedidos_previos, disputas_previas, senales_fraude, vale_pelear, razon_decision FROM canonico.disputas WHERE disputa_id IN ('du_LHXBZK1JYA14wp') ORDER BY disputa_id",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_LHXBZK1JYA14wp",
+          "pedido_id": "ORD-1213",
+          "cliente_id": "cus_4O2tPeGiibRASo",
+          "motivo": "fraudulent",
+          "estado": "lost",
+          "monto": 49.39,
+          "abierta_en": "2026-08-27 15:00:00",
+          "vence_en": "2026-09-10 23:00:00",
+          "transportista": "CargoSur",
+          "region": "Sur",
+          "estado_envio": "entregado",
+          "prueba_entrega": "foto",
+          "entregado_en": "2026-08-01",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "pedidos_previos": 2,
+          "disputas_previas": 0,
+          "senales_fraude": 0,
+          "vale_pelear": true,
+          "razon_decision": "entrega_confirmada_sin_reclamo"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E5",
+      "sql": "SELECT pedido_id, creado_en, categoria, texto FROM canonico.mensajes_soporte WHERE pedido_id IN ('ORD-1213') ORDER BY pedido_id, creado_en",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [],
+      "n_filas": 0,
+      "error": null
+    }
+  ],
+  "recomendacion": "Pelear presentando la prueba de entrega y el historial del cliente.",
+  "abstencion": null,
+  "aprobacion": {
+    "item_id": "AP-20261023T211039-ae4287",
+    "estado": "aprobada"
+  },
+  "cola": [
+    {
+      "item_id": "AP-20261023T211039-ae4287-1",
+      "tipo": "respuesta_banco",
+      "disputa_id": "du_LHXBZK1JYA14wp",
+      "estado": "rechazada",
+      "motivo": "la disputa ya no espera respuesta (estado=lost)",
+      "borrador": "Respuesta a la disputa du_LHXBZK1JYA14wp · el titular dice no haber hecho la compra · 49.39 USD · abierta el 2026-08-27 · vence el 2026-09-10\n\nSolicitamos que se mantenga el cargo. Evidencia:\n- Entrega: el pedido ORD-1213 se entregó el 2026-08-01 con CargoSur (Sur), con foto de la entrega. [E4]\n- Historial del cliente: 2 pedidos anteriores y ninguna disputa previa. [E4]\n- Soporte: el cliente no escribió a soporte sobre este pedido. [E5]\n- Señales de fraude: 0 de 4 (cliente nuevo, riesgo alto, país de la IP distinto, punto de retiro). [E4]\n\nAdjuntar: comprobante de entrega (foto de la entrega) y el historial de comunicaciones con el cliente.\nBorrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona."
+    }
+  ],
+  "metricas": {
+    "iteraciones": 7,
+    "consultas": 5,
+    "ms": 283107.8,
+    "tokens": 48806,
+    "costo_usd": 0.0,
+    "devoluciones": 2,
+    "memorias_usadas": 5,
+    "entidades_ancladas": 1,
+    "capa_semantica": "on"
+  },
+  "informe_md": "# Informe de IO · 20261023T211039-ae4287\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_LHXBZK1JYA14wp?\n\n## Lo que encontramos\n\nSí, es conveniente pelear la disputa du_LHXBZK1JYA14wp de 49.39 dólares porque la entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude.\n\n- **Vale la pena pelear la disputa porque la entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude.** — La entrega fue confirmada con una foto, el cliente no había reclamado antes y no hay señales de fraude (0 señales), por lo que vale la pena pelear. (evidencia: E1)\n\n## Hipótesis descartadas\n\n- ~~No vale la pena pelear la disputa porque hay sospecha de fraude en este caso.~~ — No hay sospecha de fraude: el cliente tiene 2 pedidos previos, el riesgo es normal, la IP y la facturación son el mismo país, y el envío fue a domicilio, por lo que hay 0 señales de fraude y no hay base para descartar la pelea. (evidencia: E1)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision | entregado_en | prometido_en | extraviado | pedidos_previos | nivel_riesgo | pais_facturacion | pais_ip | tipo_destino |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_LHXBZK1JYA14wp | fraudulent | 49.39 | lost | entregado | foto | True | False | 0 | False | False | True | pelear | entrega_confirmada_sin_reclamo | 2026-08-01 | 2026-08-01 | False | 2 | normal | CO | CO | domicilio |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision | entregado_en | prometido_en | extraviado | pedidos_previos | nivel_riesgo | pais_facturacion | pais_ip | tipo_destino |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_LHXBZK1JYA14wp | fraudulent | 49.39 | lost | entregado | foto | True | False | 0 | False | False | True | pelear | entrega_confirmada_sin_reclamo | 2026-08-01 | 2026-08-01 | False | 2 | normal | CO | CO | domicilio |\n\n**E3** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision, entregado_en, prometido_en, extraviado, pedidos_previos, nivel_riesgo, pais_facturacion, pais_ip, tipo_destino FROM canonico.disputas WHERE disputa_id = 'du_LHXBZK1JYA14wp';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision | entregado_en | prometido_en | extraviado | pedidos_previos | nivel_riesgo | pais_facturacion | pais_ip | tipo_destino |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_LHXBZK1JYA14wp | fraudulent | 49.39 | lost | entregado | foto | True | False | 0 | False | False | True | pelear | entrega_confirmada_sin_reclamo | 2026-08-01 | 2026-08-01 | False | 2 | normal | CO | CO | domicilio |\n\n**E4** · motor: duckdb\n\n```sql\nSELECT disputa_id, pedido_id, cliente_id, motivo, estado, monto, abierta_en, vence_en, transportista, region, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, reclamo_previo, pedidos_previos, disputas_previas, senales_fraude, vale_pelear, razon_decision FROM canonico.disputas WHERE disputa_id IN ('du_LHXBZK1JYA14wp') ORDER BY disputa_id\n```\n\n| disputa_id | pedido_id | cliente_id | motivo | estado | monto | abierta_en | vence_en | transportista | region | estado_envio | prueba_entrega | entregado_en | entrega_confirmada | reclamo_previo | pedidos_previos | disputas_previas | senales_fraude | vale_pelear | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_LHXBZK1JYA14wp | ORD-1213 | cus_4O2tPeGiibRASo | fraudulent | lost | 49.39 | 2026-08-27 15:00:00 | 2026-09-10 23:00:00 | CargoSur | Sur | entregado | foto | 2026-08-01 | True | False | 2 | 0 | 0 | True | entrega_confirmada_sin_reclamo |\n\n**E5** · motor: duckdb\n\n```sql\nSELECT pedido_id, creado_en, categoria, texto FROM canonico.mensajes_soporte WHERE pedido_id IN ('ORD-1213') ORDER BY pedido_id, creado_en\n```\n\n_(sin filas)_\n\n\n## Qué conviene hacer\n\nPelear presentando la prueba de entrega y el historial del cliente.\n\n### Cola de aprobación\n\nIO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.\n\n**Respuesta al banco · du_LHXBZK1JYA14wp** · ⛔ rechazada · `AP-20261023T211039-ae4287-1`\n\n_Política: la disputa ya no espera respuesta (estado=lost)_\n\n> Respuesta a la disputa du_LHXBZK1JYA14wp · el titular dice no haber hecho la compra · 49.39 USD · abierta el 2026-08-27 · vence el 2026-09-10\n>\n> Solicitamos que se mantenga el cargo. Evidencia:\n> - Entrega: el pedido ORD-1213 se entregó el 2026-08-01 con CargoSur (Sur), con foto de la entrega. [E4]\n> - Historial del cliente: 2 pedidos anteriores y ninguna disputa previa. [E4]\n> - Soporte: el cliente no escribió a soporte sobre este pedido. [E5]\n> - Señales de fraude: 0 de 4 (cliente nuevo, riesgo alto, país de la IP distinto, punto de retiro). [E4]\n>\n> Adjuntar: comprobante de entrega (foto de la entrega) y el historial de comunicaciones con el cliente.\n> Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.\n\n---\nAprobación: **aprobada** · modo real · consultas: 5 · 283108 ms\n"
+}

@@ -6,8 +6,8 @@
     python scripts/medir_set.py --tabla          # solo rehace la tabla con lo ya medido
 
 A cada disputa del set le pregunta "¿Vale la pena pelear la disputa …?" en modo real, con la capa encendida y
-apagada (SEMANTIC_LAYER), una detrás de la otra. Cada respuesta queda en evaluacion/resultados/<con|sin>/ y su
-traza en evaluacion/logs/<con|sin>/. Lo ya medido no se repite; una corrida en la que Nightshift no respondió
+apagada (SEMANTIC_LAYER), una detrás de la otra. Cada respuesta queda en evaluacion/resultados/<con_capa|sin_capa>/ y su
+traza en evaluacion/logs/<con_capa|sin_capa>/. Lo ya medido no se repite; una corrida en la que Nightshift no respondió
 sí se repite la próxima vez. Al final deja la tabla lado a lado en evaluacion/medicion.md.
 
 Para que una corrida no contamine a otra: cada modo es una app distinta en Nightshift, y la memoria (H-MEM) y
@@ -29,7 +29,8 @@ os.chdir(RAIZ)
 from agente import medicion  # noqa: E402
 
 EVAL = RAIZ / "evaluacion"
-MODOS = {"con": "on", "sin": "off"}
+# "con" no sirve como nombre de carpeta: en Windows es un nombre reservado y git no la puede agregar.
+MODOS = {"con_capa": "on", "sin_capa": "off"}
 
 
 def ruta_resultado(modo, disputa):
@@ -59,7 +60,7 @@ def preparar_entorno():
 def medir(caso, modo):
     from agente.orquestador import correr
     os.environ["SEMANTIC_LAYER"] = MODOS[modo]
-    os.environ["METERLESS_APP"] = "io-agent-medicion" if modo == "con" else "io-agent-medicion-sin-capa"
+    os.environ["METERLESS_APP"] = "io-agent-medicion" if modo == "con_capa" else "io-agent-medicion-sin-capa"
     os.environ["AGENTE_LOGS"] = str(EVAL / "logs" / modo)
     inicio = time.time()
     r = correr(f"¿Vale la pena pelear la disputa {caso['disputa_id']}?")
@@ -67,7 +68,7 @@ def medir(caso, modo):
     ruta.parent.mkdir(parents=True, exist_ok=True)
     ruta.write_text(json.dumps(r, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     p = medicion.puntuar(caso, r)
-    print(f"  {modo} capa: {p['resultado']:<30} dijo {p['dijo']:<12} · {time.time() - inicio:.0f} s · "
+    print(f"  {modo.replace('_', ' ')}: {p['resultado']:<30} dijo {p['dijo']:<12} · {time.time() - inicio:.0f} s · "
           f"{(r['conclusion'] or (r['abstencion'] or {}).get('razon') or '')[:110]}")
 
 
@@ -89,10 +90,10 @@ def tabla(casos):
                           ("defensa que no debía armarse", "Defensas que no debían armarse"),
                           ("defensa perdida", "Defensas perdidas (convenía pelear y dijo que no)"),
                           ("abstención", "Abstenciones"), ("sin clasificar", "Sin clasificar")):
-        a, b = res["con"][clave], res["sin"][clave]
+        a, b = res["con_capa"][clave], res["sin_capa"][clave]
         sufijo = " %" if clave.startswith("tasa") else ""
         lineas.append(f"| **{nombre}** | {a}{sufijo} | {b}{sufijo} |")
-    for modo, nombre in (("con", "con la capa"), ("sin", "sin la capa")):
+    for modo, nombre in (("con_capa", "con la capa"), ("sin_capa", "sin la capa")):
         perdidas = [c for c, f in zip(casos, filas[modo]) if f["resultado"] == "defensa perdida"]
         if perdidas:
             total = sum(float(c["monto"] or 0) for c in perdidas)
@@ -102,7 +103,7 @@ def tabla(casos):
                            f"({sum(float(c['monto'] or 0) for c in abiertas):,.2f} USD)."]
     lineas += ["", "## Disputa por disputa", "",
                "| disputa | esperada | con la capa | sin la capa |", "| --- | --- | --- | --- |"]
-    for c, a, b in zip(casos, filas["con"], filas["sin"]):
+    for c, a, b in zip(casos, filas["con_capa"], filas["sin_capa"]):
         lineas.append(f"| {c['disputa_id']} | {c['esperada']} | {a['resultado']} | {b['resultado']} |")
     abst = [(m, c["disputa_id"], f) for m in MODOS for c, f in zip(casos, filas[m]) if f["resultado"] == "abstención"]
     if abst:
@@ -132,16 +133,16 @@ def main():
             for modo in MODOS:
                 previa = leer(modo, caso["disputa_id"])
                 if previa and not fallo_del_proveedor(previa):
-                    print(f"  {modo} capa: ya medida ({medicion.puntuar(caso, previa)['resultado']})")
+                    print(f"  {modo.replace('_', ' ')}: ya medida ({medicion.puntuar(caso, previa)['resultado']})")
                     continue
                 medir(caso, modo)
     res = tabla(casos)
     print("\n                         con capa   sin capa")
     for clave in ("medidos", "acierto", "acierto con una razón falsa", "defensa que no debía armarse",
                   "defensa perdida", "abstención", "sin clasificar"):
-        print(f"  {clave:<30} {res['con'][clave]:>6}   {res['sin'][clave]:>6}")
-    print(f"  {'% de acierto':<30} {res['con']['tasa_acierto']:>6}   {res['sin']['tasa_acierto']:>6}")
-    print(f"  {'% decisión (sin mirar razón)':<30} {res['con']['tasa_decision']:>6}   {res['sin']['tasa_decision']:>6}")
+        print(f"  {clave:<30} {res['con_capa'][clave]:>6}   {res['sin_capa'][clave]:>6}")
+    print(f"  {'% de acierto':<30} {res['con_capa']['tasa_acierto']:>6}   {res['sin_capa']['tasa_acierto']:>6}")
+    print(f"  {'% decisión (sin mirar razón)':<30} {res['con_capa']['tasa_decision']:>6}   {res['sin_capa']['tasa_decision']:>6}")
     print("\nTabla en evaluacion/medicion.md")
 
 
