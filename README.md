@@ -39,6 +39,18 @@ python scripts/comparar_capa.py
 
 Corre los tres ejemplos con y sin la capa y deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md), con las dos trazas en `logs/`. Las corridas sin capa se graban con `SEMANTIC_LAYER=off python scripts/grabar_corridas.py` (en Windows: `set SEMANTIC_LAYER=off` antes) y quedan como `samples/corridas/*-sincapa.json`.
 
+### Con números: el set de prueba
+
+Además de los tres casos de la demo, el agente se mide sobre todas las disputas de los datos sintéticos, cada una con su respuesta esperada según la definición del esquema canónico (vale la pena pelear, no vale la pena o causa operativa):
+
+```
+python scripts/armar_set_prueba.py           # evaluacion/set_prueba.csv y .md (con io-engine levantado)
+python scripts/medir_set.py --primeros 5      # prueba corta
+python scripts/medir_set.py                   # el set completo, con y sin la capa (se puede cortar y retomar)
+```
+
+La tabla con los dos resultados lado a lado queda en `evaluacion/medicion.md`: aciertos, defensas que no debían armarse, defensas perdidas y abstenciones con su razón. Las respuestas quedan en `evaluacion/resultados/` y las trazas en `evaluacion/logs/`.
+
 ## Después de investigar: la cola de aprobación
 
 El agente no termina en una explicación: con la conclusión aceptada, separa las disputas que vale la pena pelear de las que no, redacta la respuesta al banco de cada una que vale pelear y deja todo en una cola de aprobación. **No envía nada.**

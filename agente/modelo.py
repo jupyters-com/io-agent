@@ -9,6 +9,7 @@
 """
 
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -189,4 +190,5 @@ def crear(cfg, turnos=None):
                             reintentos=cfg.reintentos_modelo, espera_s=10.0, respaldo=cfg.modelo_respaldo,
                             # Sin la capa, otra app en Nightshift: lo que Nightshift recuerde de las corridas con la
                             # capa (esquema canónico, conclusiones) no se cuela en la comparación.
-                            app="io-agent" if getattr(cfg, "capa_semantica", True) else "io-agent-sin-capa")
+                            app=os.getenv("METERLESS_APP") or
+                                ("io-agent" if getattr(cfg, "capa_semantica", True) else "io-agent-sin-capa"))
