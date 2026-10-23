@@ -9,7 +9,10 @@ Antes:
     python scripts/grabar_corridas.py caso3        # uno solo
 
 Cada corrida queda en samples/corridas/<pregunta>.json (las respuestas del modelo y las filas de
-io-engine, tal cual). Después regenera ejemplos/*_salida.* en modo de muestra a partir de ellas.
+io-engine, tal cual); si H-MEM le reinyectó memoria, en <pregunta>-hmem.json. Después regenera
+ejemplos/*_salida.* en modo de muestra a partir de ellas.
+
+Para grabar SIN memoria (la variante de comparación): AGENTE_HMEM=false python scripts/grabar_corridas.py
 """
 
 import json
@@ -32,6 +35,8 @@ for caso in casos:
     print(f"\n=== {caso}: {pregunta}")
     r = correr(pregunta)
     print(f"    {r['estado']} · {r['metricas']['iteraciones']} vueltas · {r['metricas']['consultas']} consultas · "
+          f"{r['metricas']['devoluciones']} devoluciones · {r['metricas']['memorias_usadas']} memorias H-MEM · "
+          f"{r['metricas']['entidades_ancladas']} ancladas (World Model) · "
           f"{r['metricas']['ms'] / 1000:.0f} s · traza logs/{r['run_id']}.jsonl")
     for h in r["hipotesis"]:
         print(f"    {h['id']} {h['veredicto']:<11} {h['enunciado']}  [{', '.join(h['evidencia'])}]")

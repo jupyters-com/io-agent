@@ -18,7 +18,7 @@ Lo que devuelve `run.py` o `POST /run`, y lo que queda en `salidas/<run_id>.json
 | `recomendacion` | qué conviene hacer; `null` si se abstiene |
 | `abstencion` | `{razon}` cuando no concluye |
 | `aprobacion` | `{item_id, estado}` del ítem en la cola |
-| `metricas` | iteraciones, consultas, ms, tokens y costo en USD |
+| `metricas` | iteraciones, consultas, ms, tokens, costo en USD, `devoluciones` (veces que el Evaluador devolvió algo), `memorias_usadas` (las que H-MEM reinyectó) y `entidades_ancladas` (lo que la conclusión nombra y el World Model encontró en la evidencia de la corrida) |
 | `informe_md` | el informe legible (ver abajo) |
 
 **Reglas que el esquema solo no expresa:**
@@ -58,14 +58,14 @@ Una línea por consulta, con lo mismo que `evidencia[]` de la respuesta (`id`, `
 
 ## 4. La traza (`contrato/traza.schema.json`)
 
-`logs/<run_id>.jsonl`, un evento por línea. La escriben el orquestador, el investigador (Paso 10), el evaluador (Paso 10b) y la cola.
+`logs/<run_id>.jsonl`, un evento por línea. La escriben el orquestador, el investigador (Paso 10), el evaluador (Paso 10b), la cola, la memoria (H-MEM) y el mundo (World Model), estos dos del Paso 13.
 
 | Campo | Qué es |
 | --- | --- |
 | `paso` | orden del evento en la corrida (1, 2, 3…) |
-| `agente` | `orquestador`, `investigador`, `evaluador` o `cola` |
+| `agente` | `orquestador`, `investigador`, `evaluador`, `cola`, `memoria` o `mundo` |
 | `destino` | a quién le habla: `io-engine.consultar`, `modelo`, `cola_aprobacion`, `salida`… |
-| `accion` | qué hizo: `recibir_pregunta`, `pensar`, `proponer_hipotesis`, `consultar`, `revisar_veredicto`, `devolver`, `descartar`, `sostener`, `revisar_conclusion`, `tope_devoluciones`, `encolar`, `entregar`, `tope_iteraciones`, `alerta_gasto` |
+| `accion` | qué hizo: `recibir_pregunta`, `pensar`, `proponer_hipotesis`, `revisar_hipotesis`, `consultar`, `revisar_veredicto`, `devolver`, `descartar`, `sostener`, `revisar_conclusion`, `tope_devoluciones`, `recordar`, `aprender`, `abrir_corrida`, `ingerir`, `anclar`, `resolver`, `encolar`, `entregar`, `tope_iteraciones`, `alerta_gasto` |
 | `entrada` / `salida` | resumen de lo que entró y salió (máx. 300 caracteres) |
 | `estado` | `ok`, `error`, `alerta` u `omitido` |
 | `reintentos` | cuántas veces se reintentó; en `revisar_veredicto` y `revisar_conclusion`, cuántas veces el Evaluador ya había devuelto esa misma afirmación. Pasado `AGENTE_TOPE_DEVOLUCIONES` (2), el agente se abstiene (`tope_devoluciones`) |

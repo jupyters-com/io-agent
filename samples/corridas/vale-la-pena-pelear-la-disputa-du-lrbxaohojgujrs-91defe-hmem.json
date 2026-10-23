@@ -1,0 +1,100 @@
+{
+  "_synthetic": true,
+  "nombre": "vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe-hmem",
+  "pregunta": "¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?",
+  "origen": "corrida real 20261023T165435-d22521: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-23T16:57:51+00:00",
+  "estado": "concluida",
+  "con_memoria": true,
+  "memoria": "MEMORIA DE IO (H-MEM): lo aprendido en corridas anteriores.\n- Las lecciones del método son reglas que el Evaluador ya te hizo cumplir: síguelas desde el principio.\n- Los hallazgos son pistas, NO evidencia. Aunque creas saber la respuesta, haz el método completo en\n  ESTA corrida: 2 o más hipótesis (incluida la contraria), una consulta por hipótesis, veredictos,\n  contar las decisiones con razon_decision y recién entonces concluir.\n## metodo\n- [LT] Lección del Evaluador: Hay hipótesis sin veredicto: H#, H#, H#. Pruébalas o descártalas. <mem-5>\n- [WK] Lección del Evaluador: Hay hipótesis sin veredicto: H#, H#, H#, H#. Pruébalas o descártalas. <mem-17>\n- [WK] Lección del Evaluador: Para concluir hace falta al menos una hipótesis sostenida con evidencia. <mem-6>\n- [WK] Lección del Evaluador: Explicar por qué exige comparar: prueba al menos 2 hipótesis distintas (incluida la explicación contraria a tu conclusión) y dales veredicto antes de concluir. <mem-4>\n- [LT] Lección del Evaluador: La razón de H# la lee la dueña de la tienda: reescríbela sin términos técnicos (sospecha_fraude). Ejemplo: 'producto no recibido' en vez de product_not_received. <mem-2>\n## disputa/du_lrbxaohojgujrs\n- [WK] Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente ya había hecho un reclamo previo sobre este pedido.»: descartada. El cliente no había hecho un reclamo previo sobre este pedido. (entidades: du_lrbxaohojgujrs, pelear, disputa, reclamo) <mem-21>\n- [WK] Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque hay sospecha de fraude.»: sostenida. Hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear esta disputa. (entidades: du_lrbxaohojgujrs, pelear, disputa, fraude) <mem-20>\n- [WK] Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque no hay prueba de entrega o el envío no llegó.»: descartada. El pedido fue entregado y hay una foto como prueba de entrega, por lo que no aplica falta de prueba ni envío no entregado. (entidades: du_lrbxaohojgujrs, pelear, disputa, entrega) <mem-22>\n- [WK] Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.»: descartada. Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no vale la pena pelear. (entidades: du_lrbxaohojgujrs, pelear, disputa, reclamo, fraude) <mem-19>\n- [WK] Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?» IO concluyó: No, no vale la pena pelear esta disputa de 489 dólares. Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear. Recomendación: De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente. No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. (entidades: du_lrbxaohojgujrs, pelear, disputa, fraude, disputas) <mem-18>",
+  "turnos": [
+    {
+      "texto": "{\"acciones\":[{\"accion\":\"concluir\",\"conclusion\":\"No, no vale la pena pelear la disputa du_LRbXAOhoJgujrS de 489 dólares. El pedido llegó y hay una foto como comprobante de entrega, y el cliente no había hecho un reclamo previo sobre este pedido, pero se detectaron 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe disputar.\",\"recomendacion\":\"No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\":[{\"accion\":\"hipotesis\",\"hipotesis\":[{\"id\":\"H1\",\"enunciado\":\"Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo sobre este pedido.\"},{\"id\":\"H2\",\"enunciado\":\"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente está bajo sospecha de fraude.\"}]},{\"accion\":\"consultar\",\"hipotesis\":\"H1\",\"sql\":\"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"},{\"accion\":\"consultar\",\"hipotesis\":\"H2\",\"sql\":\"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"},{\"accion\":\"consultar\",\"hipotesis\":\"H1\",\"sql\":\"SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razon_decision;\"},{\"accion\":\"consultar\",\"hipotesis\":\"H2\",\"sql\":\"SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razon_decision;\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\":[{\"accion\":\"veredicto\",\"hipotesis\":\"H1\",\"veredicto\":\"descartada\",\"razon\":\"La evidencia E1 (1 fila) confirma que el pedido fue entregado y hay una foto como prueba de entrega, y que el cliente no había hecho un reclamo previo. Pero la misma fila registra 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que la decisión es no pelear. Con 4 señales de fraude (2 o más), no vale la pena pelear aunque haya entrega confirmada.\",\"evidencia\":[\"E1\"]},{\"accion\":\"veredicto\",\"hipotesis\":\"H2\",\"veredicto\":\"sostenida\",\"razon\":\"La evidencia E2 (1 fila) muestra que el cliente tiene 4 señales de fraude y está bajo sospecha de fraude. Con 4 señales de fraude (2 o más), no se debe pelear esta disputa.\",\"evidencia\":[\"E2\"]},{\"accion\":\"concluir\",\"conclusion\":\"No, no vale la pena pelear la disputa du_LRbXAOhoJgujrS de 489 dólares. El pedido llegó y hay una foto como prueba de entrega, y el cliente no había hecho un reclamo previo sobre este pedido. Sin embargo, se detectaron 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear.\",\"recomendacion\":\"No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. Del grupo total de 42 disputas, 20 se deben pelear porque tienen entrega confirmada y sin reclamo previo, 12 se deben resolver con el cliente porque hubo un reclamo previo, 3 no se pelean y se aceptan por sospecha de fraude marcando al cliente, 4 no se pelean y se reembolsan porque no se entregó, y 3 no se pelean por falta de prueba de entrega.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\":[{\"accion\":\"concluir\",\"conclusion\":\"No, no vale la pena pelear la disputa du_LRbXAOhoJgujrS de 489 dólares. El pedido llegó y hay una foto como prueba de entrega, y el cliente no había hecho un reclamo previo sobre este pedido. Sin embargo, se detectaron 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear.\",\"recomendacion\":\"No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    }
+  ],
+  "consultas": {
+    "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS'": {
+      "ok": true,
+      "columnas": [
+        "disputa_id",
+        "motivo",
+        "monto",
+        "estado_envio",
+        "prueba_entrega",
+        "entregado_en",
+        "reclamo_previo",
+        "senales_fraude",
+        "sospecha_fraude",
+        "vale_pelear",
+        "decision",
+        "razon_decision"
+      ],
+      "filas": [
+        {
+          "disputa_id": "du_LRbXAOhoJgujrS",
+          "motivo": "fraudulent",
+          "monto": 489.0,
+          "estado_envio": "entregado",
+          "prueba_entrega": "foto",
+          "entregado_en": "2026-09-13",
+          "reclamo_previo": false,
+          "senales_fraude": 4,
+          "sospecha_fraude": true,
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razon_decision": {
+      "ok": true,
+      "columnas": [
+        "razon_decision",
+        "cantidad"
+      ],
+      "filas": [
+        {
+          "razon_decision": "sin_prueba_de_entrega",
+          "cantidad": 3
+        },
+        {
+          "razon_decision": "sospecha_de_fraude",
+          "cantidad": 3
+        },
+        {
+          "razon_decision": "sin_entrega",
+          "cantidad": 4
+        },
+        {
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "cantidad": 20
+        },
+        {
+          "razon_decision": "reclamo_previo",
+          "cantidad": 12
+        }
+      ],
+      "n_filas": 5,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

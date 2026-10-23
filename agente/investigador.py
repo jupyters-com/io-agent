@@ -62,9 +62,10 @@ Método:
   sospecha_fraude ("2 de 18"), no con tasas por motivo.
 - Antes de concluir sobre un grupo de disputas, cuenta cuántas caen en cada razon_decision, para que la
   recomendación diga cuántas pelear, cuántas resolver con el cliente, cuántas reembolsar, etc.
-- La conclusión, la recomendación y las razones las lee la dueña de la tienda, que no conoce la base de
-  datos: escríbelas en español simple, con conteos ("14 de las 18 disputas") en vez de tasas decimales, y
-  SIN nombres de columnas ni expresiones como "zona_con_atrasos=true". La conclusión nombra la causa
+- Los enunciados de las hipótesis, las razones de los veredictos, la conclusión y la recomendación los lee
+  la dueña de la tienda, que no conoce la base de datos: escríbelos en español simple, con conteos ("14 de
+  las 18 disputas") en vez de tasas decimales, y SIN nombres de columnas, valores en inglés ("fraudulent",
+  "product_not_received") ni expresiones como "zona_con_atrasos=true". Solo el SQL usa esos nombres. La conclusión nombra la causa
   concreta (quién y dónde) en 1 a 3 frases.
 
 Recomendaciones de IO (úsalas en "recomendacion"):
@@ -115,6 +116,16 @@ def _refs_evidencia(valor) -> list[str]:
     return refs
 
 
+def _ids_exactos(pregunta: str) -> str:
+    """Los ids de disputa de la pregunta, para copiarlos tal cual: el modelo a veces cambia una mayúscula
+    (du_…jgujrS -> du_…jgujrs), no encuentra la disputa y gasta vueltas buscándola."""
+    ids = list(dict.fromkeys(re.findall(r"\bdu_[A-Za-z0-9]+\b", pregunta)))
+    if not ids:
+        return ""
+    return ("\nIds exactos (cópialos tal cual en el SQL, respetando mayúsculas y minúsculas; la columna es "
+            f"disputa_id): {', '.join(ids)}")
+
+
 def _filas_para_el_modelo(r: dict) -> str:
     filas = r.get("filas", [])[:MAX_FILAS_AL_MODELO]
     extra = f" (te muestro {len(filas)} de {r.get('n_filas')})" if r.get("n_filas", 0) > len(filas) else ""
@@ -122,20 +133,37 @@ def _filas_para_el_modelo(r: dict) -> str:
 
 
 class Investigador:
-    def __init__(self, cfg, fuente, llm, traza, consultar_fn, registrar_evidencia):
+    def __init__(self, cfg, fuente, llm, traza, consultar_fn, registrar_evidencia, mundo=None):
         self.cfg, self.fuente, self.llm, self.traza = cfg, fuente, llm, traza
+        self.mundo = mundo  # World Model: ancla lo que nombra la conclusión y resuelve ids mal escritos
         self.consultar_fn, self.registrar_evidencia = consultar_fn, registrar_evidencia
         self.hipotesis: dict[str, dict] = {}
         self.evidencia: dict[str, dict] = {}
         self.evidencia_por_hipotesis: dict[str, list[str]] = {}
-        self.devoluciones: dict[str, int] = {}  # cuántas veces el Evaluador devolvió cada afirmación
+        self.devoluciones: dict[str, int] = {}
+        self.motivos_devueltos: list[str] = []  # cada motivo del Evaluador (H-MEM los guarda como lecciones)
+        self.n_devoluciones = 0                 # cuántas veces devolvió algo el Evaluador en esta corrida  # cuántas veces el Evaluador devolvió cada afirmación
         self.iteraciones = 0
         self.fallo_modelo = False  # True si la corrida terminó porque el modelo no respondió
 
     # -- acciones -----------------------------------------------------------------------------
     def _hipotesis(self, a):
+        """Devuelve (respuesta_final, None) si la corrida termina, o (None, texto)."""
+        propuestas = [h for h in a.get("hipotesis", []) if isinstance(h, dict)]
+        problemas = evaluador.revisar_hipotesis(propuestas)
+        if problemas:
+            self.traza.evento("evaluador", "investigador", "revisar_hipotesis", estado="alerta",
+                              entrada=" | ".join(str(h.get("enunciado", "")) for h in propuestas),
+                              salida="devueltas: " + " ".join(problemas),
+                              reintentos=self.devoluciones.get("enunciado de las hipótesis", 0))
+            self.motivos_devueltos += problemas
+            self.n_devoluciones += 1
+            final = self._contar_devolucion("enunciado de las hipótesis", problemas)
+            if final:
+                return final, None
+            return None, "EVALUADOR: no registro esas hipótesis. " + " ".join(problemas) + " Vuelve a proponerlas."
         nuevas = []
-        for h in a.get("hipotesis", []):
+        for h in propuestas:
             hid = str(h.get("id") or f"H{len(self.hipotesis) + 1}").strip()
             if not re.fullmatch(r"H\d+", hid) or hid in self.hipotesis:
                 hid = f"H{len(self.hipotesis) + 1}"
@@ -143,9 +171,9 @@ class Investigador:
                                    "veredicto": "sin_decidir", "razon": "", "evidencia": []}
             nuevas.append(f"{hid}: {self.hipotesis[hid]['enunciado']}")
         if not nuevas:
-            return "ERROR: no propusiste ninguna hipótesis."
+            return None, "ERROR: no propusiste ninguna hipótesis."
         self.traza.evento("investigador", "agente", "proponer_hipotesis", salida=" | ".join(nuevas))
-        return f"Registradas: {', '.join(n.split(':')[0] for n in nuevas)}. Ahora pruébalas con consultas."
+        return None, f"Registradas: {', '.join(n.split(':')[0] for n in nuevas)}. Ahora pruébalas con consultas."
 
     def _consultar(self, a):
         sql, hid = str(a.get("sql", "")).strip(), str(a.get("hipotesis", "")).strip()
@@ -161,7 +189,8 @@ class Investigador:
         self.registrar_evidencia(e, hid)
         if not e["ok"]:
             return f"RESULTADO {eid}: la consulta falló: {e['error']}. Corrígela o prueba otra."
-        return f"RESULTADO {eid} (motor {e['motor']}, {e['n_filas']} filas): {_filas_para_el_modelo(r)}"
+        pista = self.mundo.sugerir_id(sql) if self.mundo and e["n_filas"] == 0 else ""
+        return f"RESULTADO {eid} (motor {e['motor']}, {e['n_filas']} filas): {_filas_para_el_modelo(r)}{pista}"
 
     def _veredicto(self, a):
         hid = str(a.get("hipotesis", "")).strip()
@@ -187,6 +216,8 @@ class Investigador:
                           salida="aceptado" if not problemas else "devuelto: " + " ".join(problemas),
                           estado="ok" if not problemas else "alerta", reintentos=self.devoluciones.get(clave, 0))
         if problemas:
+            self.motivos_devueltos += problemas
+            self.n_devoluciones += 1
             final = self._contar_devolucion(clave, problemas)
             if final:
                 return final, None
@@ -207,14 +238,14 @@ class Investigador:
             return None
         self.traza.evento("evaluador", "investigador", "tope_devoluciones", estado="alerta", reintentos=n - 1,
                           entrada=clave, salida=f"devuelta {n} {'vez' if n == 1 else 'veces'} sin corrección; el agente se abstiene")
-        return self._final("abstencion", razon=f"El Evaluador devolvió {n} {'vez' if n == 1 else 'veces'} el {clave} y el Investigador no "
-                                                f"lo corrigió. Último motivo: {' '.join(problemas)}")
+        return self._final("abstencion", razon=f"El Evaluador devolvió {n} {'vez' if n == 1 else 'veces'} {'la' if clave == 'conclusión' else 'el'} {clave} y el Investigador no "
+                                                f"{'la' if clave == 'conclusión' else 'lo'} corrigió. Último motivo: {' '.join(problemas)}")
 
     def _ejecutar(self, a):
         """Ejecuta una acción. Devuelve (respuesta_final, None) si la corrida termina, o (None, texto)."""
         accion = a.get("accion")
         if accion == "hipotesis":
-            return None, self._hipotesis(a)
+            return self._hipotesis(a)
         if accion == "consultar":
             return None, self._consultar(a)
         if accion == "veredicto":
@@ -224,6 +255,8 @@ class Investigador:
                                                      str(a.get("conclusion", "")), str(a.get("recomendacion", "")))
             if not str(a.get("conclusion", "")).strip():
                 problemas = ["Falta la conclusión.", *problemas]
+            if self.mundo:  # World Model: todo lo que nombra tiene que haber salido en esta corrida
+                problemas += self.mundo.anclar(f"{a.get('conclusion', '')} {a.get('recomendacion', '')}")
             self.traza.evento("evaluador", "investigador", "revisar_conclusion",
                               entrada=str(a.get("conclusion", ""))[:300],
                               salida="aceptada" if not problemas else "devuelta: " + " ".join(problemas),
@@ -232,6 +265,8 @@ class Investigador:
             if not problemas:
                 return self._final("concluida", conclusion=str(a["conclusion"]).strip(),
                                    recomendacion=str(a.get("recomendacion", "")).strip() or None), None
+            self.motivos_devueltos += problemas
+            self.n_devoluciones += 1
             final = self._contar_devolucion("conclusión", problemas)
             if final:
                 return final, None
@@ -241,12 +276,13 @@ class Investigador:
         return None, f"ERROR: acción desconocida {accion!r}."
 
     # -- ciclo -------------------------------------------------------------------------------
-    def investigar(self, pregunta: str) -> dict:
+    def investigar(self, pregunta: str, memoria: str = "") -> dict:
         # La marca de corrida evita que Nightshift responda desde su caché con lo de una corrida anterior
         # (pasaba aunque cambiara el prompt): cada investigación es nueva.
         invalidas_seguidas = 0
         mensajes = [{"role": "system", "content": SISTEMA},
-                    {"role": "user", "content": f"Pregunta: {pregunta}\n(corrida {self.traza.run_id})"}]
+                    {"role": "user", "content": f"Pregunta: {pregunta}\n(corrida {self.traza.run_id})"
+                                                + _ids_exactos(pregunta) + (f"\n\n{memoria}" if memoria else "")}]
         while self.iteraciones < self.cfg.max_iteraciones:
             self.iteraciones += 1
             with Cronometro() as t:

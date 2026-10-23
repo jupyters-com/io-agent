@@ -4,3 +4,7 @@ logs/
 salidas/
 __pycache__/
 .pytest_cache/
+# memoria real del agente (H-MEM); la de la demo va en samples/memoria/
+/memoria/
+# World Model real del agente; el de la demo va en samples/mundo/
+/mundo/

@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-AGENTES = ("orquestador", "investigador", "evaluador", "cola")
+AGENTES = ("orquestador", "investigador", "evaluador", "cola", "memoria", "mundo")
 ESTADOS = ("ok", "error", "alerta", "omitido")
 
 

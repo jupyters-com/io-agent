@@ -29,12 +29,14 @@ Cinco tablas en `canonico` (iguales en DuckDB y en Zetaris): `clientes`, `pagos`
 | Pieza | Paso | Estado |
 | --- | --- | --- |
 | Esqueleto, contrato, traza, cola, modo de muestra | 9 (JPTRS-55) | hecho |
-| Investigador que descarta hipótesis (`agente/investigador.py`) | 10 (JPTRS-67) | hecho; faltan las corridas grabadas de los 3 casos |
-| Evaluador que rechaza sin evidencia (`agente/evaluador.py`) | 10b (JPTRS-87) | versión mínima; falta endurecerlo |
+| Investigador que descarta hipótesis (`agente/investigador.py`) | 10 (JPTRS-67) | hecho, con las corridas grabadas de los 3 casos |
+| Evaluador que rechaza sin evidencia (`agente/evaluador.py`) | 10b (JPTRS-87) | hecho, con tope de devoluciones |
 | Cola de aprobación con decisión humana | 11 (JPTRS-60) | pendiente |
-| Meterless (World Model / H-MEM) dentro del agente | 13 (JPTRS-68) | pendiente |
+| Meterless H-MEM y World Model dentro del agente (`agente/memoria.py`, `agente/mundo.py`) | 13 (JPTRS-68) | hecho |
 
 ## Sponsors
 
 - **Meterless Nightshift** es el proveedor principal de IA del agente, con **NVIDIA Nemotron** como modelo.
+- **Meterless H-MEM** es la memoria del agente entre corridas: lecciones del Evaluador y hallazgos anteriores.
+- **Meterless World Model** es el registro canónico de lo que el agente vio en los datos: ancla cada nombre de la conclusión a la evidencia de la corrida y resuelve ids mal escritos.
 - **Zetaris** es uno de los dos motores de `consultar(sql)` en `io-engine`, con respaldo en DuckDB.

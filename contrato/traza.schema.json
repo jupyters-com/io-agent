@@ -9,7 +9,7 @@
     "ts": {"type": "string", "description": "ISO 8601 UTC"},
     "run_id": {"type": "string"},
     "paso": {"type": "integer", "minimum": 1, "description": "orden del evento dentro de la corrida"},
-    "agente": {"enum": ["orquestador", "investigador", "evaluador", "cola"]},
+    "agente": {"enum": ["orquestador", "investigador", "evaluador", "cola", "memoria", "mundo"]},
     "destino": {"type": "string", "description": "a quién le habla: io-engine.consultar, modelo, cola, salida…"},
     "accion": {"type": "string"},
     "entrada": {"type": "string", "maxLength": 300, "description": "resumen de lo que entró"},

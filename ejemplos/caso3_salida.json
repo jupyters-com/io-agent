@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "run_id": "20261023T143418-ebb3e0",
+  "run_id": "20261023T171916-f3f4ca",
   "pregunta": "¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?",
   "modo": "muestra",
   "estado": "concluida",
@@ -8,37 +8,36 @@
   "hipotesis": [
     {
       "id": "H1",
-      "enunciado": "El aumento de disputas en la segunda quincena de septiembre se debe principalmente a disputas por producto no recibido (product_not_received) vinculadas a entregas tardías o extraviadas.",
+      "enunciado": "El aumento de disputas en la segunda quincena de septiembre se debe principalmente a un aumento de disputas por producto no recibido asociadas a entregas tardías o paquetes extraviados.",
       "veredicto": "sostenida",
-      "razon": "En la segunda quincena las disputas product_not_received subieron de 1 a 8 (700% de aumento), y de esas 8, 7 tienen entrega_tarde o extraviado, y 7 están en zona con atrasos. Es el motivo que más creció en la quincena (pasó de 1 de 4 disputas a 8 de 18).",
+      "razon": "En la segunda quincena las disputas por producto no recibido subieron de 1 a 8 (un aumento de 700 por ciento), y de esas 8, 7 tienen entrega tardía o paquete extraviado. Es el motivo que más creció en la quincena.",
       "evidencia": [
-        "E1",
-        "E4"
+        "E1"
       ]
     },
     {
       "id": "H2",
-      "enunciado": "El aumento se debe principalmente a disputas por fraude (fraudulent) con señales como cliente nuevo, riesgo alto, país IP distinto o punto de retiro.",
+      "enunciado": "El aumento se debe principalmente a disputas por cargo no reconocido.",
       "veredicto": "descartada",
-      "razon": "Las disputas fraudulentas subieron de 3 a 6 (100% de aumento), un incremento menor que el de product_not_received (de 1 a 8). De las 6 disputas fraudulentas de la segunda quincena, solo 1 tiene sospecha_fraude y el total de señales de fraude es 4, por lo que el fraude no es la causa principal.",
+      "razon": "Las disputas por cargo no reconocido pasaron de 0 a 4 en la segunda quincena, muy por debajo de las disputas por producto no recibido (8) y por fraude (6). No explican el aumento principal.",
       "evidencia": [
         "E2"
       ]
     },
     {
       "id": "H3",
-      "enunciado": "El aumento se debe principalmente a disputas por cargo no reconocido (unrecognized).",
+      "enunciado": "El aumento se debe principalmente a disputas por fraude, con señales de sospecha de fraude.",
       "veredicto": "descartada",
-      "razon": "Las disputas unrecognized pasaron de 0 a 4 en la segunda quincena, muy por debajo de product_not_received (8) y fraudulent (6). No explican el aumento principal.",
+      "razon": "Las disputas por fraude subieron de 3 a 6 (un aumento de 100 por ciento), menor que las de producto no recibido (de 1 a 8). De las 6 disputas por fraude de la segunda quincena, solo 1 tiene sospecha de fraude, por lo que el fraude no es la causa principal.",
       "evidencia": [
         "E3"
       ]
     },
     {
       "id": "H4",
-      "enunciado": "El aumento está concentrado en transportistas y regiones con zona con atrasos, es decir, un problema operativo de entregas.",
+      "enunciado": "El aumento está concentrado en transportistas y regiones con problemas de entregas tardías, específicamente RapidEnvio en la region Norte.",
       "veredicto": "sostenida",
-      "razon": "En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa_operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa.",
+      "razon": "En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa.",
       "evidencia": [
         "E4"
       ]
@@ -47,23 +46,19 @@
   "evidencia": [
     {
       "id": "E1",
-      "sql": "WITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='product_not_received' THEN 1 ELSE 0 END) AS pnr_disputas, sum(CASE WHEN motivo='product_not_received' AND (entrega_tarde OR extraviado) THEN 1 ELSE 0 END) AS pnr_con_problema_entrega, sum(CASE WHEN motivo='product_not_received' AND zona_con_atrasos THEN 1 ELSE 0 END) AS pnr_zona_atrasos FROM d GROUP BY quincena ORDER BY quincena;",
+      "sql": "WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas, sum(CASE WHEN entrega_tarde OR extraviado THEN 1 ELSE 0 END) AS con_entrega_tarde_o_extraviado FROM disputas_sept WHERE motivo = 'product_not_received' GROUP BY quincena ORDER BY quincena;",
       "motor": "duckdb",
       "ok": true,
       "filas": [
         {
           "quincena": "primera_quincena",
-          "total_disputas": 4,
-          "pnr_disputas": 1,
-          "pnr_con_problema_entrega": 0,
-          "pnr_zona_atrasos": 0
+          "disputas": 1,
+          "con_entrega_tarde_o_extraviado": 0
         },
         {
           "quincena": "segunda_quincena",
-          "total_disputas": 18,
-          "pnr_disputas": 8,
-          "pnr_con_problema_entrega": 7,
-          "pnr_zona_atrasos": 7
+          "disputas": 8,
+          "con_entrega_tarde_o_extraviado": 7
         }
       ],
       "n_filas": 2,
@@ -71,43 +66,33 @@
     },
     {
       "id": "E2",
-      "sql": "WITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='fraudulent' THEN 1 ELSE 0 END) AS fraude_disputas, sum(CASE WHEN motivo='fraudulent' AND sospecha_fraude THEN 1 ELSE 0 END) AS fraude_con_sospecha, sum(CASE WHEN motivo='fraudulent' THEN senales_fraude ELSE 0 END) AS senales_fraude_total FROM d GROUP BY quincena ORDER BY quincena;",
+      "sql": "WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas FROM disputas_sept WHERE motivo = 'unrecognized' GROUP BY quincena ORDER BY quincena;",
       "motor": "duckdb",
       "ok": true,
       "filas": [
         {
-          "quincena": "primera_quincena",
-          "total_disputas": 4,
-          "fraude_disputas": 3,
-          "fraude_con_sospecha": 0,
-          "senales_fraude_total": 2
-        },
-        {
           "quincena": "segunda_quincena",
-          "total_disputas": 18,
-          "fraude_disputas": 6,
-          "fraude_con_sospecha": 1,
-          "senales_fraude_total": 4
+          "disputas": 4
         }
       ],
-      "n_filas": 2,
+      "n_filas": 1,
       "error": null
     },
     {
       "id": "E3",
-      "sql": "WITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='unrecognized' THEN 1 ELSE 0 END) AS unrecognized_disputas FROM d GROUP BY quincena ORDER BY quincena;",
+      "sql": "WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas, sum(CASE WHEN sospecha_fraude THEN 1 ELSE 0 END) AS con_sospecha_fraude FROM disputas_sept WHERE motivo = 'fraudulent' GROUP BY quincena ORDER BY quincena;",
       "motor": "duckdb",
       "ok": true,
       "filas": [
         {
           "quincena": "primera_quincena",
-          "total_disputas": 4,
-          "unrecognized_disputas": 0
+          "disputas": 3,
+          "con_sospecha_fraude": 0
         },
         {
           "quincena": "segunda_quincena",
-          "total_disputas": 18,
-          "unrecognized_disputas": 4
+          "disputas": 6,
+          "con_sospecha_fraude": 1
         }
       ],
       "n_filas": 2,
@@ -115,7 +100,7 @@
     },
     {
       "id": "E4",
-      "sql": "WITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, transportista, region, zona_con_atrasos, count(*) AS disputas, sum(CASE WHEN causa_operativa THEN 1 ELSE 0 END) AS con_causa_operativa FROM d GROUP BY quincena, transportista, region, zona_con_atrasos ORDER BY quincena, disputas DESC;",
+      "sql": "WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, transportista, region, zona_con_atrasos, count(*) AS disputas FROM disputas_sept GROUP BY quincena, transportista, region, zona_con_atrasos ORDER BY quincena, disputas DESC;",
       "motor": "duckdb",
       "ok": true,
       "filas": [
@@ -124,56 +109,49 @@
           "transportista": "PaqueteYa",
           "region": "Norte",
           "zona_con_atrasos": false,
-          "disputas": 2,
-          "con_causa_operativa": 0
+          "disputas": 2
         },
         {
           "quincena": "primera_quincena",
           "transportista": "CargoSur",
           "region": "Norte",
           "zona_con_atrasos": false,
-          "disputas": 1,
-          "con_causa_operativa": 0
+          "disputas": 1
         },
         {
           "quincena": "primera_quincena",
           "transportista": "CargoSur",
           "region": "Centro",
           "zona_con_atrasos": false,
-          "disputas": 1,
-          "con_causa_operativa": 0
+          "disputas": 1
         },
         {
           "quincena": "segunda_quincena",
           "transportista": "RapidEnvio",
           "region": "Norte",
           "zona_con_atrasos": true,
-          "disputas": 14,
-          "con_causa_operativa": 14
+          "disputas": 14
         },
         {
           "quincena": "segunda_quincena",
           "transportista": "RapidEnvio",
           "region": "Sur",
           "zona_con_atrasos": false,
-          "disputas": 2,
-          "con_causa_operativa": 0
-        },
-        {
-          "quincena": "segunda_quincena",
-          "transportista": "PaqueteYa",
-          "region": "Sur",
-          "zona_con_atrasos": false,
-          "disputas": 1,
-          "con_causa_operativa": 0
+          "disputas": 2
         },
         {
           "quincena": "segunda_quincena",
           "transportista": "CargoSur",
           "region": "Centro",
           "zona_con_atrasos": false,
-          "disputas": 1,
-          "con_causa_operativa": 0
+          "disputas": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "transportista": "PaqueteYa",
+          "region": "Sur",
+          "zona_con_atrasos": false,
+          "disputas": 1
         }
       ],
       "n_filas": 7,
@@ -181,7 +159,7 @@
     },
     {
       "id": "E5",
-      "sql": "WITH d AS ( SELECT * FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-16 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT razon_decision, count(*) AS disputas FROM d GROUP BY razon_decision ORDER BY disputas DESC;",
+      "sql": "SELECT razon_decision, count(*) AS disputas FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-16 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY razon_decision ORDER BY disputas DESC;",
       "motor": "duckdb",
       "ok": true,
       "filas": [
@@ -190,19 +168,19 @@
           "disputas": 8
         },
         {
-          "razon_decision": "sin_entrega",
-          "disputas": 4
-        },
-        {
           "razon_decision": "entrega_confirmada_sin_reclamo",
           "disputas": 4
         },
         {
-          "razon_decision": "sin_prueba_de_entrega",
-          "disputas": 1
+          "razon_decision": "sin_entrega",
+          "disputas": 4
         },
         {
           "razon_decision": "sospecha_de_fraude",
+          "disputas": 1
+        },
+        {
+          "razon_decision": "sin_prueba_de_entrega",
           "disputas": 1
         }
       ],
@@ -213,15 +191,18 @@
   "recomendacion": "De las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay que resolverlas con el cliente (contactarlo, disculparse, ofrecer un descuento o reembolso parcial y pedirle que retire la disputa). 4 son por sin entrega: no pelearlas y reembolsar. 4 tienen entrega confirmada y sin reclamo previo: pelear esas disputas con la prueba de entrega y el historial del cliente. 1 no tiene prueba de entrega: no pelear y reembolsar. 1 tiene sospecha de fraude: no pelear; aceptar la disputa y marcar al cliente. Además, reclamarle a RapidEnvio por la ruta al Norte y revisar esa ruta de entrega para evitar más problemas.",
   "abstencion": null,
   "aprobacion": {
-    "item_id": "AP-20261023T143418-ebb3e0",
+    "item_id": "AP-20261023T171916-f3f4ca",
     "estado": "aprobada"
   },
   "metricas": {
-    "iteraciones": 3,
+    "iteraciones": 5,
     "consultas": 5,
-    "ms": 8.8,
+    "ms": 45.2,
     "tokens": 0,
-    "costo_usd": 0.0
+    "costo_usd": 0.0,
+    "devoluciones": 0,
+    "memorias_usadas": 10,
+    "entidades_ancladas": 2
   },
-  "informe_md": "# Informe de IO · 20261023T143418-ebb3e0\n\n## La pregunta\n\n> ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?\n\n## Lo que encontramos\n\nLas disputas subieron de 4 a 18 entre la primera y segunda quincena de septiembre porque el transportista RapidEnvio en la región Norte tuvo muchos problemas de entrega (retrasos y paquetes extraviados). De las 18 disputas de la segunda quincena, 14 son de RapidEnvio en Norte y todas tienen causa operativa. El motivo que más creció fue producto no recibido, que pasó de 1 disputa a 8, y 7 de esas 8 tuvieron entrega tardía o paquete extraviado. No fue principalmente fraude ni cargos no reconocidos.\n\n- **El aumento de disputas en la segunda quincena de septiembre se debe principalmente a disputas por producto no recibido (product_not_received) vinculadas a entregas tardías o extraviadas.** — En la segunda quincena las disputas product_not_received subieron de 1 a 8 (700% de aumento), y de esas 8, 7 tienen entrega_tarde o extraviado, y 7 están en zona con atrasos. Es el motivo que más creció en la quincena (pasó de 1 de 4 disputas a 8 de 18). (evidencia: E1, E4)\n\n- **El aumento está concentrado en transportistas y regiones con zona con atrasos, es decir, un problema operativo de entregas.** — En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa_operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa. (evidencia: E4)\n\n## Hipótesis descartadas\n\n- ~~El aumento se debe principalmente a disputas por fraude (fraudulent) con señales como cliente nuevo, riesgo alto, país IP distinto o punto de retiro.~~ — Las disputas fraudulentas subieron de 3 a 6 (100% de aumento), un incremento menor que el de product_not_received (de 1 a 8). De las 6 disputas fraudulentas de la segunda quincena, solo 1 tiene sospecha_fraude y el total de señales de fraude es 4, por lo que el fraude no es la causa principal. (evidencia: E2)\n- ~~El aumento se debe principalmente a disputas por cargo no reconocido (unrecognized).~~ — Las disputas unrecognized pasaron de 0 a 4 en la segunda quincena, muy por debajo de product_not_received (8) y fraudulent (6). No explican el aumento principal. (evidencia: E3)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nWITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='product_not_received' THEN 1 ELSE 0 END) AS pnr_disputas, sum(CASE WHEN motivo='product_not_received' AND (entrega_tarde OR extraviado) THEN 1 ELSE 0 END) AS pnr_con_problema_entrega, sum(CASE WHEN motivo='product_not_received' AND zona_con_atrasos THEN 1 ELSE 0 END) AS pnr_zona_atrasos FROM d GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | total_disputas | pnr_disputas | pnr_con_problema_entrega | pnr_zona_atrasos |\n| --- | --- | --- | --- | --- |\n| primera_quincena | 4 | 1 | 0 | 0 |\n| segunda_quincena | 18 | 8 | 7 | 7 |\n\n**E2** · motor: duckdb\n\n```sql\nWITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='fraudulent' THEN 1 ELSE 0 END) AS fraude_disputas, sum(CASE WHEN motivo='fraudulent' AND sospecha_fraude THEN 1 ELSE 0 END) AS fraude_con_sospecha, sum(CASE WHEN motivo='fraudulent' THEN senales_fraude ELSE 0 END) AS senales_fraude_total FROM d GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | total_disputas | fraude_disputas | fraude_con_sospecha | senales_fraude_total |\n| --- | --- | --- | --- | --- |\n| primera_quincena | 4 | 3 | 0 | 2 |\n| segunda_quincena | 18 | 6 | 1 | 4 |\n\n**E3** · motor: duckdb\n\n```sql\nWITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, count(*) AS total_disputas, sum(CASE WHEN motivo='unrecognized' THEN 1 ELSE 0 END) AS unrecognized_disputas FROM d GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | total_disputas | unrecognized_disputas |\n| --- | --- | --- |\n| primera_quincena | 4 | 0 |\n| segunda_quincena | 18 | 4 |\n\n**E4** · motor: duckdb\n\n```sql\nWITH d AS ( SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, transportista, region, zona_con_atrasos, count(*) AS disputas, sum(CASE WHEN causa_operativa THEN 1 ELSE 0 END) AS con_causa_operativa FROM d GROUP BY quincena, transportista, region, zona_con_atrasos ORDER BY quincena, disputas DESC;\n```\n\n| quincena | transportista | region | zona_con_atrasos | disputas | con_causa_operativa |\n| --- | --- | --- | --- | --- | --- |\n| primera_quincena | PaqueteYa | Norte | False | 2 | 0 |\n| primera_quincena | CargoSur | Norte | False | 1 | 0 |\n| primera_quincena | CargoSur | Centro | False | 1 | 0 |\n| segunda_quincena | RapidEnvio | Norte | True | 14 | 14 |\n| segunda_quincena | RapidEnvio | Sur | False | 2 | 0 |\n| segunda_quincena | PaqueteYa | Sur | False | 1 | 0 |\n| segunda_quincena | CargoSur | Centro | False | 1 | 0 |\n\n**E5** · motor: duckdb\n\n```sql\nWITH d AS ( SELECT * FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-16 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT razon_decision, count(*) AS disputas FROM d GROUP BY razon_decision ORDER BY disputas DESC;\n```\n\n| razon_decision | disputas |\n| --- | --- |\n| reclamo_previo | 8 |\n| sin_entrega | 4 |\n| entrega_confirmada_sin_reclamo | 4 |\n| sin_prueba_de_entrega | 1 |\n| sospecha_de_fraude | 1 |\n\n\n## Qué conviene hacer\n\nDe las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay que resolverlas con el cliente (contactarlo, disculparse, ofrecer un descuento o reembolso parcial y pedirle que retire la disputa). 4 son por sin entrega: no pelearlas y reembolsar. 4 tienen entrega confirmada y sin reclamo previo: pelear esas disputas con la prueba de entrega y el historial del cliente. 1 no tiene prueba de entrega: no pelear y reembolsar. 1 tiene sospecha de fraude: no pelear; aceptar la disputa y marcar al cliente. Además, reclamarle a RapidEnvio por la ruta al Norte y revisar esa ruta de entrega para evitar más problemas.\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 5 · 9 ms\n"
+  "informe_md": "# Informe de IO · 20261023T171916-f3f4ca\n\n## La pregunta\n\n> ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?\n\n## Lo que encontramos\n\nLas disputas subieron de 4 a 18 entre la primera y segunda quincena de septiembre porque el transportista RapidEnvio en la región Norte tuvo muchos problemas de entrega (retrasos y paquetes extraviados). De las 18 disputas de la segunda quincena, 14 son de RapidEnvio en Norte y todas tienen causa operativa. El motivo que más creció fue producto no recibido, que pasó de 1 disputa a 8, y 7 de esas 8 tuvieron entrega tardía o paquete extraviado. No fue principalmente fraude ni cargos no reconocidos.\n\n- **El aumento de disputas en la segunda quincena de septiembre se debe principalmente a un aumento de disputas por producto no recibido asociadas a entregas tardías o paquetes extraviados.** — En la segunda quincena las disputas por producto no recibido subieron de 1 a 8 (un aumento de 700 por ciento), y de esas 8, 7 tienen entrega tardía o paquete extraviado. Es el motivo que más creció en la quincena. (evidencia: E1)\n\n- **El aumento está concentrado en transportistas y regiones con problemas de entregas tardías, específicamente RapidEnvio en la region Norte.** — En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa. (evidencia: E4)\n\n## Hipótesis descartadas\n\n- ~~El aumento se debe principalmente a disputas por cargo no reconocido.~~ — Las disputas por cargo no reconocido pasaron de 0 a 4 en la segunda quincena, muy por debajo de las disputas por producto no recibido (8) y por fraude (6). No explican el aumento principal. (evidencia: E2)\n- ~~El aumento se debe principalmente a disputas por fraude, con señales de sospecha de fraude.~~ — Las disputas por fraude subieron de 3 a 6 (un aumento de 100 por ciento), menor que las de producto no recibido (de 1 a 8). De las 6 disputas por fraude de la segunda quincena, solo 1 tiene sospecha de fraude, por lo que el fraude no es la causa principal. (evidencia: E3)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nWITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas, sum(CASE WHEN entrega_tarde OR extraviado THEN 1 ELSE 0 END) AS con_entrega_tarde_o_extraviado FROM disputas_sept WHERE motivo = 'product_not_received' GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | disputas | con_entrega_tarde_o_extraviado |\n| --- | --- | --- |\n| primera_quincena | 1 | 0 |\n| segunda_quincena | 8 | 7 |\n\n**E2** · motor: duckdb\n\n```sql\nWITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas FROM disputas_sept WHERE motivo = 'unrecognized' GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | disputas |\n| --- | --- |\n| segunda_quincena | 4 |\n\n**E3** · motor: duckdb\n\n```sql\nWITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, count(*) AS disputas, sum(CASE WHEN sospecha_fraude THEN 1 ELSE 0 END) AS con_sospecha_fraude FROM disputas_sept WHERE motivo = 'fraudulent' GROUP BY quincena ORDER BY quincena;\n```\n\n| quincena | disputas | con_sospecha_fraude |\n| --- | --- | --- |\n| primera_quincena | 3 | 0 |\n| segunda_quincena | 6 | 1 |\n\n**E4** · motor: duckdb\n\n```sql\nWITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, transportista, region, zona_con_atrasos, count(*) AS disputas FROM disputas_sept GROUP BY quincena, transportista, region, zona_con_atrasos ORDER BY quincena, disputas DESC;\n```\n\n| quincena | transportista | region | zona_con_atrasos | disputas |\n| --- | --- | --- | --- | --- |\n| primera_quincena | PaqueteYa | Norte | False | 2 |\n| primera_quincena | CargoSur | Norte | False | 1 |\n| primera_quincena | CargoSur | Centro | False | 1 |\n| segunda_quincena | RapidEnvio | Norte | True | 14 |\n| segunda_quincena | RapidEnvio | Sur | False | 2 |\n| segunda_quincena | CargoSur | Centro | False | 1 |\n| segunda_quincena | PaqueteYa | Sur | False | 1 |\n\n**E5** · motor: duckdb\n\n```sql\nSELECT razon_decision, count(*) AS disputas FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-16 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY razon_decision ORDER BY disputas DESC;\n```\n\n| razon_decision | disputas |\n| --- | --- |\n| reclamo_previo | 8 |\n| entrega_confirmada_sin_reclamo | 4 |\n| sin_entrega | 4 |\n| sospecha_de_fraude | 1 |\n| sin_prueba_de_entrega | 1 |\n\n\n## Qué conviene hacer\n\nDe las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay que resolverlas con el cliente (contactarlo, disculparse, ofrecer un descuento o reembolso parcial y pedirle que retire la disputa). 4 son por sin entrega: no pelearlas y reembolsar. 4 tienen entrega confirmada y sin reclamo previo: pelear esas disputas con la prueba de entrega y el historial del cliente. 1 no tiene prueba de entrega: no pelear y reembolsar. 1 tiene sospecha de fraude: no pelear; aceptar la disputa y marcar al cliente. Además, reclamarle a RapidEnvio por la ruta al Norte y revisar esa ruta de entrega para evitar más problemas.\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 5 · 45 ms\n"
 }
