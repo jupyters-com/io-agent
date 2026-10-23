@@ -128,6 +128,7 @@ class Investigador:
         self.hipotesis: dict[str, dict] = {}
         self.evidencia: dict[str, dict] = {}
         self.evidencia_por_hipotesis: dict[str, list[str]] = {}
+        self.devoluciones: dict[str, int] = {}  # cuántas veces el Evaluador devolvió cada afirmación
         self.iteraciones = 0
         self.fallo_modelo = False  # True si la corrida terminó porque el modelo no respondió
 
@@ -165,7 +166,7 @@ class Investigador:
     def _veredicto(self, a):
         hid = str(a.get("hipotesis", "")).strip()
         if hid not in self.hipotesis:
-            return f"ERROR: la hipótesis {hid!r} no existe. Existen: {', '.join(self.hipotesis) or 'ninguna'}."
+            return None, f"ERROR: la hipótesis {hid!r} no existe. Existen: {', '.join(self.hipotesis) or 'ninguna'}."
         razon = str(a.get("razon", "")).strip()
         citada = next((a[k] for k in ("evidencia", "evidencias", "evidence", "refs") if a.get(k)), [])
         refs, origen = _refs_evidencia(citada), "citada"
@@ -177,23 +178,37 @@ class Investigador:
         v = {"hipotesis": hid, "veredicto": _normalizar_veredicto(a.get("veredicto")),
              "razon": razon, "evidencia": refs}
         if v["veredicto"] not in ("sostenida", "descartada"):
-            return f'ERROR: "veredicto" debe ser "sostenida" o "descartada" (recibí {a.get("veredicto")!r}).'
+            return None, f'ERROR: "veredicto" debe ser "sostenida" o "descartada" (recibí {a.get("veredicto")!r}).'
         problemas = evaluador.revisar_veredicto(v, self.evidencia)
+        clave = f"veredicto de {hid}"
         self.traza.evento("evaluador", "investigador", "revisar_veredicto",
                           entrada=f"{hid} {v['veredicto']} con {', '.join(v['evidencia']) or 'sin evidencia'}"
                                   + (f" ({origen})" if v["evidencia"] else ""),
                           salida="aceptado" if not problemas else "devuelto: " + " ".join(problemas),
-                          estado="ok" if not problemas else "alerta")
+                          estado="ok" if not problemas else "alerta", reintentos=self.devoluciones.get(clave, 0))
         if problemas:
-            return ("EVALUADOR: no acepto ese veredicto. " + " ".join(problemas) +
-                    f' Formato: {{"accion": "veredicto", "hipotesis": "{hid}", "veredicto": "descartada", '
-                    '"razon": "...", "evidencia": ["E1"]}')
+            final = self._contar_devolucion(clave, problemas)
+            if final:
+                return final, None
+            return None, ("EVALUADOR: no acepto ese veredicto. " + " ".join(problemas) +
+                          f' Formato: {{"accion": "veredicto", "hipotesis": "{hid}", "veredicto": "descartada", '
+                          '"razon": "...", "evidencia": ["E1"]}')
         h = self.hipotesis[hid]
         h.update(veredicto=v["veredicto"], razon=v["razon"], evidencia=v["evidencia"])
         accion = "descartar" if v["veredicto"] == "descartada" else "sostener"
         self.traza.evento("investigador", "agente", accion, entrada=f"{hid}: {h['enunciado']}",
                           salida=f"evidencia {', '.join(v['evidencia'])} · {v['razon']}")
-        return f"Veredicto de {hid} aceptado."
+        return None, f"Veredicto de {hid} aceptado."
+
+    def _contar_devolucion(self, clave: str, problemas: list[str]):
+        """Suma una devolución a la afirmación. Pasado el tope (AGENTE_TOPE_DEVOLUCIONES), el agente se abstiene."""
+        n = self.devoluciones[clave] = self.devoluciones.get(clave, 0) + 1
+        if n <= self.cfg.tope_devoluciones:
+            return None
+        self.traza.evento("evaluador", "investigador", "tope_devoluciones", estado="alerta", reintentos=n - 1,
+                          entrada=clave, salida=f"devuelta {n} {'vez' if n == 1 else 'veces'} sin corrección; el agente se abstiene")
+        return self._final("abstencion", razon=f"El Evaluador devolvió {n} {'vez' if n == 1 else 'veces'} el {clave} y el Investigador no "
+                                                f"lo corrigió. Último motivo: {' '.join(problemas)}")
 
     def _ejecutar(self, a):
         """Ejecuta una acción. Devuelve (respuesta_final, None) si la corrida termina, o (None, texto)."""
@@ -203,18 +218,24 @@ class Investigador:
         if accion == "consultar":
             return None, self._consultar(a)
         if accion == "veredicto":
-            return None, self._veredicto(a)
+            return self._veredicto(a)
         if accion == "concluir":
             problemas = evaluador.revisar_conclusion(self.hipotesis, self.evidencia,
                                                      str(a.get("conclusion", "")), str(a.get("recomendacion", "")))
+            if not str(a.get("conclusion", "")).strip():
+                problemas = ["Falta la conclusión.", *problemas]
             self.traza.evento("evaluador", "investigador", "revisar_conclusion",
                               entrada=str(a.get("conclusion", ""))[:300],
                               salida="aceptada" if not problemas else "devuelta: " + " ".join(problemas),
-                              estado="ok" if not problemas else "alerta")
-            if not problemas and str(a.get("conclusion", "")).strip():
+                              estado="ok" if not problemas else "alerta",
+                              reintentos=self.devoluciones.get("conclusión", 0))
+            if not problemas:
                 return self._final("concluida", conclusion=str(a["conclusion"]).strip(),
                                    recomendacion=str(a.get("recomendacion", "")).strip() or None), None
-            return None, "EVALUADOR: todavía no puedes concluir. " + (" ".join(problemas) or "Falta la conclusión.")
+            final = self._contar_devolucion("conclusión", problemas)
+            if final:
+                return final, None
+            return None, "EVALUADOR: todavía no puedes concluir. " + " ".join(problemas)
         if accion == "abstenerse":
             return self._final("abstencion", razon=str(a.get("razon", "")).strip() or "Sin evidencia suficiente."), None
         return None, f"ERROR: acción desconocida {accion!r}."

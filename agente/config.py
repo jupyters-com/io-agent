@@ -43,6 +43,7 @@ class Config:
     stream: bool              # pide la respuesta por partes (evita cortes por tiempo en respuestas largas)
     reintentos_modelo: int    # reintentos por llamada al modelo si Nightshift corta o falla
     modelo_respaldo: str      # se intenta una vez si el modelo principal falla tras sus reintentos
+    tope_devoluciones: int    # devoluciones del Evaluador por afirmación antes de abstenerse
 
     @property
     def modo(self) -> str:
@@ -68,4 +69,5 @@ def cargar() -> Config:
         stream=_si(os.getenv("METERLESS_STREAM", "false")),
         reintentos_modelo=int(os.getenv("AGENTE_REINTENTOS_MODELO", "2")),
         modelo_respaldo=os.getenv("METERLESS_MODELO_RESPALDO", ""),
+        tope_devoluciones=int(os.getenv("AGENTE_TOPE_DEVOLUCIONES", "2")),
     )
