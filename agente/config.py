@@ -42,6 +42,7 @@ class Config:
     sin_pensar: bool          # antepone /no_think al prompt de sistema (modelos Nemotron con razonamiento)
     stream: bool              # pide la respuesta por partes (evita cortes por tiempo en respuestas largas)
     reintentos_modelo: int    # reintentos por llamada al modelo si Nightshift corta o falla
+    modelo_respaldo: str      # se intenta una vez si el modelo principal falla tras sus reintentos
 
     @property
     def modo(self) -> str:
@@ -66,4 +67,5 @@ def cargar() -> Config:
         sin_pensar=_si(os.getenv("AGENTE_SIN_PENSAR", "false")),
         stream=_si(os.getenv("METERLESS_STREAM", "false")),
         reintentos_modelo=int(os.getenv("AGENTE_REINTENTOS_MODELO", "2")),
+        modelo_respaldo=os.getenv("METERLESS_MODELO_RESPALDO", ""),
     )

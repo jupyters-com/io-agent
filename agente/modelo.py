@@ -56,8 +56,9 @@ class ModeloNightshift:
 
     def __init__(self, url: str, token: str, modelo: str, timeout_s: float, reintentos: int = 2,
                  espera_s: float = 5.0, extra: dict | None = None, sin_pensar: bool = False,
-                 stream: bool = False):
+                 stream: bool = False, respaldo: str = ""):
         self.url, self.token, self.modelo, self.timeout_s = url, token, modelo, timeout_s
+        self.respaldo, self.respaldos_usados = respaldo, 0
         self.extra, self.sin_pensar, self.stream = dict(extra or {}), sin_pensar, stream
         self.reintentos, self.espera_s = reintentos, espera_s
         self.tokens, self.costo_usd = 0, 0.0
@@ -74,28 +75,41 @@ class ModeloNightshift:
                 return json.loads(r.read().decode("utf-8"))
             return _juntar_stream(r)
 
-    def cuerpo(self, mensajes: list[dict]) -> dict:
+    def cuerpo(self, mensajes: list[dict], modelo: str | None = None) -> dict:
         if self.sin_pensar:
             if mensajes and mensajes[0]["role"] == "system":
                 mensajes = [{"role": "system", "content": "/no_think\n" + mensajes[0]["content"]}, *mensajes[1:]]
             else:
                 mensajes = [{"role": "system", "content": "/no_think"}, *mensajes]
-        cuerpo = {"model": self.modelo, "messages": mensajes, **self.extra}
+        cuerpo = {"model": modelo or self.modelo, "messages": mensajes, **self.extra}
         if self.stream:
             cuerpo.update(stream=True, stream_options={"include_usage": True})
         return cuerpo
 
     def completar(self, mensajes: list[dict]) -> dict:
+        """Pide al modelo principal; si falla tras sus reintentos y hay modelo de respaldo, lo intenta una vez."""
         if not self.token:
             raise PermissionError("Falta METERLESS_RUNTIME_TOKEN en .env.local")
+        try:
+            return self._completar_con(mensajes, self.modelo, self.reintentos)
+        except RuntimeError as e:
+            if not self.respaldo or self.respaldo == self.modelo:
+                raise
+            self.respaldos_usados += 1
+            try:
+                return self._completar_con(mensajes, self.respaldo, 1)
+            except RuntimeError as e2:
+                raise RuntimeError(f"{e} · y el respaldo {self.respaldo} también falló: {e2}") from e2
+
+    def _completar_con(self, mensajes: list[dict], modelo: str, reintentos: int) -> dict:
         intento = 0
         while True:
             try:
-                r = self._post(self.cuerpo(mensajes))
+                r = self._post(self.cuerpo(mensajes, modelo))
                 break
             except urllib.error.HTTPError as e:
                 detalle = e.read().decode("utf-8", "replace")[:300] if e.fp else ""
-                if e.code in REINTENTAR and intento < self.reintentos:
+                if e.code in REINTENTAR and intento < reintentos:
                     intento += 1
                     self.reintentos_usados += 1
                     time.sleep(self.espera_s * intento)
@@ -103,7 +117,7 @@ class ModeloNightshift:
                 raise RuntimeError(f"Nightshift respondió HTTP {e.code} {e.reason}"
                                    + (f": {detalle}" if detalle else "")) from e
             except StreamCortado as e:
-                if intento < self.reintentos:
+                if intento < reintentos:
                     intento += 1
                     self.reintentos_usados += 1
                     time.sleep(self.espera_s * intento)
@@ -111,7 +125,7 @@ class ModeloNightshift:
                 raise RuntimeError(f"{e} (tras {intento} reintento(s))") from e
             except (TimeoutError, urllib.error.URLError) as e:
                 es_tiempo = isinstance(e, TimeoutError) or "timed out" in str(e)
-                if es_tiempo and intento < self.reintentos:
+                if es_tiempo and intento < reintentos:
                     intento += 1
                     self.reintentos_usados += 1
                     time.sleep(self.espera_s * intento)
@@ -125,7 +139,7 @@ class ModeloNightshift:
         costo = float(uso.get("cost", uso.get("cost_usd", 0.0)) or 0.0)
         self.tokens += tokens
         self.costo_usd += costo
-        return {"texto": r["choices"][0]["message"]["content"] or "", "modelo": r.get("model", self.modelo),
+        return {"texto": r["choices"][0]["message"]["content"] or "", "modelo": r.get("model", modelo),
                 "tokens": tokens, "costo_usd": costo}
 
 
@@ -171,4 +185,4 @@ def crear(cfg, turnos=None):
         return ModeloGrabado(turnos or [])
     return ModeloNightshift(cfg.meterless_url, cfg.meterless_token, cfg.meterless_modelo, cfg.timeout_s,
                             extra=cfg.meterless_extra, sin_pensar=cfg.sin_pensar, stream=cfg.stream,
-                            reintentos=cfg.reintentos_modelo, espera_s=10.0)
+                            reintentos=cfg.reintentos_modelo, espera_s=10.0, respaldo=cfg.modelo_respaldo)

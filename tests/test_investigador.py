@@ -392,3 +392,21 @@ def test_al_repetir_una_grabacion_se_saltan_las_respuestas_vacias():
     from agente.modelo import ModeloGrabado
     m = ModeloGrabado([{"texto": "{\"accion\": \"hipotesis\"}"}, {"texto": ""}, {"texto": "  "}, {"texto": "{\"accion\": \"abstenerse\"}"}])
     assert [m.completar([])["texto"] for _ in range(2)] == ['{"accion": "hipotesis"}', '{"accion": "abstenerse"}']
+
+
+def test_si_el_modelo_principal_falla_se_intenta_una_vez_el_de_respaldo():
+    from agente.modelo import ModeloNightshift, StreamCortado
+    m = ModeloNightshift("http://x/v1", "t", "nvidia/nemotron-3-super", 5, reintentos=1, espera_s=0,
+                         respaldo="nvidia/nemotron-lightning")
+    pedidos = []
+
+    def post(cuerpo):
+        pedidos.append(cuerpo["model"])
+        if cuerpo["model"] == "nvidia/nemotron-3-super":
+            raise StreamCortado("Nightshift cortó la respuesta: provider_deadline")
+        return {"model": cuerpo["model"], "choices": [{"message": {"content": "{}"}}], "usage": {}}
+
+    m._post = post
+    r = m.completar([{"role": "user", "content": "hola"}])
+    assert r["modelo"] == "nvidia/nemotron-lightning" and m.respaldos_usados == 1
+    assert pedidos == ["nvidia/nemotron-3-super", "nvidia/nemotron-3-super", "nvidia/nemotron-lightning"]

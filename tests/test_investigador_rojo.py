@@ -31,7 +31,6 @@ def _miro_la_disputa(r, disputa):
     return any(disputa in e["sql"] for e in r["evidencia"] if e["ok"])
 
 
-@ROJO
 def test_caso1_cliente_fiel_con_entrega_firmada_se_pelea(entorno):
     r = orq.correr(pregunta("caso1"))
     assert r["estado"] == "concluida" and _miro_la_disputa(r, "du_cuKtmopzODI37h")
