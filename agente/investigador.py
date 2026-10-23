@@ -19,17 +19,18 @@ import json
 import re
 
 from agente import evaluador
-from agente.esquema import ESQUEMA
+from agente.esquema import ESQUEMA, ESQUEMA_CRUDO
 from agente.modelo import SinMasRespuestas
 from agente.traza import Cronometro
 
 MAX_FILAS_AL_MODELO = 30
 
-SISTEMA = f"""Eres el Investigador de IO, un agente que explica por qué pasan las cosas en los datos de una
+def _sistema(esquema: str, metodo_io: str, recomendaciones: str) -> str:
+    return f"""Eres el Investigador de IO, un agente que explica por qué pasan las cosas en los datos de una
 tienda online. Investigas disputas de pago (contracargos). Respondes en español.
 
 Solo ves datos con la herramienta consultar(sql), sobre este esquema:
-{ESQUEMA}
+{esquema}
 
 Responde SIEMPRE con UN solo objeto JSON y nada más (sin texto alrededor). Acciones posibles:
 
@@ -56,18 +57,22 @@ Método:
   (por ejemplo, "es fraude"), aunque sospeches que es falsa: hay que probarla o descartarla con datos.
 - Prueba cada hipótesis con al menos una consulta antes de darle veredicto.
 - Nunca afirmes algo que no esté en las filas de una evidencia. Mejor abstenerse que inventar.
-- Si la pregunta es por un aumento: compáralo con el período anterior y averigua DÓNDE se concentra
+{metodo_io}- Los enunciados de las hipótesis, las razones de los veredictos, la conclusión y la recomendación los lee
+  la dueña de la tienda, que no conoce la base de datos: escríbelos en español simple, con conteos ("14 de
+  las 18 disputas") en vez de tasas decimales, y SIN nombres de columnas, valores en inglés ("fraudulent",
+  "product_not_received") ni expresiones como "zona_con_atrasos=true". Solo el SQL usa esos nombres. La conclusión nombra la causa
+  concreta (quién y dónde) en 1 a 3 frases.
+{recomendaciones}"""
+
+
+METODO_IO = """- Si la pregunta es por un aumento: compáralo con el período anterior y averigua DÓNDE se concentra
   (transportista y región, motivo, clientes). Una hipótesis sobre el grupo se mide sobre TODO el grupo del
   aumento con conteos: por ejemplo, la de fraude se prueba contando cuántas de esas disputas tienen
   sospecha_fraude ("2 de 18"), no con tasas por motivo.
 - Antes de concluir sobre un grupo de disputas, cuenta cuántas caen en cada razon_decision, para que la
   recomendación diga cuántas pelear, cuántas resolver con el cliente, cuántas reembolsar, etc.
-- Los enunciados de las hipótesis, las razones de los veredictos, la conclusión y la recomendación los lee
-  la dueña de la tienda, que no conoce la base de datos: escríbelos en español simple, con conteos ("14 de
-  las 18 disputas") en vez de tasas decimales, y SIN nombres de columnas, valores en inglés ("fraudulent",
-  "product_not_received") ni expresiones como "zona_con_atrasos=true". Solo el SQL usa esos nombres. La conclusión nombra la causa
-  concreta (quién y dónde) en 1 a 3 frases.
-
+"""
+RECOMENDACIONES_IO = """
 Recomendaciones de IO (úsalas en "recomendacion"):
 - vale_pelear: pelear la disputa con la prueba de entrega y el historial del cliente.
 - no se pelea por reclamo_previo: resolver con el cliente (contactarlo, disculparse, ofrecer un descuento
@@ -76,6 +81,15 @@ Recomendaciones de IO (úsalas en "recomendacion"):
 - sospecha_de_fraude: no pelear; aceptar la disputa y marcar al cliente.
 - causa_operativa en un transportista y región: reclamarle al transportista y revisar esa ruta.
 """
+# Sin la capa de IO: lo mismo, pero sin las definiciones de IO (sospecha_fraude, razon_decision, vale_pelear…),
+# porque no existen en las tablas crudas. El agente tiene que deducirlo todo de las fuentes tal como vienen.
+METODO_CRUDO = """- Si la pregunta es por un aumento: compáralo con el período anterior y averigua DÓNDE se concentra
+  (transportista y región, motivo, clientes), y mide cada hipótesis sobre todo el grupo del aumento con conteos.
+- Antes de concluir sobre un grupo de disputas, cuenta cuántas conviene pelear y cuántas no, para que la
+  recomendación diga qué hacer con cada una.
+"""
+SISTEMA = _sistema(ESQUEMA, METODO_IO, RECOMENDACIONES_IO)
+SISTEMA_CRUDO = _sistema(ESQUEMA_CRUDO, METODO_CRUDO, "")
 
 
 def _extraer_acciones(texto: str) -> list[dict]:
@@ -116,14 +130,15 @@ def _refs_evidencia(valor) -> list[str]:
     return refs
 
 
-def _ids_exactos(pregunta: str) -> str:
+def _ids_exactos(pregunta: str, capa: bool = True) -> str:
     """Los ids de disputa de la pregunta, para copiarlos tal cual: el modelo a veces cambia una mayúscula
     (du_…jgujrS -> du_…jgujrs), no encuentra la disputa y gasta vueltas buscándola."""
     ids = list(dict.fromkeys(re.findall(r"\bdu_[A-Za-z0-9]+\b", pregunta)))
     if not ids:
         return ""
+    columna = "disputa_id" if capa else "id de crudo.pagos_disputes"
     return ("\nIds exactos (cópialos tal cual en el SQL, respetando mayúsculas y minúsculas; la columna es "
-            f"disputa_id): {', '.join(ids)}")
+            f"{columna}): {', '.join(ids)}")
 
 
 def _filas_para_el_modelo(r: dict) -> str:
@@ -252,7 +267,8 @@ class Investigador:
             return self._veredicto(a)
         if accion == "concluir":
             problemas = evaluador.revisar_conclusion(self.hipotesis, self.evidencia,
-                                                     str(a.get("conclusion", "")), str(a.get("recomendacion", "")))
+                                                     str(a.get("conclusion", "")), str(a.get("recomendacion", "")),
+                                                     capa=self.cfg.capa_semantica)
             if not str(a.get("conclusion", "")).strip():
                 problemas = ["Falta la conclusión.", *problemas]
             if self.mundo:  # World Model: todo lo que nombra tiene que haber salido en esta corrida
@@ -280,9 +296,10 @@ class Investigador:
         # La marca de corrida evita que Nightshift responda desde su caché con lo de una corrida anterior
         # (pasaba aunque cambiara el prompt): cada investigación es nueva.
         invalidas_seguidas = 0
-        mensajes = [{"role": "system", "content": SISTEMA},
+        sistema = SISTEMA if self.cfg.capa_semantica else SISTEMA_CRUDO
+        mensajes = [{"role": "system", "content": sistema},
                     {"role": "user", "content": f"Pregunta: {pregunta}\n(corrida {self.traza.run_id})"
-                                                + _ids_exactos(pregunta) + (f"\n\n{memoria}" if memoria else "")}]
+                                                + _ids_exactos(pregunta, self.cfg.capa_semantica) + (f"\n\n{memoria}" if memoria else "")}]
         while self.iteraciones < self.cfg.max_iteraciones:
             self.iteraciones += 1
             with Cronometro() as t:

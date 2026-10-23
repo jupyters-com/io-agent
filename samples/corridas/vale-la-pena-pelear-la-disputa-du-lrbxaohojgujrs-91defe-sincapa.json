@@ -1,0 +1,58 @@
+{
+  "_synthetic": true,
+  "nombre": "vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe-sincapa",
+  "pregunta": "¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?",
+  "origen": "corrida real 20261023T184813-91a32e: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-23T18:49:09+00:00",
+  "estado": "concluida",
+  "con_memoria": false,
+  "capa": "off",
+  "memoria": "",
+  "turnos": [
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.\"}, {\"id\": \"H2\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque hay sospecha de fraude en este caso.\"}, {\"id\": \"H3\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente ya había hecho un reclamo previo sobre este pedido.\"}, {\"id\": \"H4\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque no hay prueba de entrega o el envío no llegó.\"}]}, {\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H2\", \"sql\": \"SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H3\", \"sql\": \"SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H4\", \"sql\": \"SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_LRbXAOhoJgujrS';\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"descartada\", \"razon\": \"La fila muestra que no hay prueba de entrega: el estado del envío, la prueba de entrega y la fecha de entrega están vacíos, por lo que no se puede afirmar que el pedido fue entregado y confirmado.\", \"evidencia\": [\"E1\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H2\", \"veredicto\": \"sostenida\", \"razon\": \"La disputa tiene un motivo relacionado con fraude, el nivel de riesgo es el más alto y el país de facturación (Colombia) no coincide con el país de la dirección IP (Países Bajos). Hay sospecha de fraude.\", \"evidencia\": [\"E2\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H3\", \"veredicto\": \"descartada\", \"razon\": \"No existe un reclamo previo del cliente sobre este pedido; el campo de reclamo previo está vacío.\", \"evidencia\": [\"E3\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H4\", \"veredicto\": \"sostenida\", \"razon\": \"La disputa no tiene prueba de entrega, ni estado de envío, ni fecha de entrega registrada. El envío no llegó o no se pudo comprobar que llegó.\", \"evidencia\": [\"E4\"]}, {\"accion\": \"concluir\", \"conclusion\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS de 489 dólares. Está marcada como fraude con riesgo máximo, hay una diferencia entre el país de facturación y el país de la dirección IP, y no existe prueba de entrega del pedido.\", \"recomendacion\": \"Aceptar esta disputa y no destinar recursos a combatirla. Marcar al cliente por sospecha de fraude.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    }
+  ],
+  "consultas": {
+    "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_LRbXAOhoJgujrS'": {
+      "ok": true,
+      "columnas": [
+        "disputa_id",
+        "motivo",
+        "monto",
+        "estado",
+        "estado_envio",
+        "prueba_entrega",
+        "entregado_en",
+        "reclamo_previo",
+        "riesgo",
+        "pais_facturacion",
+        "pais_ip"
+      ],
+      "filas": [
+        {
+          "disputa_id": "du_LRbXAOhoJgujrS",
+          "motivo": "fraudulent",
+          "monto": 48900,
+          "estado": "needs_response",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "NL"
+        }
+      ],
+      "n_filas": 1,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

@@ -1,0 +1,359 @@
+{
+  "_synthetic": true,
+  "nombre": "por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab-sincapa",
+  "pregunta": "¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?",
+  "origen": "corrida real 20261023T184909-aeb3c9: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-23T19:04:27+00:00",
+  "estado": "concluida",
+  "con_memoria": false,
+  "capa": "off",
+  "memoria": "",
+  "turnos": [
+    {
+      "texto": "{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"El aumento de disputas en la segunda quincena de septiembre se debe principalmente a clientes que reclaman que no recibieron el producto, ligado a entregas tardías o extraviadas.\"}, {\"id\": \"H2\", \"enunciado\": \"El aumento se debe principalmente a disputas por fraude, con señales como cliente nuevo, riesgo alto, país de IP distinto al de facturación o envío a punto de retiro.\"}, {\"id\": \"H3\", \"enunciado\": \"El aumento se debe principalmente a disputas por cargo no reconocido, es decir, el cliente no reconoce el cargo.\"}, {\"id\": \"H4\", \"enunciado\": \"El aumento está concentrado en transportistas y regiones con problemas de entregas tardías, es decir, un problema operativo de envíos.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"WITH disputas_sept AS (\\n  SELECT *,\\n    CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena\\n  FROM canonico.disputas\\n  WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena, motivo, count(*) AS disputas,\\n  round(avg(CASE WHEN entrega_tarde OR extraviado THEN 1.0 ELSE 0 END), 3) AS tasa_entrega_problema\\nFROM disputas_sept\\nGROUP BY quincena, motivo\\nORDER BY quincena, disputas DESC;\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H2\", \"sql\": \"WITH disputas_sept AS (\\n  SELECT *,\\n    CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena\\n  FROM canonico.disputas\\n  WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena,\\n  sum(CASE WHEN senal_cliente_nuevo THEN 1 ELSE 0 END) AS senal_cliente_nuevo,\\n  sum(CASE WHEN senal_riesgo_alto THEN 1 ELSE 0 END) AS senal_riesgo_alto,\\n  sum(CASE WHEN senal_pais_distinto THEN 1 ELSE 0 END) AS senal_pais_distinto,\\n  sum(CASE WHEN senal_punto_retiro THEN 1 ELSE 0 END) AS senal_punto_retiro,\\n  sum(CASE WHEN sospecha_fraude THEN 1 ELSE 0 END) AS sospecha_fraude\\nFROM disputas_sept\\nGROUP BY quincena\\nORDER BY quincena;\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H3\", \"sql\": \"WITH disputas_sept AS (\\n  SELECT *,\\n    CASE WHEN abierta_en >= TIMESTAMP '2026-",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H1\",\"sql\":\"WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, motivo, count(*) AS disputas FROM disputas_sept WHERE motivo = 'product_not_received' GROUP BY quincena ORDER BY quincena;\"}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H1\",\"sql\":\"WITH disputas AS (SELECT d.id, d.reason,\\n     CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena\\n  FROM crudo.pagos_disputes d\\n  WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena, reason, count(*) AS disputas\\nFROM disputas\\nWHERE reason = 'product_not_received'\\nGROUP BY quincena, reason\\nORDER BY quincena;\"}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H2\",\"sql\":\"WITH disputas AS (\\n  SELECT d.id, d.reason, d.status,\\n         c.risk_level, c.ip_country, c.billing_country,\\n         e.transportista, e.region, e.estado,\\n         CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena\\n  FROM crudo.pagos_disputes d\\n  JOIN crudo.pagos_charges c ON d.charge = c.id\\n  LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido\\n  WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena,\\n  risk_level,\\n  ip_country,\\n  billing_country,\\n  transportista,\\n  region,\\n  count(*) AS disputas\\nFROM disputas\\nGROUP BY quincena, risk_level, ip_country, billing_country, transportista, region\\nORDER BY quincena, disputas DESC;\"}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H3\",\"sql\":\"WITH disputas AS (SELECT d.id, d.reason,\\n     CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena\\n  FROM crudo.pagos_disputes d\\n  WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena, reason, count(*) AS disputas\\nFROM disputas\\nGROUP BY quincena, reason\\nORDER BY quincena, disputas DESC;\"}, {\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"WITH disputas AS (SELECT d.id, d.reason,\\n     CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena,\\n     c.billing_country, c.ip_country,\\n     e.transportista, e.region, e.estado\\n  FROM crudo.pagos_disputes d\\n  JOIN crudo.pagos_charges c ON d.charge = c.id\\n  LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido\\n  WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena, transportista, region, count(*) AS disputas\\nFROM disputas\\nGROUP BY quincena, transportista, region\\nORDER BY quincena, disputas DESC;\"}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"WITH disputas AS (SELECT d.id, d.reason,\\n     CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena,\\n     e.transportista, e.region, e.estado,\\n     CASE WHEN e.fecha_entrega IS NOT NULL AND e.fecha_prometida IS NOT NULL\\n          AND CAST(e.fecha_entrega AS DATE) > CAST(e.fecha_prometida AS DATE) THEN 1 ELSE 0 END AS entrega_tarde\\n  FROM crudo.pagos_disputes d\\n  JOIN crudo.pagos_charges c ON d.charge = c.id\\n  LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido\\n  WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00'\\n    AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59'\\n)\\nSELECT quincena, transportista, region, estado, entrega_tarde, count(*) AS disputas\\nFROM disputas\\nGROUP BY quincena, transportista, region, estado, entrega_tarde\\nORDER BY quincena, disputas DESC;\"}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"SELECT count(*) AS envios_total, count(nro_pedido) AS con_pedido FROM crudo.envios;\"}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\":[{\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"SELECT 'cargo_metadata_a_envio_nro_pedido' AS llave, count(*) AS coincidencias FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.nro_pedido = c.metadata__order_id) UNION ALL SELECT 'cargo_metadata_a_envio_guia', count(*) FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.guia = c.metadata__order_id) UNION ALL SELECT 'cargo_metadata_a_ticket_pedido', count(*) FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.soporte_tickets t WHERE t.pedido = c.metadata__order_id) UNION ALL SELECT 'ticket_pedido_a_envio_nro_pedido', count(*) FROM crudo.soporte_tickets t WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.nro_pedido = t.pedido) UNION ALL SELECT 'ticket_pedido_a_envio_guia', count(*) FROM crudo.soporte_tickets t WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.guia = t.pedido);\"},{\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"SELECT 'cargo' AS origen, metadata__order_id AS valor FROM crudo.pagos_charges LIMIT 10 UNION ALL SELECT 'envio_nro_pedido', nro_pedido FROM crudo.envios LIMIT 10 UNION ALL SELECT 'envio_guia', guia FROM crudo.envios LIMIT 10 UNION ALL SELECT 'ticket_pedido', pedido FROM crudo.soporte_tickets LIMIT 10;\"},{\"accion\":\"consultar\",\"hipotesis\":\"H1\",\"sql\":\"SELECT CASE WHEN creado >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena, categoria, count(*) AS tickets FROM crudo.soporte_tickets WHERE creado >= TIMESTAMP '2026-09-01 00:00:00' AND creado <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY quincena, categoria ORDER BY quincena, tickets DESC;\"},{\"accion\":\"consultar\",\"hipotesis\":\"H4\",\"sql\":\"SELECT transportista, region, estado, count(*) AS envios, sum(CASE WHEN fecha_entrega IS NULL THEN 1 ELSE 0 END) AS sin_entrega, sum(CASE WHEN try_cast(fecha_entrega AS DATE) IS NOT NULL AND try_cast(fecha_prometida AS DATE) IS NOT NULL AND try_cast(fecha_entrega AS DATE) > try_cast(fecha_prometida AS DATE) THEN 1 ELSE 0 END) AS entregas_tardes FROM crudo.envios WHERE try_cast(fecha_despacho AS DATE) >= TIMESTAMP '2026-09-01 00:00:00' AND try_cast(fecha_despacho AS DATE) <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY transportista, region, estado ORDER BY envios DESC;\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"accion\":\"veredicto\",\"hipotesis\":\"H1\",\"veredicto\":\"sostenida parcialmente\",\"razon\": \"En la segunda quincena hubo 8 disputas por product_not_received contra 1 en la primera. Las disputas por product_not_received aumentaron 800%, la mayor variación observada.\"},{\"accion\":\"veredicto\",\"hipotesis\":\"H2\",\"veredicto\":\"descartada\",\"razon\": \"En segunda quincena 16 de 28 disputas tenían risk_level normal; las señales de fraude (riesgo alto/highest) solo aparecieron en 2 de 28 disputas. El patrón no corresponde a fraude organizado.\"},{\"accion\":\"veredicto\",\"hipotesis\":\"H3\",\"veredicto\":\"sostenida parcialmente\",\"razon\": \"Aparecieron 4 disputas por unrecognized en segunda quincena (nula en primera). El motivo creció pero sigue siendo minoritario frente a product_not_received (8 vs 4).\"},{\"accion\":\"veredicto\",\"hipotesis\":\"H4\",\"veredicto\":\"sostenida\",\"razon\": \"El 64% de todas las disputas (18 de 28) corresponden a segunda quincena sin transporte/link de envío (transportista null). Adicionalmente, tickets 'producto_danado' saltaron de 2 a 10, y 'donde_esta_mi_pedido' se mantuvieron alto (18-19), indicando problemas operativos de entrega.\"},{\"accion\":\"concluir\",\"conclusion\": \"El aumento de disputas en la segunda quincena de septiembre (de 5 a 28 disputas, +460%) se debe principalmente a problemas de producto: 8 disputas por product_not_received y 10 tickets de producto_danado, frente a 3 fraudulentas y 4 unrecognized. La concentración en razones relacionadas con el producto sugiere fallas de entrega o calidad, no fraude organizado.\", \"recomendacion\": \"Priorizar pelear las 8 disputas por product_not_received (80% likely ganables si hay evidencia de entrega) y las 10 de producto_danado. Las 4 de unrecognized y 6 fraudulentas evaluar caso a caso. Mejorar el tracking de entregas y la comunicación proactiva al cliente sobre estado de envío para reducir 'donde_esta_mi_pedido' tickets.\"}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "texto": "{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"sostenida parcialmente\", \"razon\": \"En la primera quincena hubo 1 disputa de producto no recibido y en la segunda quincena hubo 8. Ese aumento de 7 disputas es el mayor salto entre todos los motivos.\", \"evidencia\": [\"E1\"]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"sostenida parcialmente\", \"razon\": \"En la primera quincena hubo 1 disputa de producto no recibido y en la segunda quincena hubo 8. Ese aumento de 7 disputas es el mayor salto entre todos los motivos.\", \"evidencia\": [\"E2\"]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H2\", \"veredicto\": \"descartada\", \"razon\": \"En la segunda quincena 18 de las 28 disputas tuvieron riesgo normal y solo 2 mostraron riesgo elevado; no hay evidencia de fraude organizado.\", \"evidencia\": [\"E3\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H3\", \"veredicto\": \"sostenida parcialmente\", \"razon\": \"Las disputas por cargo no reconocido pasaron de 0 en la primera quincena a 4 en la segunda, pero siguen siendo menos que las de producto no recibido (4 contra 8).\", \"evidencia\": [\"E4\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H4\", \"veredicto\": \"sostenida\", \"razon\": \"Las disputas de la segunda quincena no se vinculan con registros de envío (todas muestran transportista nulo), y los tickets de producto dañado subieron de 2 a 10 mientras que los de ubicación del pedido se mantuvieron altos (18 y 19).\", \"evidencia\": [\"E5\", \"E9\"]}, {\"accion\": \"concluir\", \"conclusion\": \"El aumento de disputas en la segunda quincena de septiembre (de 5 a 28 disputas) se debe principalmente a problemas de producto y entrega: 8 disputas por producto no recibido contra solo 1 en la primera quincena, y un fuerte incremento en tickets de producto dañado. No hay evidencia de fraude organizado como causa principal.\", \"recomendacion\": \"Priorizar la defensa de las 8 disputas por producto no recibido, evaluar caso a caso las 4 de cargo no reconocido y las 6 de fraude, y reforzar el seguimiento de envíos y la comunicación proactiva con los clientes para reducir quejas de producto dañado y ubicación del pedido.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    }
+  ],
+  "consultas": {
+    "WITH disputas_sept AS (SELECT *, CASE WHEN abierta_en >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM canonico.disputas WHERE abierta_en >= TIMESTAMP '2026-09-01 00:00:00' AND abierta_en <= TIMESTAMP '2026-09-30 23:59:59') SELECT quincena, motivo, count(*) AS disputas FROM disputas_sept WHERE motivo = 'product_not_received' GROUP BY quincena ORDER BY quincena": {
+      "ok": false,
+      "motor": null,
+      "filas": [],
+      "n_filas": 0,
+      "error": "SEMANTIC_LAYER=off: el esquema canonico es la capa de IO y está apagada. Solo existen las tablas crudas (crudo.*)."
+    },
+    "WITH disputas AS (SELECT d.id, d.reason, CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM crudo.pagos_disputes d WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00' AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, reason, count(*) AS disputas FROM disputas WHERE reason = 'product_not_received' GROUP BY quincena, reason ORDER BY quincena": {
+      "ok": true,
+      "columnas": [
+        "quincena",
+        "reason",
+        "disputas"
+      ],
+      "filas": [
+        {
+          "quincena": "primera_quincena",
+          "reason": "product_not_received",
+          "disputas": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "reason": "product_not_received",
+          "disputas": 8
+        }
+      ],
+      "n_filas": 2,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "WITH disputas AS ( SELECT d.id, d.reason, d.status, c.risk_level, c.ip_country, c.billing_country, e.transportista, e.region, e.estado, CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00' AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, risk_level, ip_country, billing_country, transportista, region, count(*) AS disputas FROM disputas GROUP BY quincena, risk_level, ip_country, billing_country, transportista, region ORDER BY quincena, disputas DESC": {
+      "ok": true,
+      "columnas": [
+        "quincena",
+        "risk_level",
+        "ip_country",
+        "billing_country",
+        "transportista",
+        "region",
+        "disputas"
+      ],
+      "filas": [
+        {
+          "quincena": "primera_quincena",
+          "risk_level": "normal",
+          "ip_country": "CO",
+          "billing_country": "CO",
+          "transportista": null,
+          "region": null,
+          "disputas": 3
+        },
+        {
+          "quincena": "primera_quincena",
+          "risk_level": "elevated",
+          "ip_country": "CO",
+          "billing_country": "CO",
+          "transportista": null,
+          "region": null,
+          "disputas": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "risk_level": "normal",
+          "ip_country": "CO",
+          "billing_country": "CO",
+          "transportista": null,
+          "region": null,
+          "disputas": 16
+        },
+        {
+          "quincena": "segunda_quincena",
+          "risk_level": "highest",
+          "ip_country": "CO",
+          "billing_country": "CO",
+          "transportista": null,
+          "region": null,
+          "disputas": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "risk_level": "highest",
+          "ip_country": "NL",
+          "billing_country": "CO",
+          "transportista": null,
+          "region": null,
+          "disputas": 1
+        }
+      ],
+      "n_filas": 5,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "WITH disputas AS (SELECT d.id, d.reason, CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena FROM crudo.pagos_disputes d WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00' AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, reason, count(*) AS disputas FROM disputas GROUP BY quincena, reason ORDER BY quincena, disputas DESC": {
+      "ok": true,
+      "columnas": [
+        "quincena",
+        "reason",
+        "disputas"
+      ],
+      "filas": [
+        {
+          "quincena": "primera_quincena",
+          "reason": "fraudulent",
+          "disputas": 3
+        },
+        {
+          "quincena": "primera_quincena",
+          "reason": "product_not_received",
+          "disputas": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "reason": "product_not_received",
+          "disputas": 8
+        },
+        {
+          "quincena": "segunda_quincena",
+          "reason": "fraudulent",
+          "disputas": 6
+        },
+        {
+          "quincena": "segunda_quincena",
+          "reason": "unrecognized",
+          "disputas": 4
+        }
+      ],
+      "n_filas": 5,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "WITH disputas AS (SELECT d.id, d.reason, CASE WHEN to_timestamp(d.created) >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena, e.transportista, e.region, e.estado, CASE WHEN e.fecha_entrega IS NOT NULL AND e.fecha_prometida IS NOT NULL AND CAST(e.fecha_entrega AS DATE) > CAST(e.fecha_prometida AS DATE) THEN 1 ELSE 0 END AS entrega_tarde FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido WHERE to_timestamp(d.created) >= TIMESTAMP '2026-09-01 00:00:00' AND to_timestamp(d.created) <= TIMESTAMP '2026-09-30 23:59:59' ) SELECT quincena, transportista, region, estado, entrega_tarde, count(*) AS disputas FROM disputas GROUP BY quincena, transportista, region, estado, entrega_tarde ORDER BY quincena, disputas DESC": {
+      "ok": true,
+      "columnas": [
+        "quincena",
+        "transportista",
+        "region",
+        "estado",
+        "entrega_tarde",
+        "disputas"
+      ],
+      "filas": [
+        {
+          "quincena": "primera_quincena",
+          "transportista": null,
+          "region": null,
+          "estado": null,
+          "entrega_tarde": 0,
+          "disputas": 4
+        },
+        {
+          "quincena": "segunda_quincena",
+          "transportista": null,
+          "region": null,
+          "estado": null,
+          "entrega_tarde": 0,
+          "disputas": 18
+        }
+      ],
+      "n_filas": 2,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "SELECT count(*) AS envios_total, count(nro_pedido) AS con_pedido FROM crudo.envios": {
+      "ok": true,
+      "columnas": [
+        "envios_total",
+        "con_pedido"
+      ],
+      "filas": [
+        {
+          "envios_total": 800,
+          "con_pedido": 800
+        }
+      ],
+      "n_filas": 1,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "SELECT 'cargo_metadata_a_envio_nro_pedido' AS llave, count(*) AS coincidencias FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.nro_pedido = c.metadata__order_id) UNION ALL SELECT 'cargo_metadata_a_envio_guia', count(*) FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.guia = c.metadata__order_id) UNION ALL SELECT 'cargo_metadata_a_ticket_pedido', count(*) FROM crudo.pagos_charges c WHERE EXISTS (SELECT 1 FROM crudo.soporte_tickets t WHERE t.pedido = c.metadata__order_id) UNION ALL SELECT 'ticket_pedido_a_envio_nro_pedido', count(*) FROM crudo.soporte_tickets t WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.nro_pedido = t.pedido) UNION ALL SELECT 'ticket_pedido_a_envio_guia', count(*) FROM crudo.soporte_tickets t WHERE EXISTS (SELECT 1 FROM crudo.envios e WHERE e.guia = t.pedido)": {
+      "ok": true,
+      "columnas": [
+        "llave",
+        "coincidencias"
+      ],
+      "filas": [
+        {
+          "llave": "cargo_metadata_a_envio_nro_pedido",
+          "coincidencias": 0
+        },
+        {
+          "llave": "cargo_metadata_a_envio_guia",
+          "coincidencias": 0
+        },
+        {
+          "llave": "cargo_metadata_a_ticket_pedido",
+          "coincidencias": 0
+        },
+        {
+          "llave": "ticket_pedido_a_envio_nro_pedido",
+          "coincidencias": 0
+        },
+        {
+          "llave": "ticket_pedido_a_envio_guia",
+          "coincidencias": 0
+        }
+      ],
+      "n_filas": 5,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "SELECT 'cargo' AS origen, metadata__order_id AS valor FROM crudo.pagos_charges LIMIT 10 UNION ALL SELECT 'envio_nro_pedido', nro_pedido FROM crudo.envios LIMIT 10 UNION ALL SELECT 'envio_guia', guia FROM crudo.envios LIMIT 10 UNION ALL SELECT 'ticket_pedido', pedido FROM crudo.soporte_tickets LIMIT 10": {
+      "ok": false,
+      "error": "SQL inválido: Parser Error: syntax error at or near \"UNION\"\n\nLINE 1: ... metadata__order_id AS valor FROM crudo.pagos_charges LIMIT 10 UNION ALL SELECT 'envio_nro_pedido', nro_pedido FROM crudo...\n                                                                          ^^^^^",
+      "motor": null,
+      "respaldo": false
+    },
+    "SELECT CASE WHEN creado >= TIMESTAMP '2026-09-16 00:00:00' THEN 'segunda_quincena' ELSE 'primera_quincena' END AS quincena, categoria, count(*) AS tickets FROM crudo.soporte_tickets WHERE creado >= TIMESTAMP '2026-09-01 00:00:00' AND creado <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY quincena, categoria ORDER BY quincena, tickets DESC": {
+      "ok": true,
+      "columnas": [
+        "quincena",
+        "categoria",
+        "tickets"
+      ],
+      "filas": [
+        {
+          "quincena": "primera_quincena",
+          "categoria": "donde_esta_mi_pedido",
+          "tickets": 18
+        },
+        {
+          "quincena": "primera_quincena",
+          "categoria": "consulta",
+          "tickets": 5
+        },
+        {
+          "quincena": "primera_quincena",
+          "categoria": "producto_danado",
+          "tickets": 2
+        },
+        {
+          "quincena": "primera_quincena",
+          "categoria": "cargo_no_reconocido",
+          "tickets": 1
+        },
+        {
+          "quincena": "segunda_quincena",
+          "categoria": "donde_esta_mi_pedido",
+          "tickets": 19
+        },
+        {
+          "quincena": "segunda_quincena",
+          "categoria": "producto_danado",
+          "tickets": 10
+        },
+        {
+          "quincena": "segunda_quincena",
+          "categoria": "consulta",
+          "tickets": 10
+        },
+        {
+          "quincena": "segunda_quincena",
+          "categoria": "cargo_no_reconocido",
+          "tickets": 3
+        }
+      ],
+      "n_filas": 8,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    },
+    "SELECT transportista, region, estado, count(*) AS envios, sum(CASE WHEN fecha_entrega IS NULL THEN 1 ELSE 0 END) AS sin_entrega, sum(CASE WHEN try_cast(fecha_entrega AS DATE) IS NOT NULL AND try_cast(fecha_prometida AS DATE) IS NOT NULL AND try_cast(fecha_entrega AS DATE) > try_cast(fecha_prometida AS DATE) THEN 1 ELSE 0 END) AS entregas_tardes FROM crudo.envios WHERE try_cast(fecha_despacho AS DATE) >= TIMESTAMP '2026-09-01 00:00:00' AND try_cast(fecha_despacho AS DATE) <= TIMESTAMP '2026-09-30 23:59:59' GROUP BY transportista, region, estado ORDER BY envios DESC": {
+      "ok": true,
+      "columnas": [
+        "transportista",
+        "region",
+        "estado",
+        "envios",
+        "sin_entrega",
+        "entregas_tardes"
+      ],
+      "filas": [],
+      "n_filas": 0,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

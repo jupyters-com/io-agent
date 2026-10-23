@@ -111,18 +111,23 @@ def _cantidades_fuera_de_la_evidencia(recomendacion: str, evidencia: dict) -> li
     return problemas
 
 
-def revisar_conclusion(hipotesis: dict, evidencia: dict, conclusion: str = "", recomendacion: str = "") -> list[str]:
+def revisar_conclusion(hipotesis: dict, evidencia: dict, conclusion: str = "", recomendacion: str = "",
+                       capa: bool = True) -> list[str]:
+    """capa=False (SEMANTIC_LAYER=off): las reglas que usan definiciones de la capa de IO (contar decisiones con
+    razon_decision y cuadrar las cantidades con ellas) no aplican, porque en las tablas crudas no existen. Las
+    demás (evidencia real, comparar hipótesis, español simple) son del Evaluador y siguen igual."""
     problemas = []
     decididas = [h for h in hipotesis.values() if h["veredicto"] in ("sostenida", "descartada")]
     if len(decididas) < 2:
         problemas.append("Explicar por qué exige comparar: prueba al menos 2 hipótesis distintas (incluida la "
                          "explicación contraria a tu conclusión) y dales veredicto antes de concluir.")
-    if recomendacion and ACCIONES_SOBRE_DISPUTAS.search(recomendacion):
+    if capa and recomendacion and ACCIONES_SOBRE_DISPUTAS.search(recomendacion):
         if not any(e["ok"] and e["n_filas"] and CONSULTA_DE_DECISIONES.search(e["sql"]) for e in evidencia.values()):
             problemas.append("La recomendación dice qué hacer con las disputas, pero ninguna consulta contó sus "
                              "decisiones. Consulta cuántas disputas del grupo hay por razon_decision y usa esos "
                              "números en la recomendación.")
-    problemas += _cantidades_fuera_de_la_evidencia(recomendacion or "", evidencia)
+    if capa:
+        problemas += _cantidades_fuera_de_la_evidencia(recomendacion or "", evidencia)
     palabras = jerga(f"{conclusion} {recomendacion}")
     if palabras:
         problemas.append(f"La conclusión y la recomendación son para la dueña de la tienda: reescríbelas sin "

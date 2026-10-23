@@ -19,7 +19,7 @@ Lo que devuelve `run.py` o `POST /run`, y lo que queda en `salidas/<run_id>.json
 | `abstencion` | `{razon}` cuando no concluye |
 | `aprobacion` | `{item_id, estado}` de la conclusión en la cola |
 | `cola` | las demás entradas de la cola: respuestas al banco, disputas que no conviene pelear y el grupo (ver 2) |
-| `metricas` | iteraciones, consultas, ms, tokens, costo en USD, `devoluciones` (veces que el Evaluador devolvió algo), `memorias_usadas` (las que H-MEM reinyectó) y `entidades_ancladas` (lo que la conclusión nombra y el World Model encontró en la evidencia de la corrida) |
+| `metricas` | iteraciones, consultas, ms, tokens, costo en USD, `devoluciones` (veces que el Evaluador devolvió algo), `memorias_usadas` (las que H-MEM reinyectó), `capa_semantica` (`on`/`off`, ver `SEMANTIC_LAYER`) y `entidades_ancladas` (lo que la conclusión nombra y el World Model encontró en la evidencia de la corrida) |
 | `informe_md` | el informe legible (ver abajo) |
 
 **Reglas que el esquema solo no expresa:**

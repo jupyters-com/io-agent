@@ -17,6 +17,28 @@ Todo lo que sale en el informe (enunciados, razones, conclusión y recomendació
 
 La IA piensa; el código hace y registra. Topes: `AGENTE_MAX_ITERACIONES` vueltas y `AGENTE_TIMEOUT_S` por llamada.
 
+## Con y sin la capa de IO
+
+El diferencial de IO es la capa semántica: la misma pregunta responde mal sobre las fuentes crudas y bien con la capa. Un interruptor lo muestra:
+
+```
+SEMANTIC_LAYER=off
+```
+
+Con la capa apagada, el agente consulta las tablas crudas de io-engine (`crudo.pagos_disputes`, `crudo.envios`, `crudo.soporte_tickets`…), tal como llegan de cada sistema:
+
+- montos en centavos y fechas en distintos formatos;
+- pedidos escritos como `ORD-1574`, `1574` o `#1574`;
+- el soporte, ligado por correo y no por cliente.
+
+Además queda **sin** el esquema canónico, **sin** sus definiciones (qué es entrega confirmada, reclamo previo, zona con atrasos o señal de fraude) y **sin** Meterless (H-MEM y World Model). Todo lo demás es igual: mismo modelo, misma pregunta, mismos datos y el mismo Evaluador, salvo las reglas que usan definiciones de la capa.
+
+```
+python scripts/comparar_capa.py
+```
+
+Corre los tres ejemplos con y sin la capa y deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md), con las dos trazas en `logs/`. Las corridas sin capa se graban con `SEMANTIC_LAYER=off python scripts/grabar_corridas.py` (en Windows: `set SEMANTIC_LAYER=off` antes) y quedan como `samples/corridas/*-sincapa.json`.
+
 ## Después de investigar: la cola de aprobación
 
 El agente no termina en una explicación: con la conclusión aceptada, separa las disputas que vale la pena pelear de las que no, redacta la respuesta al banco de cada una que vale pelear y deja todo en una cola de aprobación. **No envía nada.**
@@ -131,6 +153,7 @@ python -m pytest
 | `AGENTE_TIMEOUT_S` | `60` | cada llamada externa (motor y modelo), con un reintento si se pasa |
 | `AGENTE_MAX_ITERACIONES` | `16` | vueltas con el modelo por corrida |
 | `AGENTE_PRESUPUESTO_USD` | `1.0` | gasto en el proveedor del modelo: si se pasa, queda una alerta en la traza |
+| `SEMANTIC_LAYER` | `on` | `off` apaga la capa de IO: tablas crudas, sin definiciones ni Meterless (para comparar) |
 | `AGENTE_POLITICA_MONTO_MAX` | `500` | monto (USD) hasta el que la política aprueba sola una respuesta al banco |
 | `AGENTE_TOPE_DEVOLUCIONES` | `2` | veces que el Evaluador puede devolver una misma afirmación; después, el agente se abstiene |
 | `AGENTE_HMEM` | `true` | H-MEM encendido; `false` corre sin memoria |

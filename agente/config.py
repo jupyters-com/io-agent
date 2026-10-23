@@ -44,6 +44,7 @@ class Config:
     reintentos_modelo: int    # reintentos por llamada al modelo si Nightshift corta o falla
     modelo_respaldo: str      # se intenta una vez si el modelo principal falla tras sus reintentos
     tope_devoluciones: int    # devoluciones del Evaluador por afirmación antes de abstenerse
+    capa_semantica: bool      # SEMANTIC_LAYER: con "off" el agente consulta las tablas crudas, sin la capa de IO
     hmem: bool                # H-MEM (memoria de Meterless) encendido
     hmem_timeout_s: float     # tope de cada operación de memoria; si se pasa, sigue sin memoria
     hmem_umbral: float        # puntaje mínimo para que una memoria se reinyecte
@@ -62,6 +63,9 @@ class Config:
 def cargar() -> Config:
     _cargar_env_local()
     muestra = _si(os.getenv("SAMPLE_MODE", "true"))
+    # SEMANTIC_LAYER=off: sin el esquema canónico, sin sus definiciones y sin los motores de Meterless. Todo lo
+    # demás igual (modelo, pregunta, datos). Es el "antes" de la comparación del Paso 12 (JPTRS-65).
+    capa = os.getenv("SEMANTIC_LAYER", "on").strip().lower() not in ("off", "false", "0", "no")
     salidas = Path(os.getenv("AGENTE_SALIDAS", RAIZ / "salidas"))
     # Modo real: la memoria del agente vive en memoria/. Modo de muestra: en salidas/memoria, que arranca
     # como copia de la memoria grabada en samples/memoria (así la demo no toca la memoria real).
@@ -85,13 +89,14 @@ def cargar() -> Config:
         reintentos_modelo=int(os.getenv("AGENTE_REINTENTOS_MODELO", "2")),
         modelo_respaldo=os.getenv("METERLESS_MODELO_RESPALDO", ""),
         tope_devoluciones=int(os.getenv("AGENTE_TOPE_DEVOLUCIONES", "2")),
-        hmem=_si(os.getenv("AGENTE_HMEM", "true")),
+        capa_semantica=capa,
+        hmem=capa and _si(os.getenv("AGENTE_HMEM", "true")),
         hmem_timeout_s=float(os.getenv("AGENTE_HMEM_TIMEOUT_S", "2")),
         hmem_umbral=float(os.getenv("AGENTE_HMEM_UMBRAL", "0.30")),
         memoria=Path(memoria),
         memoria_semilla=(Path(os.getenv("AGENTE_MEMORIA_SEMILLA") or RAIZ / "samples" / "memoria")
                          if muestra and os.getenv("AGENTE_MEMORIA_SEMILLA") != "" else None),
-        mundo_activo=_si(os.getenv("AGENTE_MUNDO", "true")),
+        mundo_activo=capa and _si(os.getenv("AGENTE_MUNDO", "true")),
         mundo_timeout_s=float(os.getenv("AGENTE_MUNDO_TIMEOUT_S", "2")),
         mundo=Path(mundo),
         mundo_semilla=(Path(os.getenv("AGENTE_MUNDO_SEMILLA") or RAIZ / "samples" / "mundo")
