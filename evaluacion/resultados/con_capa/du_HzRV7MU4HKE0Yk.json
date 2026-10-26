@@ -1,0 +1,208 @@
+{
+  "version": "0.1",
+  "run_id": "20261023T201652-fadfce",
+  "pregunta": "¿Vale la pena pelear la disputa du_HzRV7MU4HKE0Yk?",
+  "modo": "real",
+  "estado": "concluida",
+  "conclusion": "No vale la pena pelear la disputa du_HzRV7MU4HKE0Yk. El pedido fue entregado con firma, pero hay señales de fraude en este caso, por lo que no se debe pelear.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear porque la entrega fue confirmada con prueba de entrega, el cliente no había reclamado antes y no hay señales de fraude.",
+      "veredicto": "descartada",
+      "razon": "Aunque el pedido fue entregado y hay firma como prueba, hay señales de fraude en este caso, por lo que no vale la pena pelear.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear porque hay sospecha de fraude en este caso.",
+      "veredicto": "sostenida",
+      "razon": "Hay señales de fraude en este caso, por lo que no se debe pelear esta disputa.",
+      "evidencia": [
+        "E2"
+      ]
+    },
+    {
+      "id": "H3",
+      "enunciado": "No vale la pena pelear porque el pedido no llegó o no hay prueba de entrega.",
+      "veredicto": "descartada",
+      "razon": "El pedido fue entregado y hay firma como prueba de entrega, por lo que no aplica que el producto no llegó.",
+      "evidencia": [
+        "E3"
+      ]
+    },
+    {
+      "id": "H4",
+      "enunciado": "No vale la pena pelear porque el cliente ya había hecho un reclamo previo sobre este pedido.",
+      "veredicto": "descartada",
+      "razon": "El cliente no había hecho un reclamo previo sobre este pedido.",
+      "evidencia": [
+        "E4"
+      ]
+    }
+  ],
+  "evidencia": [
+    {
+      "id": "E1",
+      "sql": "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_HzRV7MU4HKE0Yk",
+          "motivo": "fraudulent",
+          "monto": 80.49,
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 2,
+          "sospecha_fraude": true,
+          "causa_operativa": false,
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_HzRV7MU4HKE0Yk",
+          "motivo": "fraudulent",
+          "monto": 80.49,
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 2,
+          "sospecha_fraude": true,
+          "causa_operativa": false,
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E3",
+      "sql": "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_HzRV7MU4HKE0Yk",
+          "motivo": "fraudulent",
+          "monto": 80.49,
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 2,
+          "sospecha_fraude": true,
+          "causa_operativa": false,
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E4",
+      "sql": "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_HzRV7MU4HKE0Yk",
+          "motivo": "fraudulent",
+          "monto": 80.49,
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 2,
+          "sospecha_fraude": true,
+          "causa_operativa": false,
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E5",
+      "sql": "SELECT disputa_id, pedido_id, cliente_id, motivo, estado, monto, abierta_en, vence_en, transportista, region, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, reclamo_previo, pedidos_previos, disputas_previas, senales_fraude, vale_pelear, razon_decision FROM canonico.disputas WHERE disputa_id IN ('du_HzRV7MU4HKE0Yk') ORDER BY disputa_id",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_HzRV7MU4HKE0Yk",
+          "pedido_id": "ORD-1137",
+          "cliente_id": "cus_efkidVCbGDEF9u",
+          "motivo": "fraudulent",
+          "estado": "won",
+          "monto": 80.49,
+          "abierta_en": "2026-08-16 15:00:00",
+          "vence_en": "2026-08-30 23:00:00",
+          "transportista": "RapidEnvio",
+          "region": "Sur",
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entregado_en": "2026-07-21",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "pedidos_previos": 0,
+          "disputas_previas": 0,
+          "senales_fraude": 2,
+          "vale_pelear": false,
+          "razon_decision": "sospecha_de_fraude"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    }
+  ],
+  "recomendacion": "No pelear y aceptar la disputa; marcar al cliente por sospecha de fraude.",
+  "abstencion": null,
+  "aprobacion": {
+    "item_id": "AP-20261023T201652-fadfce",
+    "estado": "aprobada"
+  },
+  "cola": [
+    {
+      "item_id": "AP-20261023T201652-fadfce-1",
+      "tipo": "no_pelear",
+      "disputa_id": "du_HzRV7MU4HKE0Yk",
+      "estado": "aprobada",
+      "motivo": "no se envía al banco: es el plan para la dueña, con su evidencia",
+      "borrador": "Disputa du_HzRV7MU4HKE0Yk · 80.49 USD: no conviene pelearla porque hay 2 o más señales de fraude. Qué hacer: no pelear: aceptar la disputa y marcar al cliente. [E5]"
+    }
+  ],
+  "metricas": {
+    "iteraciones": 3,
+    "consultas": 5,
+    "ms": 95686.1,
+    "tokens": 20761,
+    "costo_usd": 0.0,
+    "devoluciones": 5,
+    "memorias_usadas": 5,
+    "entidades_ancladas": 1,
+    "capa_semantica": "on"
+  },
+  "informe_md": "# Informe de IO · 20261023T201652-fadfce\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_HzRV7MU4HKE0Yk?\n\n## Lo que encontramos\n\nNo vale la pena pelear la disputa du_HzRV7MU4HKE0Yk. El pedido fue entregado con firma, pero hay señales de fraude en este caso, por lo que no se debe pelear.\n\n- **No vale la pena pelear porque hay sospecha de fraude en este caso.** — Hay señales de fraude en este caso, por lo que no se debe pelear esta disputa. (evidencia: E2)\n\n## Hipótesis descartadas\n\n- ~~Vale la pena pelear porque la entrega fue confirmada con prueba de entrega, el cliente no había reclamado antes y no hay señales de fraude.~~ — Aunque el pedido fue entregado y hay firma como prueba, hay señales de fraude en este caso, por lo que no vale la pena pelear. (evidencia: E1)\n- ~~No vale la pena pelear porque el pedido no llegó o no hay prueba de entrega.~~ — El pedido fue entregado y hay firma como prueba de entrega, por lo que no aplica que el producto no llegó. (evidencia: E3)\n- ~~No vale la pena pelear porque el cliente ya había hecho un reclamo previo sobre este pedido.~~ — El cliente no había hecho un reclamo previo sobre este pedido. (evidencia: E4)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';\n```\n\n| disputa_id | motivo | monto | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_HzRV7MU4HKE0Yk | fraudulent | 80.49 | entregado | firma | True | False | 2 | True | False | False | no_pelear | sospecha_de_fraude |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';\n```\n\n| disputa_id | motivo | monto | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_HzRV7MU4HKE0Yk | fraudulent | 80.49 | entregado | firma | True | False | 2 | True | False | False | no_pelear | sospecha_de_fraude |\n\n**E3** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';\n```\n\n| disputa_id | motivo | monto | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_HzRV7MU4HKE0Yk | fraudulent | 80.49 | entregado | firma | True | False | 2 | True | False | False | no_pelear | sospecha_de_fraude |\n\n**E4** · motor: duckdb\n\n```sql\nSELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, causa_operativa, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_HzRV7MU4HKE0Yk';\n```\n\n| disputa_id | motivo | monto | estado_envio | prueba_entrega | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_HzRV7MU4HKE0Yk | fraudulent | 80.49 | entregado | firma | True | False | 2 | True | False | False | no_pelear | sospecha_de_fraude |\n\n**E5** · motor: duckdb\n\n```sql\nSELECT disputa_id, pedido_id, cliente_id, motivo, estado, monto, abierta_en, vence_en, transportista, region, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, reclamo_previo, pedidos_previos, disputas_previas, senales_fraude, vale_pelear, razon_decision FROM canonico.disputas WHERE disputa_id IN ('du_HzRV7MU4HKE0Yk') ORDER BY disputa_id\n```\n\n| disputa_id | pedido_id | cliente_id | motivo | estado | monto | abierta_en | vence_en | transportista | region | estado_envio | prueba_entrega | entregado_en | entrega_confirmada | reclamo_previo | pedidos_previos | disputas_previas | senales_fraude | vale_pelear | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_HzRV7MU4HKE0Yk | ORD-1137 | cus_efkidVCbGDEF9u | fraudulent | won | 80.49 | 2026-08-16 15:00:00 | 2026-08-30 23:00:00 | RapidEnvio | Sur | entregado | firma | 2026-07-21 | True | False | 0 | 0 | 2 | False | sospecha_de_fraude |\n\n\n## Qué conviene hacer\n\nNo pelear y aceptar la disputa; marcar al cliente por sospecha de fraude.\n\n### Cola de aprobación\n\nIO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.\n\n**No pelear · du_HzRV7MU4HKE0Yk** · ✅ aprobada · `AP-20261023T201652-fadfce-1`\n\n_Política: no se envía al banco: es el plan para la dueña, con su evidencia_\n\n> Disputa du_HzRV7MU4HKE0Yk · 80.49 USD: no conviene pelearla porque hay 2 o más señales de fraude. Qué hacer: no pelear: aceptar la disputa y marcar al cliente. [E5]\n\n---\nAprobación: **aprobada** · modo real · consultas: 5 · 95686 ms\n"
+}

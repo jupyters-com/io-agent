@@ -1,0 +1,159 @@
+{
+  "version": "0.1",
+  "run_id": "20261023T223249-0ff978",
+  "pregunta": "¿Vale la pena pelear la disputa du_x7zxADO5vb36t0?",
+  "modo": "real",
+  "estado": "concluida",
+  "conclusion": "No vale la pena pelear la disputa du_x7zxADO5vb36t0 de 9353. La disputa ya tiene estado ganado, así que ya está resuelta a favor y no hay nada más que hacer. Además, no existe prueba de entrega del pedido: el estado del envío, la prueba de entrega y la fecha de entrega están vacíos, por lo que no hay evidencia que presentar para defender el cobro.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear la disputa du_x7zxADO5vb36t0 porque el envío llegó y se confirmó la entrega, y el cliente no reclamó antes.",
+      "veredicto": "descartada",
+      "razon": "La fila E1 muestra que el estado del envío, la prueba de entrega y la fecha de entrega están vacíos, así que no se puede afirmar que el pedido fue entregado y confirmado. Además, la disputa ya tiene estado ganado, por lo que no hay nada que pelear.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque hay indicios de fraude en este caso.",
+      "veredicto": "descartada",
+      "razon": "La fila E1 muestra un nivel de riesgo elevado, pero el país de facturación y el país de la dirección IP coinciden (CO), por lo que esa señal por sí sola no justifica dejar de pelear la disputa. Además, la disputa ya está ganada.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H3",
+      "enunciado": "No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque el cliente ya había presentado un reclamo previo sobre este pedido.",
+      "veredicto": "descartada",
+      "razon": "La fila E1 muestra que el campo de reclamo previo está vacío, así que el cliente no había hecho un reclamo previo sobre este pedido.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H4",
+      "enunciado": "No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque no existe prueba de entrega o el envío no llegó.",
+      "veredicto": "sostenida",
+      "razon": "La fila E1 muestra que no hay estado de envío, ni prueba de entrega, ni fecha de entrega registrada. El envío no llegó o no se pudo comprobar que llegó.",
+      "evidencia": [
+        "E1"
+      ]
+    }
+  ],
+  "evidencia": [
+    {
+      "id": "E1",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_x7zxADO5vb36t0",
+          "motivo": "unrecognized",
+          "monto": 9353,
+          "estado": "won",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_x7zxADO5vb36t0",
+          "motivo": "unrecognized",
+          "monto": 9353,
+          "estado": "won",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E3",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_x7zxADO5vb36t0",
+          "motivo": "unrecognized",
+          "monto": 9353,
+          "estado": "won",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E4",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_x7zxADO5vb36t0",
+          "motivo": "unrecognized",
+          "monto": 9353,
+          "estado": "won",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    }
+  ],
+  "recomendacion": "No destinar recursos a combatir esta disputa, dado que ya está ganada y no hay evidencia de entrega que presentar.",
+  "abstencion": null,
+  "aprobacion": {
+    "item_id": "AP-20261023T223249-0ff978",
+    "estado": "aprobada"
+  },
+  "cola": [],
+  "metricas": {
+    "iteraciones": 2,
+    "consultas": 4,
+    "ms": 45470.8,
+    "tokens": 12829,
+    "costo_usd": 0.0,
+    "devoluciones": 0,
+    "memorias_usadas": 0,
+    "entidades_ancladas": 0,
+    "capa_semantica": "off"
+  },
+  "informe_md": "# Informe de IO · 20261023T223249-0ff978\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_x7zxADO5vb36t0?\n\n## Lo que encontramos\n\nNo vale la pena pelear la disputa du_x7zxADO5vb36t0 de 9353. La disputa ya tiene estado ganado, así que ya está resuelta a favor y no hay nada más que hacer. Además, no existe prueba de entrega del pedido: el estado del envío, la prueba de entrega y la fecha de entrega están vacíos, por lo que no hay evidencia que presentar para defender el cobro.\n\n- **No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque no existe prueba de entrega o el envío no llegó.** — La fila E1 muestra que no hay estado de envío, ni prueba de entrega, ni fecha de entrega registrada. El envío no llegó o no se pudo comprobar que llegó. (evidencia: E1)\n\n## Hipótesis descartadas\n\n- ~~Vale la pena pelear la disputa du_x7zxADO5vb36t0 porque el envío llegó y se confirmó la entrega, y el cliente no reclamó antes.~~ — La fila E1 muestra que el estado del envío, la prueba de entrega y la fecha de entrega están vacíos, así que no se puede afirmar que el pedido fue entregado y confirmado. Además, la disputa ya tiene estado ganado, por lo que no hay nada que pelear. (evidencia: E1)\n- ~~No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque hay indicios de fraude en este caso.~~ — La fila E1 muestra un nivel de riesgo elevado, pero el país de facturación y el país de la dirección IP coinciden (CO), por lo que esa señal por sí sola no justifica dejar de pelear la disputa. Además, la disputa ya está ganada. (evidencia: E1)\n- ~~No vale la pena pelear la disputa du_x7zxADO5vb36t0 porque el cliente ya había presentado un reclamo previo sobre este pedido.~~ — La fila E1 muestra que el campo de reclamo previo está vacío, así que el cliente no había hecho un reclamo previo sobre este pedido. (evidencia: E1)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_x7zxADO5vb36t0 | unrecognized | 9353 | won | None | None | None | None | highest | CO | CO |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_x7zxADO5vb36t0 | unrecognized | 9353 | won | None | None | None | None | highest | CO | CO |\n\n**E3** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_x7zxADO5vb36t0 | unrecognized | 9353 | won | None | None | None | None | highest | CO | CO |\n\n**E4** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_x7zxADO5vb36t0';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_x7zxADO5vb36t0 | unrecognized | 9353 | won | None | None | None | None | highest | CO | CO |\n\n\n## Qué conviene hacer\n\nNo destinar recursos a combatir esta disputa, dado que ya está ganada y no hay evidencia de entrega que presentar.\n\n---\nAprobación: **aprobada** · modo real · consultas: 4 · 45471 ms\n"
+}

@@ -24,7 +24,10 @@ ACCION_A_RAZONES = {
     "aceptar": ("sospecha_de_fraude",),
 }
 VERBO = re.compile(r"\b(pele\w*|resolver\w*|reembols\w*|acept\w*)", re.I)
-NUMERO = re.compile(r"\b(\d{1,4})\b")
+# Una cantidad de disputas: un número entero suelto. No cuenta un monto ("36.31 dólares", "247 USD", "$140"),
+# que el modelo menciona al hablar de una sola disputa y no es cuántas pelear.
+NUMERO = re.compile(r"(?<![\d.,$])\b(\d{1,4})\b(?![.,]\d)(?!\s*(?:d[oó]lar|usd|us\$|%|por\s*ciento))", re.I)
+NEGADO = re.compile(r"\bno\s+(?:\w+\s+){0,4}$", re.I)  # "no vale la pena pelear …": no recomienda pelear
 JERGA = re.compile(r"\b[a-z]+(?:_[a-z0-9]+)+\b|=\s*(?:true|false)\b"
                    r"|\b(?:fraudulent|unrecognized|highest|elevated)\b", re.I)  # también los valores en inglés
 ID_DISPUTA = re.compile(r"^du_[A-Za-z0-9]+$")  # el id de una disputa no es jerga: la dueña lo ve en su panel
@@ -98,7 +101,7 @@ def _cantidades_fuera_de_la_evidencia(recomendacion: str, evidencia: dict) -> li
     for m in VERBO.finditer(recomendacion):
         verbo = m.group(1).lower()
         accion = PREFIJO_A_ACCION.get(verbo[:4])
-        if accion is None:
+        if accion is None or NEGADO.search(recomendacion[:m.start()]):
             continue
         tramo = recomendacion[m.end(): m.end() + 60]
         n = next((int(x) for x in NUMERO.findall(tramo) if int(x) < 1900), None)

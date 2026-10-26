@@ -4,6 +4,73 @@ Agente que investiga por qué suben las disputas de pago: propone explicaciones,
 
 Construido durante el Open Agent Hackathon 2026 (Track 02 · *The Agent That Can Explain Why*), desde el 22-oct-2026. Todo lo que está en este repo es trabajo nuevo del hackathon.
 
+## Probarlo en 2 minutos
+
+No hace falta ninguna clave, ni el modelo, ni el motor de datos. Por defecto el agente corre en **modo de muestra**: repite corridas **reales** grabadas (lo que respondió Nemotron vía Meterless Nightshift y las filas que devolvió io-engine, tal cual) y responde en milisegundos. La traza, la evidencia, el informe y la cola de aprobación son los de esa corrida real.
+
+Con Python 3.12 o más nuevo:
+
+```
+pip install -r requirements.txt
+python run.py ejemplos/caso3_entrada.json
+```
+
+O con Docker (corre el caso 3):
+
+```
+docker compose run --rm agente
+```
+
+El informe legible queda en `salidas/<run_id>.md`. Ese es el archivo para leer.
+
+### Las preguntas que responde el modo de muestra
+
+| Archivo | Pregunta | Qué muestra |
+| --- | --- | --- |
+| `ejemplos/caso1_entrada.json` | ¿Vale la pena pelear la disputa du_cuKtmopzODI37h? | **Sí**: entregada con firma, sin reclamo previo, sin señales de fraude. Deja la respuesta al banco en la cola. |
+| `ejemplos/caso2_entrada.json` | ¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS? | **No**: aunque llegó con foto, tiene 4 señales de fraude. Descarta la hipótesis contraria con evidencia. |
+| `ejemplos/caso3_entrada.json` | ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026? | El pico (de 4 a 18) no es fraude: lo explica RapidEnvio en el Norte (14 de 18). Separa qué disputas pelear y redacta sus respuestas; la política rechaza una (`du_HlcQ…`, 1 señal de fraude) para que la decida una persona. |
+
+Las salidas de estas tres corridas ya están en `ejemplos/*_salida.md`, por si se quieren leer sin correr nada.
+
+**Una pregunta distinta** (o escrita distinto: se ignoran mayúsculas y espacios, pero no otras palabras) no tiene una corrida grabada, y el agente **se abstiene** en vez de inventar: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra." Para preguntas nuevas está el modo real (abajo).
+
+### Las comparaciones, también al instante
+
+```
+python scripts/comparar_capa.py        # la misma pregunta con y sin la capa de IO
+python scripts/comparar_memoria.py     # con y sin Meterless (H-MEM y World Model)
+```
+
+- `comparar_capa.py` deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md). Sin la capa, el caso 1 dice "no pelear" a una disputa que se podía ganar, porque no logra cruzar el pedido entre sistemas.
+- La medición sobre las 42 disputas del set de prueba ya está en [`evaluacion/medicion.md`](evaluacion/medicion.md): **42 de 42 con la capa, 8 de 42 sin ella**. Volver a correrla necesita el modo real, porque son preguntas nuevas.
+
+### Como servicio
+
+```
+python run.py --servir
+```
+
+Y un `POST http://localhost:8080/run` con, por ejemplo, `{"pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?"}`.
+
+### Qué deja cada corrida
+
+- `logs/<run_id>.jsonl`: la traza, un evento por línea (quién hizo qué, con qué evidencia, cuánto tardó);
+- `logs/<run_id>.evidencia.jsonl`: cada consulta con sus filas y la hipótesis que probaba;
+- `logs/cola_aprobacion.jsonl`: la cola, con lo que decidió la política para cada entrada y por qué;
+- `salidas/<run_id>.json` y `.md`: la respuesta y el informe.
+
+### Modo real: preguntas nuevas
+
+Para preguntar cualquier cosa, el agente necesita sus dos dependencias levantadas:
+
+1. **io-engine**, el motor de datos (componente previo, otro repo): `docker compose up` en ese repo.
+2. **Meterless Nightshift** con un lane de NVIDIA Nemotron y su token de Runtime.
+
+Copia `.env.example` como `.env.local`, completa `METERLESS_RUNTIME_TOKEN` y pon `SAMPLE_MODE=false`. Después, guarda la pregunta en un archivo (por ejemplo `mi_pregunta.json` con `{"pregunta": "..."}`) y corre `python run.py mi_pregunta.json`. En macOS o Linux también vale `python run.py '{"pregunta": "..."}'`.
+
+**Una pregunta en modo real tarda de 1 a 8 minutos.** Nemotron razona antes de cada respuesta, una investigación son de 2 a 6 vueltas con el modelo, y Nightshift corta cada llamada a los 45 segundos (el agente la reintenta, y si sigue fallando pasa a un Nemotron de respaldo). Por eso la demo se ve en modo de muestra.
+
 ## Cómo investiga
 
 El **Investigador** conversa con el modelo (Nemotron, vía Meterless Nightshift). En cada vuelta el modelo responde una acción en JSON y nuestro código la ejecuta y la anota:
@@ -38,6 +105,18 @@ python scripts/comparar_capa.py
 ```
 
 Corre los tres ejemplos con y sin la capa y deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md), con las dos trazas en `logs/`. Las corridas sin capa se graban con `SEMANTIC_LAYER=off python scripts/grabar_corridas.py` (en Windows: `set SEMANTIC_LAYER=off` antes) y quedan como `samples/corridas/*-sincapa.json`.
+
+### Con números: el set de prueba
+
+Además de los tres casos de la demo, el agente se mide sobre todas las disputas de los datos sintéticos, cada una con su respuesta esperada según la definición del esquema canónico (vale la pena pelear, no vale la pena o causa operativa):
+
+```
+python scripts/armar_set_prueba.py           # evaluacion/set_prueba.csv y .md (con io-engine levantado)
+python scripts/medir_set.py --primeros 5      # prueba corta
+python scripts/medir_set.py                   # el set completo, con y sin la capa (se puede cortar y retomar)
+```
+
+La tabla con los dos resultados lado a lado queda en `evaluacion/medicion.md`: aciertos, defensas que no debían armarse, defensas perdidas y abstenciones con su razón. Las respuestas quedan en `evaluacion/resultados/` y las trazas en `evaluacion/logs/`.
 
 ## Después de investigar: la cola de aprobación
 
@@ -93,33 +172,6 @@ python scripts/comparar_memoria.py
 
 Corre los tres ejemplos con y sin Meterless (H-MEM y World Model). Por cada uno muestra vueltas, devoluciones del Evaluador, consultas, memorias reinyectadas, entidades ancladas y la traza en `logs/`. Las corridas con Meterless son reales, grabadas con los dos motores encendidos (`samples/corridas/*-hmem.json`), y arrancan de lo grabado en `samples/memoria/` y `samples/mundo/`.
 
-## Probarlo (modo de muestra, sin claves ni motor)
-
-```
-pip install -r requirements.txt
-python run.py ejemplos/caso3_entrada.json
-```
-
-O con Docker:
-
-```
-docker compose run --rm agente
-```
-
-Cada corrida deja:
-
-- `logs/<run_id>.jsonl`: la traza, un evento por línea,
-- `logs/<run_id>.evidencia.jsonl`: cada consulta con sus filas y la hipótesis que probaba,
-- `logs/cola_aprobacion.jsonl`: la cola de aprobación, con lo que decidió la política para cada entrada y por qué,
-- `salidas/<run_id>.json` y `.md`: la respuesta y el informe legible.
-
-Otras formas de entrada:
-
-```
-python run.py '{"pregunta": "¿Por qué subieron las disputas en septiembre?"}'
-python run.py --servir          # POST http://localhost:8080/run con {"pregunta": "..."}
-```
-
 ## De dónde salen los datos
 
 El agente no lee bases ni archivos directamente: le pregunta al motor **io-engine** con la herramienta `consultar(sql)` por MCP. El motor es un **componente previo** (construido antes del 22-oct-2026 00:00 UTC, tag `previo-22oct`) y se levanta aparte.
@@ -144,7 +196,7 @@ La respuesta (con sus filas de evidencia y el informe Markdown), la cola de apro
 python -m pytest
 ```
 
-`tests/test_investigador.py` prueba el ciclo completo con un modelo de guion (sin red). Las de `tests/test_investigador_rojo.py` están **en rojo** hasta que existan las corridas grabadas de los tres casos (aparecen como `x`). Cuando pasen, pytest avisa con `XPASS(strict)` y hay que quitarles la marca.
+Corren sin red ni claves. La mayoría usa un modelo de guion y un motor falso (`tests/falsos.py`) para probar cada pieza: el ciclo del Investigador, el Evaluador, H-MEM, el World Model, la cola y su política, el interruptor de la capa y la medición. `tests/test_investigador_rojo.py` repite las corridas grabadas de los tres casos y comprueba sus conclusiones.
 
 ## Topes
 

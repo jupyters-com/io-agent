@@ -487,3 +487,13 @@ def test_el_evaluador_devuelve_razones_y_enunciados_con_jerga(entorno, modo_real
 def evaluador_jerga(texto):
     from agente import evaluador
     return evaluador.jerga(texto)
+
+
+def test_un_monto_no_se_confunde_con_una_cantidad_de_disputas():
+    from agente import evaluador
+    evidencia = {"E1": {"id": "E1", "ok": True, "n_filas": 1, "sql": "SELECT razon_decision, count(*) AS disputas ...",
+                        "filas": [{"razon_decision": "sin_entrega", "disputas": 1}]}}
+    for texto in ("No vale la pena pelear la disputa de 36.31 dólares: reembolsar.",
+                  "No pelear la disputa de 247 USD.", "No conviene pelearla (140 dólares)."):
+        assert evaluador._cantidades_fuera_de_la_evidencia(texto, evidencia) == []
+    assert evaluador._cantidades_fuera_de_la_evidencia("Pelear 3 disputas.", evidencia)

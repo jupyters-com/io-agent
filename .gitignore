@@ -1,10 +1,13 @@
 .env
 .env.local
-logs/
-salidas/
+/logs/
+/salidas/
 __pycache__/
 .pytest_cache/
 # memoria real del agente (H-MEM); la de la demo va en samples/memoria/
 /memoria/
 # World Model real del agente; el de la demo va en samples/mundo/
 /mundo/
+# memoria y World Model de trabajo de la medición (evaluacion/logs y evaluacion/resultados sí se suben)
+/evaluacion/_memoria/
+/evaluacion/_mundo/

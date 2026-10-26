@@ -1,0 +1,159 @@
+{
+  "version": "0.1",
+  "run_id": "20261023T220719-1f8327",
+  "pregunta": "¿Vale la pena pelear la disputa du_aTLi4ieVtbQuvL?",
+  "modo": "real",
+  "estado": "concluida",
+  "conclusion": "No vale la pena pelear la disputa du_aTLi4ieVtbQuvL de 24301. No hay prueba de entrega ni registro del envío, y el cobro tiene nivel de riesgo elevado, por lo que no hay evidencia que presentar para defender el cargo y existe una señal de fraude.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.",
+      "veredicto": "descartada",
+      "razon": "La fila no muestra que el pedido fue entregado: el estado del envío, la prueba de entrega y la fecha de entrega están vacíos. Aunque no existe un reclamo previo del cliente, no se puede afirmar que el pedido fue entregado y confirmado.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque hay sospecha de fraude en este caso.",
+      "veredicto": "sostenida",
+      "razon": "El nivel de riesgo del cobro es elevado, lo cual es una señal de fraude para este caso, aunque el país de facturación y el país de la dirección IP coinciden en CO.",
+      "evidencia": [
+        "E2"
+      ]
+    },
+    {
+      "id": "H3",
+      "enunciado": "No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque el cliente ya había hecho un reclamo previo sobre este pedido.",
+      "veredicto": "descartada",
+      "razon": "No existe un reclamo previo del cliente sobre este pedido; el campo de reclamo previo está vacío.",
+      "evidencia": [
+        "E3"
+      ]
+    },
+    {
+      "id": "H4",
+      "enunciado": "No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque no hay prueba de entrega o el envío no llegó.",
+      "veredicto": "sostenida",
+      "razon": "La disputa no tiene prueba de entrega, ni estado de envío, ni fecha de entrega registrada; no hay evidencia de que el envío haya llegado.",
+      "evidencia": [
+        "E4"
+      ]
+    }
+  ],
+  "evidencia": [
+    {
+      "id": "E1",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_aTLi4ieVtbQuvL",
+          "motivo": "unrecognized",
+          "monto": 24301,
+          "estado": "lost",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "elevated",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_aTLi4ieVtbQuvL",
+          "motivo": "unrecognized",
+          "monto": 24301,
+          "estado": "lost",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "elevated",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E3",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_aTLi4ieVtbQuvL",
+          "motivo": "unrecognized",
+          "monto": 24301,
+          "estado": "lost",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "elevated",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E4",
+      "sql": "SELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "disputa_id": "du_aTLi4ieVtbQuvL",
+          "motivo": "unrecognized",
+          "monto": 24301,
+          "estado": "lost",
+          "estado_envio": null,
+          "prueba_entrega": null,
+          "entregado_en": null,
+          "reclamo_previo": null,
+          "riesgo": "elevated",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO"
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    }
+  ],
+  "recomendacion": "Aceptar esta disputa y no destinar recursos a combatirla, dado que no hay evidencia de entrega y hay una señal de fraude en el cobro.",
+  "abstencion": null,
+  "aprobacion": {
+    "item_id": "AP-20261023T220719-1f8327",
+    "estado": "aprobada"
+  },
+  "cola": [],
+  "metricas": {
+    "iteraciones": 2,
+    "consultas": 4,
+    "ms": 51177.3,
+    "tokens": 14290,
+    "costo_usd": 0.0,
+    "devoluciones": 0,
+    "memorias_usadas": 0,
+    "entidades_ancladas": 0,
+    "capa_semantica": "off"
+  },
+  "informe_md": "# Informe de IO · 20261023T220719-1f8327\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_aTLi4ieVtbQuvL?\n\n## Lo que encontramos\n\nNo vale la pena pelear la disputa du_aTLi4ieVtbQuvL de 24301. No hay prueba de entrega ni registro del envío, y el cobro tiene nivel de riesgo elevado, por lo que no hay evidencia que presentar para defender el cargo y existe una señal de fraude.\n\n- **No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque hay sospecha de fraude en este caso.** — El nivel de riesgo del cobro es elevado, lo cual es una señal de fraude para este caso, aunque el país de facturación y el país de la dirección IP coinciden en CO. (evidencia: E2)\n\n- **No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque no hay prueba de entrega o el envío no llegó.** — La disputa no tiene prueba de entrega, ni estado de envío, ni fecha de entrega registrada; no hay evidencia de que el envío haya llegado. (evidencia: E4)\n\n## Hipótesis descartadas\n\n- ~~Vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.~~ — La fila no muestra que el pedido fue entregado: el estado del envío, la prueba de entrega y la fecha de entrega están vacíos. Aunque no existe un reclamo previo del cliente, no se puede afirmar que el pedido fue entregado y confirmado. (evidencia: E1)\n- ~~No vale la pena pelear la disputa du_aTLi4ieVtbQuvL porque el cliente ya había hecho un reclamo previo sobre este pedido.~~ — No existe un reclamo previo del cliente sobre este pedido; el campo de reclamo previo está vacío. (evidencia: E3)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_aTLi4ieVtbQuvL | unrecognized | 24301 | lost | None | None | None | None | elevated | CO | CO |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_aTLi4ieVtbQuvL | unrecognized | 24301 | lost | None | None | None | None | elevated | CO | CO |\n\n**E3** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_aTLi4ieVtbQuvL | unrecognized | 24301 | lost | None | None | None | None | elevated | CO | CO |\n\n**E4** · motor: duckdb\n\n```sql\nSELECT d.id AS disputa_id, d.reason AS motivo, d.amount AS monto, d.status AS estado, e.estado AS estado_envio, e.prueba_entrega AS prueba_entrega, e.fecha_entrega AS entregado_en, s.ticket AS reclamo_previo, c.risk_level AS riesgo, c.billing_country AS pais_facturacion, c.ip_country AS pais_ip FROM crudo.pagos_disputes d JOIN crudo.pagos_charges c ON d.charge = c.id LEFT JOIN crudo.envios e ON c.metadata__order_id = e.nro_pedido LEFT JOIN crudo.soporte_tickets s ON c.metadata__order_id = s.pedido WHERE d.id = 'du_aTLi4ieVtbQuvL';\n```\n\n| disputa_id | motivo | monto | estado | estado_envio | prueba_entrega | entregado_en | reclamo_previo | riesgo | pais_facturacion | pais_ip |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_aTLi4ieVtbQuvL | unrecognized | 24301 | lost | None | None | None | None | elevated | CO | CO |\n\n\n## Qué conviene hacer\n\nAceptar esta disputa y no destinar recursos a combatirla, dado que no hay evidencia de entrega y hay una señal de fraude en el cobro.\n\n---\nAprobación: **aprobada** · modo real · consultas: 4 · 51177 ms\n"
+}
