@@ -1,238 +1,244 @@
-# io-agent · el agente de IO para contracargos
+# io-agent · IO's agent for chargebacks
 
-Agente que investiga por qué suben las disputas de pago: propone explicaciones, las prueba con datos y descarta las que la evidencia no sostiene, dejando anotada cada prueba. Si no puede sostener una conclusión con filas, se abstiene.
+**Language:** English · [Español](README.es.md)
 
-Construido durante el Open Agent Hackathon 2026 (Track 02 · *The Agent That Can Explain Why*), desde el 22-oct-2026. Todo lo que está en este repo es trabajo nuevo del hackathon.
+An agent that investigates why payment disputes (chargebacks) go up: it proposes explanations, tests them against the data and discards the ones the evidence does not support, recording every test. If it cannot back a conclusion with rows of evidence, it abstains.
 
-> **Read this first: sample mode is the default.** `SAMPLE_MODE=true` replays **pre-recorded real runs**: the Nemotron responses (via Meterless Nightshift) and the rows io-engine returned, for the three example questions in `ejemplos/`. The agent logic (Investigator, Evaluator, approval queue, memory) runs for real on top of those recordings; the model and the data engine are not called. Any other question has no recording, so the agent abstains. To run new questions, use live mode (section "Modo real: preguntas nuevas" below). The data is synthetic.
+Built during the Open Agent Hackathon 2026 (Track 02 · *The Agent That Can Explain Why*), starting 22 Oct 2026. Everything in this repo is new hackathon work, except the previous component declared under "Where the data comes from".
+
+> **Read this first: sample mode is the default.** `SAMPLE_MODE=true` replays **pre-recorded real runs**: the Nemotron responses (via Meterless Nightshift) and the rows io-engine returned, for the three example questions in `ejemplos/`. The agent logic (Investigator, Evaluator, approval queue, memory) runs for real on top of those recordings; the model and the data engine are not called. Any other question has no recording, so the agent abstains. To run new questions, use live mode (section "Live mode: new questions" below). The data is synthetic.
 >
 > The organizers confirmed that this is acceptable: *"yes a pre-recorded sample mode acceptable, please make sure its highlighted in your submission and README"* (Janson Lim, HackOS #Help desk, 24 Oct 2026).
+>
+> Note: the agent answers in Spanish (the store owner's language), and its report and trace are in Spanish. Code identifiers, file names and commands are as written below.
 
-## Probarlo en 2 minutos
+## Try it in 2 minutes
 
-No hace falta ninguna clave, ni el modelo, ni el motor de datos. Por defecto el agente corre en **modo de muestra**: repite corridas **reales** grabadas (lo que respondió Nemotron vía Meterless Nightshift y las filas que devolvió io-engine, tal cual) y responde en milisegundos. La traza, la evidencia, el informe y la cola de aprobación son los de esa corrida real.
+No keys, no model and no data engine are needed. By default the agent runs in **sample mode**: it replays **real recorded runs** (what Nemotron answered via Meterless Nightshift and the rows io-engine returned, as they were) and answers in milliseconds. The trace, the evidence, the report and the approval queue are those of that real run.
 
-Con Python 3.12 o más nuevo:
+With Python 3.12 or newer:
 
 ```
 pip install -r requirements.txt
 python run.py ejemplos/caso3_entrada.json
 ```
 
-O con Docker (corre el caso 3):
+Or with Docker (runs case 3):
 
 ```
 docker compose run --rm agente
 ```
 
-El informe legible queda en `salidas/<run_id>.md`. Ese es el archivo para leer.
+The readable report is written to `salidas/<run_id>.md`. That is the file to read.
 
-### Las preguntas que responde el modo de muestra
+### The questions sample mode answers
 
-| Archivo | Pregunta | Qué muestra |
+| File | Question | What it shows |
 | --- | --- | --- |
-| `ejemplos/caso1_entrada.json` | ¿Vale la pena pelear la disputa du_cuKtmopzODI37h? | **Sí**: entregada con firma, sin reclamo previo, sin señales de fraude. Deja la respuesta al banco en la cola. |
-| `ejemplos/caso2_entrada.json` | ¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS? | **No**: aunque llegó con foto, tiene 4 señales de fraude. Descarta la hipótesis contraria con evidencia. |
-| `ejemplos/caso3_entrada.json` | ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026? | El pico (de 4 a 18) no es fraude: lo explica RapidEnvio en el Norte (14 de 18). Separa qué disputas pelear y redacta sus respuestas; la política rechaza una (`du_HlcQ…`, 1 señal de fraude) para que la decida una persona. |
+| `ejemplos/caso1_entrada.json` | Is it worth fighting dispute du_cuKtmopzODI37h? | **Yes**: delivered with a signature, no prior complaint, no fraud signals. It leaves the reply to the bank in the queue. |
+| `ejemplos/caso2_entrada.json` | Is it worth fighting dispute du_LRbXAOhoJgujrS? | **No**: although it was delivered with a photo, it has 4 fraud signals. It discards the opposite hypothesis with evidence. |
+| `ejemplos/caso3_entrada.json` | Why did disputes go up in the second half of September 2026? | The spike (from 4 to 18) is not fraud: RapidEnvio in the North explains it (14 of 18). It separates which disputes to fight and drafts their replies; the policy rejects one (`du_HlcQ…`, 1 fraud signal) so a person decides. |
 
-Las salidas de estas tres corridas ya están en `ejemplos/*_salida.md`, por si se quieren leer sin correr nada.
+(The questions are asked in Spanish, exactly as in the `ejemplos/*_entrada.json` files.)
 
-**Una pregunta distinta** (o escrita distinto: se ignoran mayúsculas y espacios, pero no otras palabras) no tiene una corrida grabada, y el agente **se abstiene** en vez de inventar: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real: SAMPLE_MODE=false (ver el README, «Modo real: preguntas nuevas»)." Para preguntas nuevas está el modo real (abajo).
+The outputs of these three runs are already in `ejemplos/*_salida.md`, in case you want to read them without running anything.
 
-### Las comparaciones, también al instante
+**A different question** (or the same one written differently: upper/lower case and spaces are ignored, other words are not) has no recorded run, and the agent **abstains** instead of making something up: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real / For new questions use live mode: SAMPLE_MODE=false (README.md, «Live mode: new questions»; README.es.md, «Modo real: preguntas nuevas»)." For new questions, use live mode (below).
+
+### The comparisons, also instant
 
 ```
-python scripts/comparar_capa.py        # la misma pregunta con y sin la capa de IO
-python scripts/comparar_memoria.py     # con y sin Meterless (H-MEM y World Model)
+python scripts/comparar_capa.py        # the same question with and without IO's layer
+python scripts/comparar_memoria.py     # with and without Meterless (H-MEM and World Model)
 ```
 
-- `comparar_capa.py` deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md). Sin la capa, el caso 1 dice "no pelear" a una disputa que se podía ganar, porque no logra cruzar el pedido entre sistemas.
-- La medición sobre las 42 disputas del set de prueba ya está en [`evaluacion/medicion.md`](evaluacion/medicion.md): **42 de 42 con la capa, 8 de 42 sin ella**. Volver a correrla necesita el modo real, porque son preguntas nuevas. Cómo leerla: el 42 de 42 mide que el agente reproduce la definición del set (`vale_pelear`, del esquema canónico), no una verdad externa; y las 20 defensas perdidas sin la capa son un solo error repetido (no cruza `ORD-1574` con `1574`), no 20 errores distintos.
+- `comparar_capa.py` writes the side-by-side to [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md). Without the layer, case 1 says "don't fight" on a dispute that could be won, because it cannot match the order across systems.
+- The measurement over the 42 disputes of the test set is already in [`evaluacion/medicion.md`](evaluacion/medicion.md): **42 of 42 with the layer, 8 of 42 without it**. Running it again needs live mode, because these are new questions. How to read it: the 42 of 42 measures that the agent reproduces the definition of the set (`vale_pelear`, from the canonical schema), not an external truth; and the 20 defenses lost without the layer are a single repeated error (it does not match `ORD-1574` with `1574`), not 20 different errors.
 
-### Como servicio
+### As a service
 
 ```
 python run.py --servir
 ```
 
-Y un `POST http://localhost:8080/run` con, por ejemplo, `{"pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?"}`.
+And a `POST http://localhost:8080/run` with, for example, `{"pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?"}`.
 
-### Qué deja cada corrida
+### What each run leaves behind
 
-- `logs/<run_id>.jsonl`: la traza, un evento por línea (quién hizo qué, con qué evidencia, cuánto tardó);
-- `logs/<run_id>.evidencia.jsonl`: cada consulta con sus filas y la hipótesis que probaba;
-- `logs/cola_aprobacion.jsonl`: la cola, con lo que decidió la política para cada entrada y por qué;
-- `salidas/<run_id>.json` y `.md`: la respuesta y el informe.
+- `logs/<run_id>.jsonl`: the trace, one event per line (who did what, with which evidence, how long it took);
+- `logs/<run_id>.evidencia.jsonl`: each query with its rows and the hypothesis it was testing;
+- `logs/cola_aprobacion.jsonl`: the queue, with what the policy decided for each entry and why;
+- `salidas/<run_id>.json` and `.md`: the answer and the report.
 
-### Modo real: preguntas nuevas
+### Live mode: new questions
 
-Para preguntar cualquier cosa, el agente necesita sus dos dependencias levantadas:
+To ask anything, the agent needs its two dependencies up:
 
-1. **io-engine**, el motor de datos (componente previo, otro repo): `docker compose up` en ese repo.
-2. **Meterless Nightshift** con un lane de NVIDIA Nemotron y su token de Runtime.
+1. **io-engine**, the data engine (previous component, another repo): `docker compose up` in that repo.
+2. **Meterless Nightshift** with an NVIDIA Nemotron lane and its Runtime token.
 
-Copia `.env.example` como `.env.local`, completa `METERLESS_RUNTIME_TOKEN` y pon `SAMPLE_MODE=false`. Después, guarda la pregunta en un archivo (por ejemplo `mi_pregunta.json` con `{"pregunta": "..."}`) y corre `python run.py mi_pregunta.json`. En macOS o Linux también vale `python run.py '{"pregunta": "..."}'`.
+Copy `.env.example` as `.env.local`, fill in `METERLESS_RUNTIME_TOKEN` and set `SAMPLE_MODE=false`. Then save the question in a file (for example `mi_pregunta.json` with `{"pregunta": "..."}`) and run `python run.py mi_pregunta.json`. On macOS or Linux `python run.py '{"pregunta": "..."}'` also works.
 
-**Una pregunta en modo real tarda de 1 a 8 minutos.** Nemotron razona antes de cada respuesta, una investigación son de 2 a 6 vueltas con el modelo, y Nightshift corta cada llamada a los 45 segundos (el agente la reintenta, y si sigue fallando pasa a un Nemotron de respaldo). Por eso la demo se ve en modo de muestra.
+**A question in live mode takes 1 to 8 minutes.** Nemotron reasons before each answer, an investigation is 2 to 6 rounds with the model, and Nightshift cuts each call at 45 seconds (the agent retries it, and if it keeps failing it moves to a fallback Nemotron). That is why the demo is shown in sample mode.
 
-## Cómo investiga
+## How it investigates
 
-El **Investigador** conversa con el modelo (Nemotron, vía Meterless Nightshift). En cada vuelta el modelo responde una acción en JSON y nuestro código la ejecuta y la anota:
+The **Investigator** talks to the model (Nemotron, via Meterless Nightshift). In each round the model answers with one action in JSON, and our code executes and records it:
 
-1. **Propone hipótesis** (H1, H2…), incluida la explicación más obvia aunque sea falsa (por ejemplo, "es fraude").
-2. **Las prueba** con `consultar(sql)` contra io-engine. Cada resultado queda como evidencia E1, E2…
-3. **Da un veredicto** (sostenida o descartada) citando la evidencia. El **Evaluador** lo revisa y lo devuelve si la evidencia no existe, falló o no trae filas.
-4. **Concluye** solo si el Evaluador acepta: todas las hipótesis con veredicto y al menos una sostenida. Si los datos no alcanzan, **se abstiene**.
+1. **Proposes hypotheses** (H1, H2…), including the most obvious explanation even if it is false (for example, "it is fraud").
+2. **Tests them** with `consultar(sql)` against io-engine. Each result is kept as evidence E1, E2…
+3. **Gives a verdict** (upheld or discarded) citing the evidence. The **Evaluator** reviews it and sends it back if the evidence does not exist, failed or has no rows.
+4. **Concludes** only if the Evaluator accepts: every hypothesis has a verdict and at least one is upheld. If the data is not enough, it **abstains**.
 
-Todo lo que sale en el informe (enunciados, razones, conclusión y recomendación) lo lee la dueña de la tienda, así que el Evaluador también devuelve lo que trae términos técnicos (`product_not_received`, `zona_con_atrasos=true`). Si devuelve la misma cosa más de `AGENTE_TOPE_DEVOLUCIONES` veces, el agente se abstiene.
+Everything in the report (statements, reasons, conclusion and recommendation) is read by the store owner, so the Evaluator also sends back anything that contains technical terms (`product_not_received`, `zona_con_atrasos=true`). If it sends back the same thing more than `AGENTE_TOPE_DEVOLUCIONES` times, the agent abstains.
 
-La IA piensa; el código hace y registra. Topes: `AGENTE_MAX_ITERACIONES` vueltas y `AGENTE_TIMEOUT_S` por llamada.
+The AI thinks; the code acts and records. Limits: `AGENTE_MAX_ITERACIONES` rounds and `AGENTE_TIMEOUT_S` per call.
 
-## Con y sin la capa de IO
+## With and without IO's layer
 
-El diferencial de IO es la capa semántica: la misma pregunta responde mal sobre las fuentes crudas y bien con la capa. Un interruptor lo muestra:
+IO's differentiator is the semantic layer: the same question is answered badly over the raw sources and well with the layer. A switch shows it:
 
 ```
 SEMANTIC_LAYER=off
 ```
 
-Con la capa apagada, el agente consulta las tablas crudas de io-engine (`crudo.pagos_disputes`, `crudo.envios`, `crudo.soporte_tickets`…), tal como llegan de cada sistema:
+With the layer off, the agent queries the raw tables of io-engine (`crudo.pagos_disputes`, `crudo.envios`, `crudo.soporte_tickets`…), as they arrive from each system:
 
-- montos en centavos y fechas en distintos formatos;
-- pedidos escritos como `ORD-1574`, `1574` o `#1574`;
-- el soporte, ligado por correo y no por cliente.
+- amounts in cents and dates in different formats;
+- orders written as `ORD-1574`, `1574` or `#1574`;
+- support linked by email and not by customer.
 
-Además queda **sin** el esquema canónico, **sin** sus definiciones (qué es entrega confirmada, reclamo previo, zona con atrasos o señal de fraude) y **sin** Meterless (H-MEM y World Model). Todo lo demás es igual: mismo modelo, misma pregunta, mismos datos y el mismo Evaluador, salvo las reglas que usan definiciones de la capa.
+It is also left **without** the canonical schema, **without** its definitions (what confirmed delivery, prior complaint, delay zone or fraud signal mean) and **without** Meterless (H-MEM and World Model). Everything else is the same: same model, same question, same data and the same Evaluator, except for the rules that use definitions from the layer.
 
 ```
 python scripts/comparar_capa.py
 ```
 
-Corre los tres ejemplos con y sin la capa y deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md), con las dos trazas en `logs/`. Las corridas sin capa se graban con `SEMANTIC_LAYER=off python scripts/grabar_corridas.py` (en Windows: `set SEMANTIC_LAYER=off` antes) y quedan como `samples/corridas/*-sincapa.json`.
+It runs the three examples with and without the layer and writes the side-by-side to [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md), with the two traces in `logs/`. The runs without the layer are recorded with `SEMANTIC_LAYER=off python scripts/grabar_corridas.py` (on Windows: `set SEMANTIC_LAYER=off` first) and are saved as `samples/corridas/*-sincapa.json`.
 
-### Con números: el set de prueba
+### In numbers: the test set
 
-Además de los tres casos de la demo, el agente se mide sobre todas las disputas de los datos sintéticos, cada una con su respuesta esperada según la definición del esquema canónico (vale la pena pelear, no vale la pena o causa operativa):
+Besides the three demo cases, the agent is measured over all the disputes in the synthetic data, each with its expected answer according to the definition of the canonical schema (worth fighting, not worth fighting, or operational cause):
 
 ```
-python scripts/armar_set_prueba.py           # evaluacion/set_prueba.csv y .md (con io-engine levantado)
-python scripts/medir_set.py --primeros 5      # prueba corta
-python scripts/medir_set.py                   # el set completo, con y sin la capa (se puede cortar y retomar)
+python scripts/armar_set_prueba.py           # evaluacion/set_prueba.csv and .md (with io-engine up)
+python scripts/medir_set.py --primeros 5      # short test
+python scripts/medir_set.py                   # the full set, with and without the layer (can be stopped and resumed)
 ```
 
-La tabla con los dos resultados lado a lado queda en `evaluacion/medicion.md`: aciertos, defensas que no debían armarse, defensas perdidas y abstenciones con su razón. Las respuestas quedan en `evaluacion/resultados/` y las trazas en `evaluacion/logs/`.
+The table with both results side by side is written to `evaluacion/medicion.md`: hits, defenses that should not have been built, defenses lost and abstentions with their reason. The answers are in `evaluacion/resultados/` and the traces in `evaluacion/logs/`.
 
-## Después de investigar: la cola de aprobación
+## After investigating: the approval queue
 
-El agente no termina en una explicación: con la conclusión aceptada, separa las disputas que vale la pena pelear de las que no, redacta la respuesta al banco de cada una que vale pelear y deja todo en una cola de aprobación. **No envía nada.**
+The agent does not stop at an explanation: with the conclusion accepted, it separates the disputes worth fighting from those that are not, drafts the reply to the bank for each one worth fighting and leaves everything in an approval queue. **It sends nothing.**
 
-- **Qué disputas.** Si la pregunta nombra disputas, esas. Si es por un aumento, las del transportista y la región que el World Model ancló en la conclusión, en el período de la pregunta.
-- **Con qué datos.** Las trae con `consultar(sql)`, como evidencia E#: la fila de cada disputa y los mensajes de soporte de sus pedidos.
-- **Cómo separa.** Con la decisión de io-engine (`vale_pelear`, `razon_decision`).
-- **Qué redacta.**
-  - Una respuesta al banco por cada disputa que vale pelear, con entrega, historial del cliente, soporte y señales de fraude, cada dato con su E#.
-  - Para un aumento, una entrada con la causa y qué disputas del grupo no conviene pelear, agrupadas por razón y con qué hacer con cada grupo.
-- **Quién decide.** Mientras el agente corre no hay humano: la regla `politica_v1` aprueba o rechaza cada entrada y deja el motivo en `logs/cola_aprobacion.jsonl`. Solo aprueba sola lo que no tiene dudas (evidencia completa, disputa abierta, sin señales de fraude, monto hasta `AGENTE_POLITICA_MONTO_MAX`); lo demás lo rechaza para que lo decida una persona.
+- **Which disputes.** If the question names disputes, those. If it is about an increase, the ones from the carrier and region that the World Model anchored in the conclusion, in the period of the question.
+- **With what data.** It fetches them with `consultar(sql)`, as evidence E#: the row of each dispute and the support messages of their orders.
+- **How it separates.** With io-engine's decision (`vale_pelear`, `razon_decision`).
+- **What it drafts.**
+  - One reply to the bank for each dispute worth fighting, with delivery, customer history, support and fraud signals, each fact with its E#.
+  - For an increase, one entry with the cause and which disputes of the group are not worth fighting, grouped by reason and with what to do with each group.
+- **Who decides.** While the agent runs there is no human: the rule `politica_v1` approves or rejects each entry and leaves the reason in `logs/cola_aprobacion.jsonl`. It only approves on its own what has no doubts (complete evidence, open dispute, no fraud signals, amount up to `AGENTE_POLITICA_MONTO_MAX`); everything else it rejects so a person decides.
 
-Las reglas y el formato están en [`CONTRATO.md`](CONTRATO.md). El informe muestra la cola en "Qué conviene hacer".
+The rules and the format are in [`CONTRATO.md`](CONTRATO.md). The report shows the queue under "Qué conviene hacer" (What to do).
 
-## Memoria entre corridas (H-MEM, de Meterless)
+## Memory across runs (H-MEM, from Meterless)
 
-El agente no empieza de cero en cada corrida. Implementamos **H-MEM**, el motor de memoria de Meterless (`agente/memoria.py`, siguiendo `engines/hmem` del repo de Meterless):
+The agent does not start from zero in each run. We implemented **H-MEM**, Meterless's memory engine (`agente/memoria.py`, following `engines/hmem` in Meterless's repo):
 
-- **Antes de la primera vuelta, recuerda.** Busca en su memoria con el ranking híbrido de H-MEM y le reinyecta al Investigador dos cosas:
-  - las **lecciones del Evaluador**: cada motivo por el que antes le devolvieron un veredicto o una conclusión ("prueba al menos 2 hipótesis…", "cuenta las decisiones antes de recomendar…");
-  - los **hallazgos** de corridas anteriores sobre esa misma pregunta, como pistas y nunca como evidencia: el Evaluador sigue exigiendo una consulta de esta corrida para cada afirmación.
-- **Al terminar, aprende.**
-  - Guarda las lecciones nuevas y, si concluyó, los hallazgos.
-  - Reemplaza los hallazgos viejos de la misma pregunta: quedan penalizados, nunca se borran.
-  - Sube o baja la confianza de lo que usó (+0.05 si ayudó, −0.03 si no).
-  - Promueve a largo plazo lo que ayudó 3 veces.
-- **Todo queda auditado**:
-  - `memoria/memorias.json` guarda los registros con su fuente (`corrida:<run_id>`);
-  - `memoria/ledger.jsonl` es el libro de confianza, de solo agregar, con el estado anterior y el nuevo de cada cambio;
-  - en la traza quedan los eventos `recordar` y `aprender` del agente `memoria`.
-- **Adaptador con tiempo límite y respaldo.** Si H-MEM está apagado (`AGENTE_HMEM=false`), tarda más de `AGENTE_HMEM_TIMEOUT_S` o falla, el agente sigue sin memoria y la traza lo dice (`omitido` o `error` con "respaldo").
-- **Qué muestra y qué no.** `comparar_memoria.py` muestra que el agente recuerda lo que el Evaluador le corrigió antes (menos devoluciones y vueltas al repetir la misma pregunta). No prueba que esa memoria generalice a preguntas nuevas.
+- **Before the first round, it remembers.** It searches its memory with H-MEM's hybrid ranking and feeds the Investigator two things:
+  - the **Evaluator's lessons**: every reason a verdict or a conclusion was sent back before ("test at least 2 hypotheses…", "count the decisions before recommending…");
+  - the **findings** of previous runs on that same question, as hints and never as evidence: the Evaluator still requires a query from this run for every statement.
+- **When it finishes, it learns.**
+  - It stores the new lessons and, if it concluded, the findings.
+  - It replaces the old findings of the same question: they are penalized, never deleted.
+  - It raises or lowers the confidence of what it used (+0.05 if it helped, −0.03 if not).
+  - It promotes to long term what helped 3 times.
+- **Everything is audited**:
+  - `memoria/memorias.json` stores the records with their source (`corrida:<run_id>`);
+  - `memoria/ledger.jsonl` is the append-only trust ledger, with the previous and the new state of each change;
+  - the trace gets the events `recordar` (remember) and `aprender` (learn) from the `memoria` agent.
+- **Adapter with timeout and fallback.** If H-MEM is off (`AGENTE_HMEM=false`), takes longer than `AGENTE_HMEM_TIMEOUT_S` or fails, the agent continues without memory and the trace says so (`omitido` or `error` with "respaldo").
+- **What it shows and what it does not.** `comparar_memoria.py` shows that the agent remembers what the Evaluator corrected before (fewer returns and rounds when the same question is repeated). It does not prove that this memory generalizes to new questions.
 
-## Qué se vio y de dónde salió (World Model, de Meterless)
+## What was seen and where it came from (World Model, from Meterless)
 
-H-MEM recuerda; el **World Model** lleva el registro canónico de las *cosas* que el agente vio en los datos. Lo implementamos siguiendo `engines/world-model` del repo de Meterless (`agente/mundo.py`):
+H-MEM remembers; the **World Model** keeps the canonical record of the *things* the agent saw in the data. We implemented it following `engines/world-model` in Meterless's repo (`agente/mundo.py`):
 
-- **Ingesta idempotente.** Cada consulta que devuelve filas pasa al World Model:
-  - disputas, pedidos, pagos, envíos y clientes se guardan con su id de io-engine (`disputa:io:du_…`);
-  - transportistas y regiones, con un id derivado del nombre normalizado (`ent_<sha256>`);
-  - se guardan sus relaciones (disputa → pedido, transportista → región…) y sus hechos (`razon_decision`, `senales_fraude`…), con la corrida y la evidencia E# de donde salieron;
-  - volver a ingerir las mismas filas no agrega nada.
-- **Registro de solo agregar.** Todo vive en `mundo/eventos.jsonl` y el estado se reconstruye desde ahí. Una escritura sin procedencia se rechaza.
-- **Anclaje de la conclusión.** Antes de aceptarla, el Evaluador le pregunta al World Model si cada disputa, transportista y región que nombra salió en una consulta de esta corrida. Si el modelo nombra algo que solo recuerda de otra corrida (H-MEM) o que inventó, se le devuelve. En la traza queda el evento `anclar`, con la evidencia de cada nombre: `RapidEnvio (E2); Norte (E2)`.
-- **Resolución de ids.** Si una consulta no devuelve filas porque el modelo escribió mal un id (`du_…jgujrs` en vez de `du_…jgujrS`), el World Model le contesta con el id canónico.
-- **Mismo adaptador con tiempo límite y respaldo** que H-MEM: con `AGENTE_MUNDO=false`, o si tarda o falla, el agente sigue sin anclaje ni resolución de ids, y la traza lo marca.
+- **Idempotent ingestion.** Every query that returns rows goes into the World Model:
+  - disputes, orders, payments, shipments and customers are stored with their io-engine id (`disputa:io:du_…`);
+  - carriers and regions, with an id derived from the normalized name (`ent_<sha256>`);
+  - their relations (dispute → order, carrier → region…) and their facts (`razon_decision`, `senales_fraude`…) are stored, with the run and the evidence E# they came from;
+  - ingesting the same rows again adds nothing.
+- **Append-only record.** Everything lives in `mundo/eventos.jsonl` and the state is rebuilt from there. A write without provenance is rejected.
+- **Anchoring the conclusion.** Before accepting it, the Evaluator asks the World Model whether each dispute, carrier and region it names came out of a query in this run. If the model names something it only remembers from another run (H-MEM) or made up, it is sent back. The trace gets the `anclar` (anchor) event, with the evidence for each name: `RapidEnvio (E2); Norte (E2)`.
+- **Id resolution.** If a query returns no rows because the model misspelled an id (`du_…jgujrs` instead of `du_…jgujrS`), the World Model answers with the canonical id.
+- **Same adapter with timeout and fallback** as H-MEM: with `AGENTE_MUNDO=false`, or if it takes too long or fails, the agent continues without anchoring or id resolution, and the trace marks it.
 
-## Con y sin Meterless
+## With and without Meterless
 
 ```
 python scripts/comparar_memoria.py
 ```
 
-Corre los tres ejemplos con y sin Meterless (H-MEM y World Model). Por cada uno muestra vueltas, devoluciones del Evaluador, consultas, memorias reinyectadas, entidades ancladas y la traza en `logs/`. Las corridas con Meterless son reales, grabadas con los dos motores encendidos (`samples/corridas/*-hmem.json`), y arrancan de lo grabado en `samples/memoria/` y `samples/mundo/`.
+It runs the three examples with and without Meterless (H-MEM and World Model). For each one it shows rounds, Evaluator returns, queries, memories fed back, entities anchored and the trace in `logs/`. The runs with Meterless are real, recorded with both engines on (`samples/corridas/*-hmem.json`), and start from what was recorded in `samples/memoria/` and `samples/mundo/`.
 
-## De dónde salen los datos
+## Where the data comes from
 
-El agente no lee bases ni archivos directamente: le pregunta al motor **io-engine** con la herramienta `consultar(sql)` por MCP. El motor es un **componente previo** (construido antes del 22-oct-2026 00:00 UTC, tag `previo-22oct`) y se levanta aparte.
+The agent does not read databases or files directly: it asks the **io-engine** engine with the `consultar(sql)` tool over MCP. The engine is a **previous component** (built before 22 Oct 2026 00:00 UTC, tag `previo-22oct`, declared in the submission form) and is started separately.
 
-- **Modo de muestra** (`SAMPLE_MODE=true`, por defecto): repite **corridas reales grabadas** en `samples/corridas/`: lo que respondió Nemotron y las filas que devolvió io-engine, tal cual. No necesita el motor, ni Nightshift, ni claves. Una pregunta sin corrida grabada termina en abstención.
-- **Modo real** (`SAMPLE_MODE=false`): levanta io-engine (`docker compose up --build` en ese repo), abre Nightshift con un lane Nemotron, copia `.env.example` como `.env.local` y completa la URL del motor y el token de Nightshift.
-- **Grabar corridas**: con todo lo del modo real levantado, `python scripts/grabar_corridas.py` corre los tres ejemplos, los graba en `samples/corridas/` (con memoria, como `*-hmem.json`) y regenera `ejemplos/`.
-- **Consultas de la cola**: las que el agente arma solo (las disputas del grupo, los mensajes de soporte) se graban con `python scripts/completar_muestras.py`, con io-engine levantado y sin llamar al modelo.
-- **Memoria y World Model**: en modo real viven en `memoria/` y `mundo/` (no se suben). `python scripts/sembrar_memoria.py` siembra la memoria con lo que enseñan las corridas ya grabadas, y `python scripts/congelar_memoria.py` copia las dos a `samples/`, lo que usa el modo de muestra.
+- **Sample mode** (`SAMPLE_MODE=true`, default): replays **real recorded runs** in `samples/corridas/`: what Nemotron answered and the rows io-engine returned, as they were. It needs neither the engine, nor Nightshift, nor keys. A question with no recorded run ends in abstention.
+- **Live mode** (`SAMPLE_MODE=false`): start io-engine (`docker compose up --build` in that repo), open Nightshift with a Nemotron lane, copy `.env.example` as `.env.local` and fill in the engine URL and the Nightshift token.
+- **Recording runs**: with everything from live mode up, `python scripts/grabar_corridas.py` runs the three examples, records them in `samples/corridas/` (with memory, as `*-hmem.json`) and regenerates `ejemplos/`.
+- **Queue queries**: the ones the agent builds on its own (the group's disputes, the support messages) are recorded with `python scripts/completar_muestras.py`, with io-engine up and without calling the model.
+- **Memory and World Model**: in live mode they live in `memoria/` and `mundo/` (not uploaded). `python scripts/sembrar_memoria.py` seeds the memory with what the already recorded runs teach, and `python scripts/congelar_memoria.py` copies both to `samples/`, which is what sample mode uses.
 
-## Contrato
+## Contract
 
-La respuesta (con sus filas de evidencia y el informe Markdown), la cola de aprobación y la traza JSONL tienen formato fijo: ver [`CONTRATO.md`](CONTRATO.md) y `contrato/*.schema.json`.
+The answer (with its evidence rows and the Markdown report), the approval queue and the JSONL trace have a fixed format: see [`CONTRATO.md`](CONTRATO.md) and `contrato/*.schema.json`.
 
-## Ejemplos
+## Examples
 
-`ejemplos/` tiene tres preguntas (los tres casos plantados) con sus salidas, generadas por corridas reales con `python scripts/generar_ejemplos.py`, nunca escritas a mano.
+`ejemplos/` has three questions (the three planted cases) with their outputs, generated by real runs with `python scripts/generar_ejemplos.py`, never written by hand.
 
-## Pruebas
+## Tests
 
 ```
 python -m pytest
 ```
 
-Corren sin red ni claves. La mayoría usa un modelo de guion y un motor falso (`tests/falsos.py`) para probar cada pieza: el ciclo del Investigador, el Evaluador, H-MEM, el World Model, la cola y su política, el interruptor de la capa y la medición. `tests/test_investigador_rojo.py` repite las corridas grabadas de los tres casos y comprueba sus conclusiones.
+They run without network or keys. Most use a scripted model and a fake engine (`tests/falsos.py`) to test each piece: the Investigator loop, the Evaluator, H-MEM, the World Model, the queue and its policy, the layer switch and the measurement. `tests/test_investigador_rojo.py` replays the recorded runs of the three cases and checks their conclusions.
 
-## Topes
+## Limits
 
-| Variable | Por defecto | Qué limita |
+| Variable | Default | What it limits |
 | --- | --- | --- |
-| `AGENTE_TIMEOUT_S` | `60` | cada llamada externa (motor y modelo), con un reintento si se pasa |
-| `AGENTE_MAX_ITERACIONES` | `16` | vueltas con el modelo por corrida |
-| `AGENTE_PRESUPUESTO_USD` | `1.0` | gasto en el proveedor del modelo: si se pasa, queda una alerta en la traza |
-| `SEMANTIC_LAYER` | `on` | `off` apaga la capa de IO: tablas crudas, sin definiciones ni Meterless (para comparar) |
-| `AGENTE_POLITICA_MONTO_MAX` | `500` | monto (USD) hasta el que la política aprueba sola una respuesta al banco |
-| `AGENTE_TOPE_DEVOLUCIONES` | `2` | veces que el Evaluador puede devolver una misma afirmación; después, el agente se abstiene |
-| `AGENTE_HMEM` | `true` | H-MEM encendido; `false` corre sin memoria |
-| `AGENTE_HMEM_TIMEOUT_S` | `2` | cada operación de memoria; si se pasa, sigue sin memoria |
-| `AGENTE_HMEM_UMBRAL` | `0.30` | puntaje mínimo de un hallazgo para reinyectarse (las lecciones usan 0.20) |
-| `AGENTE_MUNDO` | `true` | World Model encendido; `false` corre sin anclaje ni resolución de ids |
-| `AGENTE_MUNDO_TIMEOUT_S` | `2` | cada operación del World Model; si se pasa, sigue sin él |
+| `AGENTE_TIMEOUT_S` | `60` | each external call (engine and model), with one retry if exceeded |
+| `AGENTE_MAX_ITERACIONES` | `16` | rounds with the model per run |
+| `AGENTE_PRESUPUESTO_USD` | `1.0` | spend at the model provider: if exceeded, an alert is left in the trace |
+| `SEMANTIC_LAYER` | `on` | `off` turns off IO's layer: raw tables, no definitions and no Meterless (for comparison) |
+| `AGENTE_POLITICA_MONTO_MAX` | `500` | amount (USD) up to which the policy approves a reply to the bank on its own |
+| `AGENTE_TOPE_DEVOLUCIONES` | `2` | times the Evaluator can send back the same statement; after that, the agent abstains |
+| `AGENTE_HMEM` | `true` | H-MEM on; `false` runs without memory |
+| `AGENTE_HMEM_TIMEOUT_S` | `2` | each memory operation; if exceeded, it continues without memory |
+| `AGENTE_HMEM_UMBRAL` | `0.30` | minimum score for a finding to be fed back (lessons use 0.20) |
+| `AGENTE_MUNDO` | `true` | World Model on; `false` runs without anchoring or id resolution |
+| `AGENTE_MUNDO_TIMEOUT_S` | `2` | each World Model operation; if exceeded, it continues without it |
 
 ## Sponsors
 
 - **Meterless:**
-  - **Nightshift** es el proveedor principal de IA del agente (API compatible con OpenAI, con el contrato de Runtime de la guía), detrás de un adaptador con tiempo límite, reintentos y un modelo Nemotron de respaldo. Cada vuelta registra en la traza qué modelo respondió.
-  - **H-MEM** es la memoria del agente entre corridas, y el **World Model** es el registro de lo que vio y de dónde salió (ver arriba).
-  - **Qué se rompe si se quita Meterless:**
-    - sin Nightshift, el agente no tiene modelo y se abstiene;
-    - sin H-MEM, cada corrida empieza de cero: el Investigador repite errores que el Evaluador ya le había corregido (más devoluciones y vueltas);
-    - sin World Model, el Evaluador ya no puede comprobar que lo que nombra la conclusión salió de una consulta de esa corrida, así que una disputa, transportista o región recordados o inventados pasan a la respuesta;
-    - `python scripts/comparar_memoria.py` muestra la diferencia en `logs/`.
-- **NVIDIA:** el modelo es Nemotron (`nvidia/nemotron-3.5-super-vl-120b-a12b`), servido a través de Nightshift.
-- **Zetaris:** responde `consultar(sql)` en io-engine uniendo las tres fuentes sin copiarlas, con respaldo en DuckDB; cada respuesta registra qué motor respondió.
-- **Herramienta de desarrollo:** ver `metadata.json`.
+  - **Nightshift** is the agent's main AI provider (OpenAI-compatible API, with the Runtime contract from the guide), behind an adapter with timeout, retries and a fallback Nemotron model. Each round records in the trace which model answered.
+  - **H-MEM** is the agent's memory across runs, and the **World Model** is the record of what it saw and where it came from (see above).
+  - **What breaks if Meterless is removed:**
+    - without Nightshift, the agent has no model and abstains;
+    - without H-MEM, every run starts from zero: the Investigator repeats mistakes the Evaluator had already corrected (more returns and rounds);
+    - without the World Model, the Evaluator can no longer check that what the conclusion names came out of a query in that run, so a remembered or invented dispute, carrier or region can reach the answer;
+    - `python scripts/comparar_memoria.py` shows the difference in `logs/`.
+- **NVIDIA:** the model is Nemotron (`nvidia/nemotron-3.5-super-vl-120b-a12b`), served through Nightshift.
+- **Zetaris:** answers `consultar(sql)` in io-engine by joining the three sources without copying them, with DuckDB as a fallback; each answer records which engine responded.
+- **Development tool:** see `metadata.json`.
 
 ## License
 
-PolyForm Noncommercial 1.0.0 · ver `LICENSE`.
+PolyForm Noncommercial 1.0.0 · see `LICENSE`.
