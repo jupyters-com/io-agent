@@ -4,6 +4,10 @@ Agente que investiga por qué suben las disputas de pago: propone explicaciones,
 
 Construido durante el Open Agent Hackathon 2026 (Track 02 · *The Agent That Can Explain Why*), desde el 22-oct-2026. Todo lo que está en este repo es trabajo nuevo del hackathon.
 
+> **Read this first: sample mode is the default.** `SAMPLE_MODE=true` replays **pre-recorded real runs**: the Nemotron responses (via Meterless Nightshift) and the rows io-engine returned, for the three example questions in `ejemplos/`. The agent logic (Investigator, Evaluator, approval queue, memory) runs for real on top of those recordings; the model and the data engine are not called. Any other question has no recording, so the agent abstains. To run new questions, use live mode (section "Modo real: preguntas nuevas" below). The data is synthetic.
+>
+> The organizers confirmed that this is acceptable: *"yes a pre-recorded sample mode acceptable, please make sure its highlighted in your submission and README"* (Janson Lim, HackOS #Help desk, 24 Oct 2026).
+
 ## Probarlo en 2 minutos
 
 No hace falta ninguna clave, ni el modelo, ni el motor de datos. Por defecto el agente corre en **modo de muestra**: repite corridas **reales** grabadas (lo que respondió Nemotron vía Meterless Nightshift y las filas que devolvió io-engine, tal cual) y responde en milisegundos. La traza, la evidencia, el informe y la cola de aprobación son los de esa corrida real.
@@ -33,7 +37,7 @@ El informe legible queda en `salidas/<run_id>.md`. Ese es el archivo para leer.
 
 Las salidas de estas tres corridas ya están en `ejemplos/*_salida.md`, por si se quieren leer sin correr nada.
 
-**Una pregunta distinta** (o escrita distinto: se ignoran mayúsculas y espacios, pero no otras palabras) no tiene una corrida grabada, y el agente **se abstiene** en vez de inventar: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra." Para preguntas nuevas está el modo real (abajo).
+**Una pregunta distinta** (o escrita distinto: se ignoran mayúsculas y espacios, pero no otras palabras) no tiene una corrida grabada, y el agente **se abstiene** en vez de inventar: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real: SAMPLE_MODE=false (ver el README, «Modo real: preguntas nuevas»)." Para preguntas nuevas está el modo real (abajo).
 
 ### Las comparaciones, también al instante
 
@@ -43,7 +47,7 @@ python scripts/comparar_memoria.py     # con y sin Meterless (H-MEM y World Mode
 ```
 
 - `comparar_capa.py` deja el lado a lado en [`ejemplos/comparacion_capa.md`](ejemplos/comparacion_capa.md). Sin la capa, el caso 1 dice "no pelear" a una disputa que se podía ganar, porque no logra cruzar el pedido entre sistemas.
-- La medición sobre las 42 disputas del set de prueba ya está en [`evaluacion/medicion.md`](evaluacion/medicion.md): **42 de 42 con la capa, 8 de 42 sin ella**. Volver a correrla necesita el modo real, porque son preguntas nuevas.
+- La medición sobre las 42 disputas del set de prueba ya está en [`evaluacion/medicion.md`](evaluacion/medicion.md): **42 de 42 con la capa, 8 de 42 sin ella**. Volver a correrla necesita el modo real, porque son preguntas nuevas. Cómo leerla: el 42 de 42 mide que el agente reproduce la definición del set (`vale_pelear`, del esquema canónico), no una verdad externa; y las 20 defensas perdidas sin la capa son un solo error repetido (no cruza `ORD-1574` con `1574`), no 20 errores distintos.
 
 ### Como servicio
 
@@ -149,6 +153,7 @@ El agente no empieza de cero en cada corrida. Implementamos **H-MEM**, el motor 
   - `memoria/ledger.jsonl` es el libro de confianza, de solo agregar, con el estado anterior y el nuevo de cada cambio;
   - en la traza quedan los eventos `recordar` y `aprender` del agente `memoria`.
 - **Adaptador con tiempo límite y respaldo.** Si H-MEM está apagado (`AGENTE_HMEM=false`), tarda más de `AGENTE_HMEM_TIMEOUT_S` o falla, el agente sigue sin memoria y la traza lo dice (`omitido` o `error` con "respaldo").
+- **Qué muestra y qué no.** `comparar_memoria.py` muestra que el agente recuerda lo que el Evaluador le corrigió antes (menos devoluciones y vueltas al repetir la misma pregunta). No prueba que esa memoria generalice a preguntas nuevas.
 
 ## Qué se vio y de dónde salió (World Model, de Meterless)
 

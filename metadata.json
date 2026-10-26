@@ -23,5 +23,10 @@
       "tag": "previo-22oct",
       "que_aporta": "datos sintéticos, esquema canónico (dbt) y la herramienta consultar(sql) por MCP, con Zetaris y respaldo en DuckDB"
     }
-  ]
+  ],
+  "modo_de_muestra": {
+    "por_defecto": true,
+    "que_es": "SAMPLE_MODE=true repite corridas reales grabadas (respuestas de Nemotron vía Meterless Nightshift y filas de io-engine) para las tres preguntas de ejemplo; la lógica del agente corre sobre esas grabaciones. Cualquier otra pregunta se abstiene. Para preguntas nuevas, SAMPLE_MODE=false.",
+    "confirmado_por_organizadores": "Janson Lim, HackOS #Help desk, 24-oct-2026: 'yes a pre-recorded sample mode acceptable, please make sure its highlighted in your submission and README'"
+  }
 }
