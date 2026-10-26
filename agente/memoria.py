@@ -331,7 +331,7 @@ class Memoria:
     def _con_limite(self, accion, fn):
         if not self.cfg.hmem:
             self._anotar("memoria", "h-mem", accion, estado="omitido",
-                              salida="H-MEM apagado (AGENTE_HMEM=false): el agente corre sin memoria")
+                              salida="H-MEM apagado (AGENTE_HMEM=false o SEMANTIC_LAYER=off): el agente corre sin memoria")
             return None
         with Cronometro() as t:
             pool = ThreadPoolExecutor(max_workers=1)

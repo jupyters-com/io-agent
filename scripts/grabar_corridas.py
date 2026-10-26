@@ -47,5 +47,7 @@ for caso in casos:
         print("    (si ya había una corrida concluida grabada para este caso, se conserva)")
 
 print("\nRegenerando los ejemplos en modo de muestra a partir de las corridas grabadas…")
+# Los ejemplos son siempre los del agente completo, aunque se haya grabado sin capa o sin Meterless.
+entorno = {k: v for k, v in os.environ.items() if k not in ("AGENTE_HMEM", "AGENTE_MUNDO")}
 subprocess.run([sys.executable, "scripts/generar_ejemplos.py"], check=True,
-               env={**os.environ, "SAMPLE_MODE": "true", "AGENTE_GRABAR": ""})
+               env={**entorno, "SAMPLE_MODE": "true", "AGENTE_GRABAR": "", "SEMANTIC_LAYER": "on"})

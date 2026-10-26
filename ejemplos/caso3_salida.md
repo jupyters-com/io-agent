@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T174856-6b70ed
+# Informe de IO · 20261023T190428-030633
 
 ## La pregunta
 
@@ -119,7 +119,7 @@ De las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay
 
 IO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.
 
-**El grupo** · ✅ aprobada · `AP-20261023T174856-6b70ed-1`
+**El grupo** · ✅ aprobada · `AP-20261023T190428-030633-1`
 
 _Política: no se envía al banco: es el plan para la dueña, con su evidencia_
 
@@ -133,7 +133,7 @@ _Política: no se envía al banco: es el plan para la dueña, con su evidencia_
 > - du_LRbXAOhoJgujrS: hay 2 o más señales de fraude → no pelear: aceptar la disputa y marcar al cliente
 > - du_YiCss9xvTVSFfo: no hay prueba de entrega → resolver con el cliente: sin prueba de entrega no hay con qué pelear
 
-**Respuesta al banco · du_1jmfZda6WdIoKx** · ✅ aprobada · `AP-20261023T174856-6b70ed-2`
+**Respuesta al banco · du_1jmfZda6WdIoKx** · ✅ aprobada · `AP-20261023T190428-030633-2`
 
 _Política: cumple las 5 reglas de la política: queda lista para que una persona la envíe_
 
@@ -148,7 +148,7 @@ _Política: cumple las 5 reglas de la política: queda lista para que una person
 > Adjuntar: comprobante de entrega (firma de quien recibió) y el historial de comunicaciones con el cliente.
 > Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.
 
-**Respuesta al banco · du_HlcQBjPyAHVnB0** · ⛔ rechazada · `AP-20261023T174856-6b70ed-3`
+**Respuesta al banco · du_HlcQBjPyAHVnB0** · ⛔ rechazada · `AP-20261023T190428-030633-3`
 
 _Política: tiene señales de fraude: la decide una persona, no la regla (1 señal(es) de fraude)_
 
@@ -163,7 +163,7 @@ _Política: tiene señales de fraude: la decide una persona, no la regla (1 señ
 > Adjuntar: comprobante de entrega (firma de quien recibió) y el historial de comunicaciones con el cliente.
 > Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.
 
-**Respuesta al banco · du_cuKtmopzODI37h** · ✅ aprobada · `AP-20261023T174856-6b70ed-4`
+**Respuesta al banco · du_cuKtmopzODI37h** · ✅ aprobada · `AP-20261023T190428-030633-4`
 
 _Política: cumple las 5 reglas de la política: queda lista para que una persona la envíe_
 
@@ -178,7 +178,7 @@ _Política: cumple las 5 reglas de la política: queda lista para que una person
 > Adjuntar: comprobante de entrega (firma de quien recibió) y el historial de comunicaciones con el cliente.
 > Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.
 
-**Respuesta al banco · du_zZT5tciTHKDN7Y** · ✅ aprobada · `AP-20261023T174856-6b70ed-5`
+**Respuesta al banco · du_zZT5tciTHKDN7Y** · ✅ aprobada · `AP-20261023T190428-030633-5`
 
 _Política: cumple las 5 reglas de la política: queda lista para que una persona la envíe_
 
@@ -194,4 +194,4 @@ _Política: cumple las 5 reglas de la política: queda lista para que una person
 > Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.
 
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 7 · 77 ms
+Aprobación: **aprobada** · modo muestra · consultas: 7 · 109 ms

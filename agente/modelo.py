@@ -56,8 +56,9 @@ class ModeloNightshift:
 
     def __init__(self, url: str, token: str, modelo: str, timeout_s: float, reintentos: int = 2,
                  espera_s: float = 5.0, extra: dict | None = None, sin_pensar: bool = False,
-                 stream: bool = False, respaldo: str = ""):
+                 stream: bool = False, respaldo: str = "", app: str = "io-agent"):
         self.url, self.token, self.modelo, self.timeout_s = url, token, modelo, timeout_s
+        self.app = app
         self.respaldo, self.respaldos_usados = respaldo, 0
         self.extra, self.sin_pensar, self.stream = dict(extra or {}), sin_pensar, stream
         self.reintentos, self.espera_s = reintentos, espera_s
@@ -69,7 +70,7 @@ class ModeloNightshift:
             self.url + "/chat/completions", method="POST",
             data=json.dumps(cuerpo).encode("utf-8"),
             headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json",
-                     "meterless-app": "io-agent", "meterless-scope": "user"})
+                     "meterless-app": self.app, "meterless-scope": "user"})
         with urllib.request.urlopen(pedido, timeout=self.timeout_s) as r:
             if not cuerpo.get("stream"):
                 return json.loads(r.read().decode("utf-8"))
@@ -185,4 +186,7 @@ def crear(cfg, turnos=None):
         return ModeloGrabado(turnos or [])
     return ModeloNightshift(cfg.meterless_url, cfg.meterless_token, cfg.meterless_modelo, cfg.timeout_s,
                             extra=cfg.meterless_extra, sin_pensar=cfg.sin_pensar, stream=cfg.stream,
-                            reintentos=cfg.reintentos_modelo, espera_s=10.0, respaldo=cfg.modelo_respaldo)
+                            reintentos=cfg.reintentos_modelo, espera_s=10.0, respaldo=cfg.modelo_respaldo,
+                            # Sin la capa, otra app en Nightshift: lo que Nightshift recuerde de las corridas con la
+                            # capa (esquema canónico, conclusiones) no se cuela en la comparación.
+                            app="io-agent" if getattr(cfg, "capa_semantica", True) else "io-agent-sin-capa")

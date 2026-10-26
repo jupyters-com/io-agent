@@ -49,3 +49,35 @@ SQL: una sola sentencia SELECT por consulta (se permite WITH), máximo 100 filas
 en DuckDB y en Spark: CASE WHEN, count, sum, GROUP BY, JOIN; fechas como TIMESTAMP '2026-09-16 00:00:00'.
 Evita subconsultas correlacionadas y funciones propias de un solo motor.
 """
+
+
+# Con SEMANTIC_LAYER=off (Paso 12, JPTRS-65) el agente NO ve la capa de IO: solo las tablas crudas tal como
+# las cargó dlt desde cada sistema, con sus nombres, sus tipos y sus manías, sin definiciones ni reglas.
+# Es lo que vería cualquier agente conectado directo a las fuentes.
+ESQUEMA_CRUDO = """
+Esquema `crudo` (5 tablas, tal como llegan de cada sistema: pagos, logística y soporte):
+
+crudo.pagos_customers — clientes del procesador de pagos
+  id (VARCHAR), email (VARCHAR), created (BIGINT)
+
+crudo.pagos_charges — cobros
+  id (VARCHAR), customer (VARCHAR), amount (BIGINT), currency (VARCHAR), created (BIGINT),
+  billing_country (VARCHAR), ip_country (VARCHAR), risk_level (VARCHAR), card_last4 (VARCHAR),
+  metadata__order_id (VARCHAR)
+
+crudo.pagos_disputes — disputas de pago
+  id (VARCHAR), charge (VARCHAR), reason (VARCHAR), status (VARCHAR), amount (BIGINT), currency (VARCHAR),
+  created (BIGINT), evidence_due_by (BIGINT)
+
+crudo.envios — envíos del sistema de logística
+  guia (VARCHAR), nro_pedido (VARCHAR), transportista (VARCHAR), region (VARCHAR), fecha_despacho (VARCHAR),
+  fecha_prometida (VARCHAR), fecha_entrega (VARCHAR), estado (VARCHAR), prueba_entrega (VARCHAR),
+  tipo_destino (VARCHAR)
+
+crudo.soporte_tickets — tickets del sistema de soporte
+  ticket (VARCHAR), solicitante (VARCHAR), pedido (VARCHAR), creado (TIMESTAMP WITH TIME ZONE),
+  categoria (VARCHAR), mensaje (VARCHAR), estado (VARCHAR)
+
+Datos: julio a septiembre de 2026.
+SQL: una sola sentencia SELECT por consulta (se permite WITH), máximo 100 filas, dialecto DuckDB.
+"""

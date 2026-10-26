@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T174856-195026
+# Informe de IO · 20261023T190428-59cb51
 
 ## La pregunta
 
@@ -83,11 +83,11 @@ No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. De
 
 IO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.
 
-**No pelear · du_LRbXAOhoJgujrS** · ✅ aprobada · `AP-20261023T174856-195026-1`
+**No pelear · du_LRbXAOhoJgujrS** · ✅ aprobada · `AP-20261023T190428-59cb51-1`
 
 _Política: no se envía al banco: es el plan para la dueña, con su evidencia_
 
 > Disputa du_LRbXAOhoJgujrS · 489.00 USD: no conviene pelearla porque hay 2 o más señales de fraude. Qué hacer: no pelear: aceptar la disputa y marcar al cliente. [E5]
 
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 5 · 56 ms
+Aprobación: **aprobada** · modo muestra · consultas: 5 · 98 ms

@@ -52,12 +52,14 @@ def nombre_corrida(pregunta: str) -> str:
 
 def corrida_grabada(cfg, pregunta: str, con_memoria: bool = False) -> dict | None:
     """La corrida grabada para esa pregunta. Con memoria, prefiere la que se grabó con H-MEM encendido
-    (<nombre>-hmem.json); si no hay, usa la otra."""
+    (<nombre>-hmem.json); si no hay, usa la otra. Con SEMANTIC_LAYER=off, solo las grabadas sin la capa
+    (<nombre>-sincapa.json), y al revés: nunca se mezclan."""
     carpeta = Path(cfg.muestras).parent / "corridas"
+    capa = getattr(cfg, "capa_semantica", True)
     encontradas = {}
     for ruta in sorted(carpeta.glob("*.json")) if carpeta.exists() else []:
         c = json.loads(ruta.read_text(encoding="utf-8"))
-        if _norm_pregunta(c["pregunta"]) == _norm_pregunta(pregunta):
+        if _norm_pregunta(c["pregunta"]) == _norm_pregunta(pregunta) and c.get("capa", "on") == ("on" if capa else "off"):
             encontradas[bool(c.get("con_memoria"))] = c
     return encontradas.get(con_memoria) or encontradas.get(not con_memoria)
 
@@ -95,6 +97,8 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
 
     grabada = corrida_grabada(cfg, pregunta, con_memoria=bool(contexto)) if cfg.modo_muestra else None
     fuente = datos.crear(cfg, extra=(grabada or {}).get("consultas"))
+    if not cfg.capa_semantica:  # sin la capa, canonico/mapeo/origen no existen para el agente
+        fuente = datos.SoloCrudo(fuente)
     llm = modelo.crear(cfg, turnos=(grabada or {}).get("turnos"))
     if grabar:
         fuente, llm = datos.FuenteGrabadora(fuente), modelo.Grabadora(llm)
@@ -109,7 +113,8 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
 
     with Cronometro() as total:
         traza.evento("orquestador", "agente", "recibir_pregunta", entrada=pregunta,
-                     salida=f"modo={cfg.modo} fuente={fuente.nombre} modelo={llm.nombre}"
+                     salida=f"modo={cfg.modo} capa={'on' if cfg.capa_semantica else 'off'} fuente={fuente.nombre} "
+                            f"modelo={llm.nombre}"
                             + (f" corrida={grabada['nombre']}" if grabada else ""))
         memoria.publicar()
         mundo.abrir_corrida(pregunta)
@@ -127,7 +132,13 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
             resultado["evidencia"].append(e)
             registrar_evidencia(e, "preparacion")
             return e
-        entradas = Preparador(consultar_evidencia, traza).preparar(pregunta, resultado, mundo.anclas, cfg.mundo_activo)
+        if cfg.capa_semantica:
+            entradas = Preparador(consultar_evidencia, traza).preparar(pregunta, resultado, mundo.anclas,
+                                                                       cfg.mundo_activo)
+        else:  # la cola usa las definiciones de la capa (vale_pelear, razon_decision): sin capa no hay con qué
+            entradas = []
+            traza.evento("cola", "agente", "preparar", estado="omitido",
+                         salida="SEMANTIC_LAYER=off: sin la capa de IO no hay con qué separar ni redactar respuestas")
 
         if llm.costo_usd > cfg.presupuesto_usd:
             traza.evento("orquestador", "modelo", "alerta_gasto",
@@ -143,7 +154,8 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
             "metricas": {"iteraciones": resultado["iteraciones"], "consultas": len(resultado["evidencia"]),
                          "ms": 0.0, "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6),
                          "devoluciones": investigador.n_devoluciones, "memorias_usadas": len(memoria.usadas),
-                         "entidades_ancladas": mundo.verificadas},
+                         "entidades_ancladas": mundo.verificadas,
+                         "capa_semantica": "on" if cfg.capa_semantica else "off"},
             "informe_md": "",
         }
 
@@ -200,7 +212,7 @@ def _por_que_no_grabar(cfg, pregunta, resultado, con_memoria=False) -> str | Non
 
 
 def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado, contexto=""):
-    nombre = nombre_corrida(pregunta) + ("-hmem" if contexto else "")
+    nombre = nombre_corrida(pregunta) + ("-hmem" if contexto else "") + ("" if cfg.capa_semantica else "-sincapa")
     carpeta = Path(cfg.muestras).parent / "corridas"
     carpeta.mkdir(parents=True, exist_ok=True)
     (carpeta / f"{nombre}.json").write_text(json.dumps({
@@ -211,6 +223,7 @@ def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado, contexto=""):
         "grabado_en": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "estado": estado,
         "con_memoria": bool(contexto),
+        "capa": "on" if cfg.capa_semantica else "off",
         "memoria": contexto,
         "turnos": llm.turnos,
         "consultas": fuente.consultas,

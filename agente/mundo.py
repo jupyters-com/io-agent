@@ -255,7 +255,8 @@ class MundoAgente:
         if not self.cfg.mundo_activo:
             if avisar_apagado:
                 self.traza.evento("mundo", "world-model", accion, estado="omitido",
-                                  salida="World Model apagado (AGENTE_MUNDO=false): sin anclaje ni resolución de ids")
+                                  salida="World Model apagado (AGENTE_MUNDO=false o SEMANTIC_LAYER=off): sin anclaje ni "
+                                         "resolución de ids")
             return None
         with Cronometro() as t:
             pool = ThreadPoolExecutor(max_workers=1)

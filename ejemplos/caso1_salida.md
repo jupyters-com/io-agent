@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T174856-13b8fb
+# Informe de IO · 20261023T190427-46c33f
 
 ## La pregunta
 
@@ -85,7 +85,7 @@ Pelear la disputa presentando la prueba de entrega (firma) y el historial del cl
 
 IO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.
 
-**Respuesta al banco · du_cuKtmopzODI37h** · ✅ aprobada · `AP-20261023T174856-13b8fb-1`
+**Respuesta al banco · du_cuKtmopzODI37h** · ✅ aprobada · `AP-20261023T190427-46c33f-1`
 
 _Política: cumple las 5 reglas de la política: queda lista para que una persona la envíe_
 
@@ -101,4 +101,4 @@ _Política: cumple las 5 reglas de la política: queda lista para que una person
 > Borrador preparado por IO con datos de io-engine. Lo revisa y lo envía una persona.
 
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 6 · 58 ms
+Aprobación: **aprobada** · modo muestra · consultas: 6 · 154 ms

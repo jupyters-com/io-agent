@@ -10,6 +10,7 @@ Todas devuelven lo mismo que consultar(sql): {"ok", "columnas", "filas", "n_fila
 
 import asyncio
 import json
+import re
 from pathlib import Path
 
 
@@ -92,6 +93,26 @@ class FuenteCompletadora:
             self.muestra.consultas[normalizar(sql)] = r
             self.nuevas.append(normalizar(sql))
         return r
+
+
+CAPA_DE_IO = re.compile(r"\b(canonico|mapeo|origen)\s*\.", re.I)
+
+
+class SoloCrudo:
+    """SEMANTIC_LAYER=off: la capa de IO no existe para el agente. Si una consulta toca canonico, mapeo u origen
+    (aunque el modelo los conozca de otro lado), no se ejecuta: solo quedan las tablas crudas."""
+
+    def __init__(self, fuente):
+        self.fuente, self.nombre = fuente, fuente.nombre
+        self.consultas = getattr(fuente, "consultas", {})
+
+    def consultar(self, sql: str) -> dict:
+        m = CAPA_DE_IO.search(sql)
+        if m:
+            return {"ok": False, "motor": None, "filas": [], "n_filas": 0,
+                    "error": f"SEMANTIC_LAYER=off: el esquema {m.group(1).lower()} es la capa de IO y está apagada. "
+                             "Solo existen las tablas crudas (crudo.*)."}
+        return self.fuente.consultar(sql)
 
 
 def crear(cfg, extra: dict | None = None):
