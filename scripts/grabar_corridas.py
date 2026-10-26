@@ -41,6 +41,8 @@ for caso in casos:
     for h in r["hipotesis"]:
         print(f"    {h['id']} {h['veredicto']:<11} {h['enunciado']}  [{', '.join(h['evidencia'])}]")
     print("    →", r["conclusion"] or r["abstencion"]["razon"])
+    for c in r["cola"]:
+        print(f"    cola: {c['tipo']}{' ' + c['disputa_id'] if c['disputa_id'] else ''} · {c['estado']} · {c['motivo'][:90]}")
     if r["estado"] != "concluida":
         print("    (si ya había una corrida concluida grabada para este caso, se conserva)")
 

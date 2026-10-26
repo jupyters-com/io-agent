@@ -68,7 +68,36 @@ class FuenteGrabadora:
         return r
 
 
+class FuenteCompletadora:
+    """Modo de muestra que completa lo que falta: si una consulta no está grabada, se la pide a io-engine y la
+    agrega a samples/consultas.json. Solo con AGENTE_COMPLETAR_MUESTRAS=true (scripts/completar_muestras.py),
+    para las consultas que el agente arma solo (la cola), sin volver a llamar al modelo."""
+
+    nombre = "muestra"
+
+    def __init__(self, cfg, extra=None):
+        self.muestra, self.ruta = FuenteMuestra(cfg.muestras, extra), Path(cfg.muestras)
+        self.motor = FuenteMotor(cfg.motor_url, cfg.timeout_s)
+        self.nuevas: list[str] = []
+
+    def consultar(self, sql: str) -> dict:
+        r = self.muestra.consultar(sql)
+        if r.get("ok") or "fuera de la muestra" not in str(r.get("error")):
+            return r
+        r = self.motor.consultar(sql)
+        if r.get("ok"):
+            datos = json.loads(self.ruta.read_text(encoding="utf-8"))
+            datos["consultas"][normalizar(sql)] = {k: v for k, v in r.items() if k != "ms"}
+            self.ruta.write_text(json.dumps(datos, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+            self.muestra.consultas[normalizar(sql)] = r
+            self.nuevas.append(normalizar(sql))
+        return r
+
+
 def crear(cfg, extra: dict | None = None):
+    import os
+    if cfg.modo_muestra and os.getenv("AGENTE_COMPLETAR_MUESTRAS", "").lower() in ("1", "true", "si", "sí"):
+        return FuenteCompletadora(cfg, extra)
     if cfg.modo_muestra:
         return FuenteMuestra(cfg.muestras, extra)
     return FuenteMotor(cfg.motor_url, cfg.timeout_s)

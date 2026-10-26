@@ -3,17 +3,108 @@
   "$id": "aprobacion.schema.json",
   "title": "Ítem de la cola de aprobación",
   "type": "object",
-  "required": ["item_id", "run_id", "tipo", "estado", "creado_en", "decidido_en", "decidido_por", "motivo", "resumen"],
+  "required": [
+    "item_id",
+    "run_id",
+    "tipo",
+    "estado",
+    "creado_en",
+    "decidido_en",
+    "decidido_por",
+    "motivo",
+    "resumen"
+  ],
   "additionalProperties": false,
   "properties": {
-    "item_id": {"type": "string", "pattern": "^AP-"},
-    "run_id": {"type": "string"},
-    "tipo": {"enum": ["respuesta"]},
-    "estado": {"enum": ["pendiente", "aprobada", "rechazada"]},
-    "creado_en": {"type": "string"},
-    "decidido_en": {"type": ["string", "null"]},
-    "decidido_por": {"type": ["string", "null"], "description": "regla:<nombre> o humano:<correo>"},
-    "motivo": {"type": ["string", "null"]},
-    "resumen": {"type": "string", "description": "conclusión o razón de abstención, en una línea"}
+    "item_id": {
+      "type": "string",
+      "pattern": "^AP-"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "tipo": {
+      "enum": [
+        "conclusion",
+        "respuesta_banco",
+        "no_pelear",
+        "grupo"
+      ]
+    },
+    "estado": {
+      "enum": [
+        "pendiente",
+        "aprobada",
+        "rechazada"
+      ]
+    },
+    "creado_en": {
+      "type": "string"
+    },
+    "decidido_en": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "decidido_por": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "regla:politica_v1 (mientras el agente corre no hay humano)"
+    },
+    "motivo": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "resumen": {
+      "type": "string",
+      "description": "una línea: la conclusión, la abstención o la primera línea del borrador"
+    },
+    "disputa_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reglas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "regla",
+          "ok",
+          "detalle"
+        ],
+        "properties": {
+          "regla": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "detalle": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidencia": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^E[0-9]+$"
+      }
+    },
+    "borrador": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "el texto preparado; nunca se envía solo"
+    }
   }
 }

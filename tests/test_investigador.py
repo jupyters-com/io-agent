@@ -36,7 +36,7 @@ def test_ciclo_completo_descarta_una_hipotesis_con_su_evidencia(entorno, modo_re
     assert h1["veredicto"] == "descartada" and h1["evidencia"] == ["E1"]
     assert h2["veredicto"] == "sostenida" and h2["evidencia"] == ["E2"]
     assert "~~El pico es una ola de fraude~~" in r["informe_md"]
-    acciones = [e["accion"] for e in eventos(entorno, r)]
+    acciones = [e["accion"] for e in eventos(entorno, r) if not e["entrada"].startswith("preparación")]
     assert acciones.count("consultar") == 2 and "descartar" in acciones and "sostener" in acciones
     assert "revisar_conclusion" in acciones
     for e in eventos(entorno, r):
@@ -47,7 +47,7 @@ def test_la_evidencia_queda_en_logs_con_sus_filas(entorno, modo_real):
     modo_real(GUION_CASO3)
     r = orq.correr("¿Por qué subieron las disputas?")
     filas = leer_jsonl(entorno / "logs" / f"{r['run_id']}.evidencia.jsonl")
-    assert [f["id"] for f in filas] == ["E1", "E2"]
+    assert [f["id"] for f in filas if f["hipotesis"] != "preparacion"] == ["E1", "E2"]
     assert filas[0]["hipotesis"] == "H1" and filas[0]["filas"] == PICO["senales_fraude"]
 
 
@@ -195,7 +195,7 @@ def test_varias_acciones_en_una_vuelta(entorno, modo_real):
     r = orq.correr("¿Por qué subieron las disputas?")
     contrato.validar_respuesta(r)
     assert r["estado"] == "concluida" and r["metricas"]["iteraciones"] == 3
-    assert [e["id"] for e in r["evidencia"]] == ["E1", "E2"]
+    assert [e["id"] for e in r["evidencia"]][:2] == ["E1", "E2"]
     assert "RESULTADO E1" in m.recibidos[2] and "RESULTADO E2" in m.recibidos[2]
 
 

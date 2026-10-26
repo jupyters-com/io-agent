@@ -3,28 +3,91 @@
   "$id": "respuesta.schema.json",
   "title": "Respuesta del agente de IO",
   "type": "object",
-  "required": ["version", "run_id", "pregunta", "modo", "estado", "conclusion", "hipotesis",
-               "evidencia", "recomendacion", "abstencion", "aprobacion", "metricas", "informe_md"],
+  "required": [
+    "version",
+    "run_id",
+    "pregunta",
+    "modo",
+    "estado",
+    "conclusion",
+    "hipotesis",
+    "evidencia",
+    "recomendacion",
+    "abstencion",
+    "aprobacion",
+    "cola",
+    "metricas",
+    "informe_md"
+  ],
   "additionalProperties": false,
   "properties": {
-    "version": {"const": "0.1"},
-    "run_id": {"type": "string", "minLength": 1},
-    "pregunta": {"type": "string", "minLength": 1},
-    "modo": {"enum": ["muestra", "real"]},
-    "estado": {"enum": ["concluida", "abstencion"]},
-    "conclusion": {"type": ["string", "null"]},
+    "version": {
+      "const": "0.1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pregunta": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modo": {
+      "enum": [
+        "muestra",
+        "real"
+      ]
+    },
+    "estado": {
+      "enum": [
+        "concluida",
+        "abstencion"
+      ]
+    },
+    "conclusion": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "hipotesis": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "enunciado", "veredicto", "razon", "evidencia"],
+        "required": [
+          "id",
+          "enunciado",
+          "veredicto",
+          "razon",
+          "evidencia"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": {"type": "string", "pattern": "^H[0-9]+$"},
-          "enunciado": {"type": "string", "minLength": 1},
-          "veredicto": {"enum": ["sostenida", "descartada", "sin_decidir"]},
-          "razon": {"type": "string"},
-          "evidencia": {"type": "array", "items": {"type": "string", "pattern": "^E[0-9]+$"}}
+          "id": {
+            "type": "string",
+            "pattern": "^H[0-9]+$"
+          },
+          "enunciado": {
+            "type": "string",
+            "minLength": 1
+          },
+          "veredicto": {
+            "enum": [
+              "sostenida",
+              "descartada",
+              "sin_decidir"
+            ]
+          },
+          "razon": {
+            "type": "string"
+          },
+          "evidencia": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^E[0-9]+$"
+            }
+          }
         }
       }
     },
@@ -32,44 +95,175 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "sql", "motor", "ok", "filas", "n_filas"],
+        "required": [
+          "id",
+          "sql",
+          "motor",
+          "ok",
+          "filas",
+          "n_filas"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": {"type": "string", "pattern": "^E[0-9]+$"},
-          "sql": {"type": "string"},
-          "motor": {"type": ["string", "null"]},
-          "ok": {"type": "boolean"},
-          "filas": {"type": "array", "items": {"type": "object"}},
-          "n_filas": {"type": "integer", "minimum": 0},
-          "error": {"type": ["string", "null"]}
+          "id": {
+            "type": "string",
+            "pattern": "^E[0-9]+$"
+          },
+          "sql": {
+            "type": "string"
+          },
+          "motor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "filas": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "n_filas": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
-    "recomendacion": {"type": ["string", "null"]},
+    "recomendacion": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "abstencion": {
-      "type": ["object", "null"],
-      "required": ["razon"],
-      "properties": {"razon": {"type": "string", "minLength": 1}}
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "razon"
+      ],
+      "properties": {
+        "razon": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     },
     "aprobacion": {
       "type": "object",
-      "required": ["item_id", "estado"],
+      "required": [
+        "item_id",
+        "estado"
+      ],
       "properties": {
-        "item_id": {"type": "string"},
-        "estado": {"enum": ["pendiente", "aprobada", "rechazada"]}
+        "item_id": {
+          "type": "string"
+        },
+        "estado": {
+          "enum": [
+            "pendiente",
+            "aprobada",
+            "rechazada"
+          ]
+        }
       }
     },
     "metricas": {
       "type": "object",
-      "required": ["iteraciones", "consultas", "ms", "tokens", "costo_usd"],
+      "required": [
+        "iteraciones",
+        "consultas",
+        "ms",
+        "tokens",
+        "costo_usd"
+      ],
       "properties": {
-        "iteraciones": {"type": "integer", "minimum": 0},
-        "consultas": {"type": "integer", "minimum": 0},
-        "ms": {"type": "number", "minimum": 0},
-        "tokens": {"type": "integer", "minimum": 0},
-        "costo_usd": {"type": "number", "minimum": 0}
+        "iteraciones": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "consultas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "costo_usd": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
-    "informe_md": {"type": "string", "minLength": 1}
+    "informe_md": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cola": {
+      "type": "array",
+      "description": "las demás entradas de la cola de esta corrida (Paso 11)",
+      "items": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "tipo",
+          "disputa_id",
+          "estado",
+          "motivo",
+          "borrador"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "respuesta_banco",
+              "no_pelear",
+              "grupo"
+            ]
+          },
+          "disputa_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "estado": {
+            "enum": [
+              "aprobada",
+              "rechazada"
+            ]
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "borrador": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
   }
 }

@@ -17,6 +17,20 @@ Todo lo que sale en el informe (enunciados, razones, conclusión y recomendació
 
 La IA piensa; el código hace y registra. Topes: `AGENTE_MAX_ITERACIONES` vueltas y `AGENTE_TIMEOUT_S` por llamada.
 
+## Después de investigar: la cola de aprobación
+
+El agente no termina en una explicación: con la conclusión aceptada, separa las disputas que vale la pena pelear de las que no, redacta la respuesta al banco de cada una que vale pelear y deja todo en una cola de aprobación. **No envía nada.**
+
+- **Qué disputas.** Si la pregunta nombra disputas, esas. Si es por un aumento, las del transportista y la región que el World Model ancló en la conclusión, en el período de la pregunta.
+- **Con qué datos.** Las trae con `consultar(sql)`, como evidencia E#: la fila de cada disputa y los mensajes de soporte de sus pedidos.
+- **Cómo separa.** Con la decisión de io-engine (`vale_pelear`, `razon_decision`).
+- **Qué redacta.**
+  - Una respuesta al banco por cada disputa que vale pelear, con entrega, historial del cliente, soporte y señales de fraude, cada dato con su E#.
+  - Para un aumento, una entrada con la causa y qué disputas del grupo no conviene pelear, agrupadas por razón y con qué hacer con cada grupo.
+- **Quién decide.** Mientras el agente corre no hay humano: la regla `politica_v1` aprueba o rechaza cada entrada y deja el motivo en `logs/cola_aprobacion.jsonl`. Solo aprueba sola lo que no tiene dudas (evidencia completa, disputa abierta, sin señales de fraude, monto hasta `AGENTE_POLITICA_MONTO_MAX`); lo demás lo rechaza para que lo decida una persona.
+
+Las reglas y el formato están en [`CONTRATO.md`](CONTRATO.md). El informe muestra la cola en "Qué conviene hacer".
+
 ## Memoria entre corridas (H-MEM, de Meterless)
 
 El agente no empieza de cero en cada corrida. Implementamos **H-MEM**, el motor de memoria de Meterless (`agente/memoria.py`, siguiendo `engines/hmem` del repo de Meterless):
@@ -74,7 +88,7 @@ Cada corrida deja:
 
 - `logs/<run_id>.jsonl`: la traza, un evento por línea,
 - `logs/<run_id>.evidencia.jsonl`: cada consulta con sus filas y la hipótesis que probaba,
-- `logs/cola_aprobacion.jsonl`: el ítem de aprobación (en modo de muestra lo aprueba una regla),
+- `logs/cola_aprobacion.jsonl`: la cola de aprobación, con lo que decidió la política para cada entrada y por qué,
 - `salidas/<run_id>.json` y `.md`: la respuesta y el informe legible.
 
 Otras formas de entrada:
@@ -91,6 +105,7 @@ El agente no lee bases ni archivos directamente: le pregunta al motor **io-engin
 - **Modo de muestra** (`SAMPLE_MODE=true`, por defecto): repite **corridas reales grabadas** en `samples/corridas/`: lo que respondió Nemotron y las filas que devolvió io-engine, tal cual. No necesita el motor, ni Nightshift, ni claves. Una pregunta sin corrida grabada termina en abstención.
 - **Modo real** (`SAMPLE_MODE=false`): levanta io-engine (`docker compose up --build` en ese repo), abre Nightshift con un lane Nemotron, copia `.env.example` como `.env.local` y completa la URL del motor y el token de Nightshift.
 - **Grabar corridas**: con todo lo del modo real levantado, `python scripts/grabar_corridas.py` corre los tres ejemplos, los graba en `samples/corridas/` (con memoria, como `*-hmem.json`) y regenera `ejemplos/`.
+- **Consultas de la cola**: las que el agente arma solo (las disputas del grupo, los mensajes de soporte) se graban con `python scripts/completar_muestras.py`, con io-engine levantado y sin llamar al modelo.
 - **Memoria y World Model**: en modo real viven en `memoria/` y `mundo/` (no se suben). `python scripts/sembrar_memoria.py` siembra la memoria con lo que enseñan las corridas ya grabadas, y `python scripts/congelar_memoria.py` copia las dos a `samples/`, lo que usa el modo de muestra.
 
 ## Contrato
@@ -116,6 +131,7 @@ python -m pytest
 | `AGENTE_TIMEOUT_S` | `60` | cada llamada externa (motor y modelo), con un reintento si se pasa |
 | `AGENTE_MAX_ITERACIONES` | `16` | vueltas con el modelo por corrida |
 | `AGENTE_PRESUPUESTO_USD` | `1.0` | gasto en el proveedor del modelo: si se pasa, queda una alerta en la traza |
+| `AGENTE_POLITICA_MONTO_MAX` | `500` | monto (USD) hasta el que la política aprueba sola una respuesta al banco |
 | `AGENTE_TOPE_DEVOLUCIONES` | `2` | veces que el Evaluador puede devolver una misma afirmación; después, el agente se abstiene |
 | `AGENTE_HMEM` | `true` | H-MEM encendido; `false` corre sin memoria |
 | `AGENTE_HMEM_TIMEOUT_S` | `2` | cada operación de memoria; si se pasa, sigue sin memoria |

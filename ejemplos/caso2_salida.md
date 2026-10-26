@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T171916-c9840a
+# Informe de IO · 20261023T174856-195026
 
 ## La pregunta
 
@@ -64,10 +64,30 @@ SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razo
 | entrega_confirmada_sin_reclamo | 20 |
 | reclamo_previo | 12 |
 
+**E5** · motor: duckdb
+
+```sql
+SELECT disputa_id, pedido_id, cliente_id, motivo, estado, monto, abierta_en, vence_en, transportista, region, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, reclamo_previo, pedidos_previos, disputas_previas, senales_fraude, vale_pelear, razon_decision FROM canonico.disputas WHERE disputa_id IN ('du_LRbXAOhoJgujrS') ORDER BY disputa_id
+```
+
+| disputa_id | pedido_id | cliente_id | motivo | estado | monto | abierta_en | vence_en | transportista | region | estado_envio | prueba_entrega | entregado_en | entrega_confirmada | reclamo_previo | pedidos_previos | disputas_previas | senales_fraude | vale_pelear | razon_decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| du_LRbXAOhoJgujrS | ORD-1650 | cus_YFoGrpQQqoavsM | fraudulent | needs_response | 489.0 | 2026-09-18 15:00:00 | 2026-10-02 23:00:00 | PaqueteYa | Sur | entregado | foto | 2026-09-13 | True | False | 0 | 0 | 4 | False | sospecha_de_fraude |
+
 
 ## Qué conviene hacer
 
 No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente.
 
+### Cola de aprobación
+
+IO prepara y no envía nada: una regla de política aprueba o rechaza cada entrada, y lo aprobado lo revisa y lo envía una persona.
+
+**No pelear · du_LRbXAOhoJgujrS** · ✅ aprobada · `AP-20261023T174856-195026-1`
+
+_Política: no se envía al banco: es el plan para la dueña, con su evidencia_
+
+> Disputa du_LRbXAOhoJgujrS · 489.00 USD: no conviene pelearla porque hay 2 o más señales de fraude. Qué hacer: no pelear: aceptar la disputa y marcar al cliente. [E5]
+
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 4 · 46 ms
+Aprobación: **aprobada** · modo muestra · consultas: 5 · 56 ms

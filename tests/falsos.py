@@ -32,7 +32,36 @@ class MotorFalso:
         return {"ok": False, "motor": "duckdb", "filas": [], "n_filas": 0, "error": "Error de SQL: tabla inexistente"}
 
 
+# Las disputas del grupo (RapidEnvio · Norte) que trae la cola al preparar: una para pelear sin dudas,
+# una para pelear pero con una señal de fraude (la política la rechaza) y una con reclamo previo.
+GRUPO = [
+    {"disputa_id": "du_A1", "pedido_id": "ORD-1", "cliente_id": "c1", "motivo": "product_not_received",
+     "estado": "needs_response", "monto": 61.15, "abierta_en": "2026-09-26 15:00:00", "vence_en": "2026-10-10 23:00:00",
+     "transportista": "RapidEnvio", "region": "Norte", "estado_envio": "entregado", "prueba_entrega": "firma",
+     "entregado_en": "2026-09-24", "entrega_confirmada": True, "reclamo_previo": False, "pedidos_previos": 3,
+     "disputas_previas": 0, "senales_fraude": 0, "vale_pelear": True, "razon_decision": "entrega_confirmada_sin_reclamo"},
+    {"disputa_id": "du_B2", "pedido_id": "ORD-2", "cliente_id": "c2", "motivo": "fraudulent",
+     "estado": "needs_response", "monto": 41.24, "abierta_en": "2026-09-20 15:00:00", "vence_en": "2026-10-04 23:00:00",
+     "transportista": "RapidEnvio", "region": "Norte", "estado_envio": "entregado", "prueba_entrega": "foto",
+     "entregado_en": "2026-09-19", "entrega_confirmada": True, "reclamo_previo": False, "pedidos_previos": 0,
+     "disputas_previas": 0, "senales_fraude": 1, "vale_pelear": True, "razon_decision": "entrega_confirmada_sin_reclamo"},
+    {"disputa_id": "du_C3", "pedido_id": "ORD-3", "cliente_id": "c3", "motivo": "product_not_received",
+     "estado": "needs_response", "monto": 130.33, "abierta_en": "2026-09-20 15:00:00", "vence_en": "2026-10-04 23:00:00",
+     "transportista": "RapidEnvio", "region": "Norte", "estado_envio": "entregado", "prueba_entrega": "firma",
+     "entregado_en": "2026-09-18", "entrega_confirmada": True, "reclamo_previo": True, "pedidos_previos": 1,
+     "disputas_previas": 0, "senales_fraude": 0, "vale_pelear": False, "razon_decision": "reclamo_previo"},
+]
+
+# Del mismo período pero de otro transportista: vale pelear, aunque no es parte de la causa.
+FUERA = [{**GRUPO[0], "disputa_id": "du_D4", "pedido_id": "ORD-4", "transportista": "CargoSur", "region": "Centro",
+          "monto": 129.9, "pedidos_previos": 4}]
+
 PICO = {
+    # primero lo más específico: MotorFalso responde con la primera clave que aparece en el SQL
+    "canonico.mensajes_soporte": [{"pedido_id": "ORD-1", "creado_en": "2026-09-27 10:00:00", "categoria": "consulta",
+                                   "texto": "¿Ya está resuelto?"}],
+    "FROM canonico.disputas WHERE transportista = 'RapidEnvio' AND region = 'Norte'": GRUPO,
+    "FROM canonico.disputas WHERE abierta_en >=": GRUPO + FUERA,
     "senales_fraude": [{"senales_fraude": 0, "disputas": 13}, {"senales_fraude": 1, "disputas": 3},
                        {"senales_fraude": 2, "disputas": 1}, {"senales_fraude": 4, "disputas": 1}],
     "transportista, region": [{"transportista": "RapidEnvio", "region": "Norte", "disputas": 14,
