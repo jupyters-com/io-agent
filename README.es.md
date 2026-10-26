@@ -37,7 +37,7 @@ El informe legible queda en `salidas/<run_id>.md`. Ese es el archivo para leer.
 | `ejemplos/caso2_entrada.json` | ¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS? | **No**: aunque llegó con foto, tiene 4 señales de fraude. Descarta la hipótesis contraria con evidencia. |
 | `ejemplos/caso3_entrada.json` | ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026? | El pico (de 4 a 18) no es fraude: lo explica RapidEnvio en el Norte (14 de 18). Separa qué disputas pelear y redacta sus respuestas; la política rechaza una (`du_HlcQ…`, 1 señal de fraude) para que la decida una persona. |
 
-Las salidas de estas tres corridas ya están en `ejemplos/*_salida.md`, por si se quieren leer sin correr nada.
+Las salidas de estas tres corridas ya están en `ejemplos/*_salida.md`, por si se quieren leer sin correr nada. Hay traducción al inglés en `ejemplos/*_salida.en.md` (solo el texto; el SQL y los datos quedan iguales).
 
 **Una pregunta distinta** (o escrita distinto: se ignoran mayúsculas y espacios, pero no otras palabras) no tiene una corrida grabada, y el agente **se abstiene** en vez de inventar: "No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real / For new questions use live mode: SAMPLE_MODE=false (README.md, «Live mode: new questions»; README.es.md, «Modo real: preguntas nuevas»)." Para preguntas nuevas está el modo real (abajo).
 
@@ -195,7 +195,7 @@ La respuesta (con sus filas de evidencia y el informe Markdown), la cola de apro
 
 ## Ejemplos
 
-`ejemplos/` tiene tres preguntas (los tres casos plantados) con sus salidas, generadas por corridas reales con `python scripts/generar_ejemplos.py`, nunca escritas a mano.
+`ejemplos/` tiene tres preguntas (los tres casos plantados) con sus salidas, generadas por corridas reales con `python scripts/generar_ejemplos.py`, nunca escritas a mano. Los `*_salida.en.md` son traducciones de esas salidas, hechas después para quien no lee español; el script no las genera.
 
 ## Pruebas
 
