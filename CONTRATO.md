@@ -52,7 +52,11 @@ Ninguna respuesta sale sin pasar por la cola (`logs/cola_aprobacion.jsonl`, un �
 
 Con `SAMPLE_MODE=true`, la regla `auto_muestra` aprueba y queda registrado. En modo real el ítem queda `pendiente` (la decisión humana es el Paso 11, JPTRS-60).
 
-## 3. La traza (`contrato/traza.schema.json`)
+## 3. La evidencia (`logs/<run_id>.evidencia.jsonl`)
+
+Una línea por consulta, con lo mismo que `evidencia[]` de la respuesta (`id`, `sql`, `motor`, `ok`, `filas`, `n_filas`, `error`) más `run_id` e `hipotesis` (la que esa consulta probaba). Es la "fila de evidencia" que se muestra en pantalla.
+
+## 4. La traza (`contrato/traza.schema.json`)
 
 `logs/<run_id>.jsonl`, un evento por línea. La escriben el orquestador, el investigador (Paso 10), el evaluador (Paso 10b) y la cola.
 
@@ -61,7 +65,7 @@ Con `SAMPLE_MODE=true`, la regla `auto_muestra` aprueba y queda registrado. En m
 | `paso` | orden del evento en la corrida (1, 2, 3…) |
 | `agente` | `orquestador`, `investigador`, `evaluador` o `cola` |
 | `destino` | a quién le habla: `io-engine.consultar`, `modelo`, `cola_aprobacion`, `salida`… |
-| `accion` | qué hizo |
+| `accion` | qué hizo: `recibir_pregunta`, `pensar`, `proponer_hipotesis`, `consultar`, `revisar_veredicto`, `devolver`, `descartar`, `sostener`, `revisar_conclusion`, `encolar`, `entregar`, `tope_iteraciones`, `alerta_gasto` |
 | `entrada` / `salida` | resumen de lo que entró y salió (máx. 300 caracteres) |
 | `estado` | `ok`, `error`, `alerta` u `omitido` |
 | `reintentos` | cuántas veces se reintentó |

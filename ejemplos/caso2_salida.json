@@ -1,52 +1,104 @@
 {
   "version": "0.1",
-  "run_id": "20261022T144235-bb44f7",
+  "run_id": "20261023T141944-9c5b23",
   "pregunta": "¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?",
   "modo": "muestra",
-  "estado": "abstencion",
-  "conclusion": null,
-  "hipotesis": [],
+  "estado": "concluida",
+  "conclusion": "No, no vale la pena pelear esta disputa de 489 dólares. Aunque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo, hay 4 señales de fraude: el cliente no tiene pedidos previos, el nivel de riesgo es el más alto, el país de facturación (CO) es distinto al país de la IP (NL), y el sistema detectó sospecha de fraude.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear la disputa porque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo.",
+      "veredicto": "descartada",
+      "razon": "La evidencia E2 confirma entrega_confirmada=true y reclamo_previo=false, pero la evidencia E3 muestra senales_fraude=4 y sospecha_fraude=true. Como hay 2 o más señales de fraude, vale_pelear es false, por lo que no vale la pena pelear la disputa.",
+      "evidencia": [
+        "E2",
+        "E3"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear la disputa porque hay múltiples señales de fraude y sospecha de fraude.",
+      "veredicto": "sostenida",
+      "razon": "La evidencia E3 registra 4 señales de fraude y sospecha_fraude=true, lo que impide pelear la disputa según la regla de vale_pelear.",
+      "evidencia": [
+        "E3"
+      ]
+    }
+  ],
   "evidencia": [
     {
       "id": "E1",
-      "sql": "SELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo",
+      "sql": "SELECT disputa_id, monto, motivo, estado, vale_pelear, decision, razon_decision, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, pedidos_previos, disputas_previas, nivel_riesgo, pais_facturacion, pais_ip, prueba_entrega, estado_envio, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';",
       "motor": "duckdb",
       "ok": true,
       "filas": [
         {
+          "disputa_id": "du_LRbXAOhoJgujrS",
+          "monto": 489.0,
           "motivo": "fraudulent",
-          "disputas": 16,
-          "vale_pelear": 8
-        },
-        {
-          "motivo": "product_not_received",
-          "disputas": 16,
-          "vale_pelear": 6
-        },
-        {
-          "motivo": "unrecognized",
-          "disputas": 10,
-          "vale_pelear": 6
+          "estado": "needs_response",
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude",
+          "entrega_confirmada": true,
+          "reclamo_previo": false,
+          "senales_fraude": 4,
+          "sospecha_fraude": true,
+          "pedidos_previos": 0,
+          "disputas_previas": 0,
+          "nivel_riesgo": "highest",
+          "pais_facturacion": "CO",
+          "pais_ip": "NL",
+          "prueba_entrega": "foto",
+          "estado_envio": "entregado",
+          "causa_operativa": false
         }
       ],
-      "n_filas": 3,
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT entrega_confirmada, reclamo_previo FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "entrega_confirmada": true,
+          "reclamo_previo": false
+        }
+      ],
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E3",
+      "sql": "SELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "senales_fraude": 4,
+          "sospecha_fraude": true
+        }
+      ],
+      "n_filas": 1,
       "error": null
     }
   ],
-  "recomendacion": null,
-  "abstencion": {
-    "razon": "El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir."
-  },
+  "recomendacion": "No pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.",
+  "abstencion": null,
   "aprobacion": {
-    "item_id": "AP-20261022T144235-bb44f7",
+    "item_id": "AP-20261023T141944-9c5b23",
     "estado": "aprobada"
   },
   "metricas": {
-    "iteraciones": 1,
-    "consultas": 1,
-    "ms": 0.4,
+    "iteraciones": 5,
+    "consultas": 3,
+    "ms": 7.9,
     "tokens": 0,
     "costo_usd": 0.0
   },
-  "informe_md": "# Informe de IO · 20261022T144235-bb44f7\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?\n\n## Lo que encontramos\n\n**IO no da una conclusión.** El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir.\n\n## Hipótesis descartadas\n\n_Ninguna en esta corrida._\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo\n```\n\n| motivo | disputas | vale_pelear |\n| --- | --- | --- |\n| fraudulent | 16 | 8 |\n| product_not_received | 16 | 6 |\n| unrecognized | 10 | 6 |\n\n\n## Qué conviene hacer\n\n_Sin recomendación: no hay conclusión._\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 1 · 0 ms\n"
+  "informe_md": "# Informe de IO · 20261023T141944-9c5b23\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?\n\n## Lo que encontramos\n\nNo, no vale la pena pelear esta disputa de 489 dólares. Aunque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo, hay 4 señales de fraude: el cliente no tiene pedidos previos, el nivel de riesgo es el más alto, el país de facturación (CO) es distinto al país de la IP (NL), y el sistema detectó sospecha de fraude.\n\n- **No vale la pena pelear la disputa porque hay múltiples señales de fraude y sospecha de fraude.** — La evidencia E3 registra 4 señales de fraude y sospecha_fraude=true, lo que impide pelear la disputa según la regla de vale_pelear. (evidencia: E3)\n\n## Hipótesis descartadas\n\n- ~~Vale la pena pelear la disputa porque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo.~~ — La evidencia E2 confirma entrega_confirmada=true y reclamo_previo=false, pero la evidencia E3 muestra senales_fraude=4 y sospecha_fraude=true. Como hay 2 o más señales de fraude, vale_pelear es false, por lo que no vale la pena pelear la disputa. (evidencia: E2, E3)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT disputa_id, monto, motivo, estado, vale_pelear, decision, razon_decision, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, pedidos_previos, disputas_previas, nivel_riesgo, pais_facturacion, pais_ip, prueba_entrega, estado_envio, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\n```\n\n| disputa_id | monto | motivo | estado | vale_pelear | decision | razon_decision | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | pedidos_previos | disputas_previas | nivel_riesgo | pais_facturacion | pais_ip | prueba_entrega | estado_envio | causa_operativa |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_LRbXAOhoJgujrS | 489.0 | fraudulent | needs_response | False | no_pelear | sospecha_de_fraude | True | False | 4 | True | 0 | 0 | highest | CO | NL | foto | entregado | False |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT entrega_confirmada, reclamo_previo FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\n```\n\n| entrega_confirmada | reclamo_previo |\n| --- | --- |\n| True | False |\n\n**E3** · motor: duckdb\n\n```sql\nSELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\n```\n\n| senales_fraude | sospecha_fraude |\n| --- | --- |\n| 4 | True |\n\n\n## Qué conviene hacer\n\nNo pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 3 · 8 ms\n"
 }

@@ -1,10 +1,11 @@
 """De dónde saca datos el agente: SIEMPRE a través de consultar(sql) del motor io-engine.
 
-- FuenteMuestra (SAMPLE_MODE=true): respuestas de io-engine grabadas en samples/consultas.json
-  por scripts/grabar_muestras.py. No necesita el motor ni credenciales.
+- FuenteMuestra (SAMPLE_MODE=true): respuestas reales de io-engine grabadas (samples/consultas.json
+  y las consultas de cada corrida grabada en samples/corridas/). No necesita el motor.
 - FuenteMotor (SAMPLE_MODE=false): llama a consultar(sql) por MCP en IO_MOTOR_URL.
+- FuenteGrabadora: envuelve a FuenteMotor y guarda cada respuesta, para crear las grabaciones.
 
-Las dos devuelven lo mismo que consultar(sql): {"ok", "columnas", "filas", "n_filas", "motor", ...}.
+Todas devuelven lo mismo que consultar(sql): {"ok", "columnas", "filas", "n_filas", "motor", ...}.
 """
 
 import asyncio
@@ -19,16 +20,17 @@ def normalizar(sql: str) -> str:
 class FuenteMuestra:
     nombre = "muestra"
 
-    def __init__(self, ruta: Path):
+    def __init__(self, ruta: Path, extra: dict | None = None):
         datos = json.loads(Path(ruta).read_text(encoding="utf-8"))
         self.origen = datos.get("origen", "")
         self.consultas = {normalizar(k): v for k, v in datos["consultas"].items()}
+        self.consultas.update({normalizar(k): v for k, v in (extra or {}).items()})
 
     def consultar(self, sql: str) -> dict:
         grabada = self.consultas.get(normalizar(sql))
         if grabada is None:
             return {"ok": False, "motor": None, "filas": [], "n_filas": 0,
-                    "error": "Consulta fuera de la muestra: no está grabada en samples/consultas.json."}
+                    "error": "Consulta fuera de la muestra: no está grabada en samples/."}
         return dict(grabada)
 
 
@@ -54,5 +56,19 @@ class FuenteMotor:
             raise ConnectionError(f"No se pudo hablar con io-engine en {self.url}: {e}") from e
 
 
-def crear(cfg):
-    return FuenteMuestra(cfg.muestras) if cfg.modo_muestra else FuenteMotor(cfg.motor_url, cfg.timeout_s)
+class FuenteGrabadora:
+    def __init__(self, fuente):
+        self.fuente, self.consultas = fuente, {}
+        self.nombre = fuente.nombre
+
+    def consultar(self, sql: str) -> dict:
+        r = self.fuente.consultar(sql)
+        grabada = {k: v for k, v in r.items() if k != "ms"}
+        self.consultas[normalizar(sql)] = grabada
+        return r
+
+
+def crear(cfg, extra: dict | None = None):
+    if cfg.modo_muestra:
+        return FuenteMuestra(cfg.muestras, extra)
+    return FuenteMotor(cfg.motor_url, cfg.timeout_s)

@@ -1,52 +1,124 @@
 {
   "version": "0.1",
-  "run_id": "20261022T144235-54fd7b",
+  "run_id": "20261023T141944-eeac17",
   "pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?",
   "modo": "muestra",
-  "estado": "abstencion",
-  "conclusion": null,
-  "hipotesis": [],
+  "estado": "concluida",
+  "conclusion": "Sí, vale la pena pelear esta disputa de 129.9 dólares. El pedido fue entregado y confirmado con firma, el cliente no había reclamado antes sobre este pedido, no hay señales de fraude (mismo país de facturación y de IP, cliente con historial y riesgo normal), y ya tiene 4 pedidos previos sin ninguna disputa anterior. Cumple todas las condiciones para ganarla.",
+  "hipotesis": [
+    {
+      "id": "H1",
+      "enunciado": "Vale la pena pelear la disputa porque el pedido fue entregado y confirmado, y el cliente no hizo reclamo previo.",
+      "veredicto": "sostenida",
+      "razon": "La evidencia E1 (1 fila) muestra que el pedido fue entregado y confirmado con firma, no hubo reclamo previo del cliente, no hay señales de fraude (0 señales), y el campo vale_pelear es true con decisión pelear.",
+      "evidencia": [
+        "E1"
+      ]
+    },
+    {
+      "id": "H2",
+      "enunciado": "No vale la pena pelear porque hay sospecha de fraude o no existe prueba de entrega.",
+      "veredicto": "descartada",
+      "razon": "La evidencia E1 (1 fila) muestra que esta disputa no tiene sospecha de fraude (senales_fraude = 0) y sí cuenta con prueba de entrega (firma), por lo que los motivos para no pelear no aplican.",
+      "evidencia": [
+        "E1"
+      ]
+    }
+  ],
   "evidencia": [
     {
       "id": "E1",
-      "sql": "SELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo",
+      "sql": "SELECT * FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';",
       "motor": "duckdb",
       "ok": true,
       "filas": [
         {
-          "motivo": "fraudulent",
-          "disputas": 16,
-          "vale_pelear": 8
-        },
-        {
-          "motivo": "product_not_received",
-          "disputas": 16,
-          "vale_pelear": 6
-        },
-        {
+          "disputa_id": "du_cuKtmopzODI37h",
+          "pago_id": "ch_uc8Ii5EK9OUe4V",
+          "pedido_id": "ORD-1574",
+          "cliente_id": "cus_3QyF0zEKBVKKDb",
           "motivo": "unrecognized",
-          "disputas": 10,
-          "vale_pelear": 6
+          "estado": "needs_response",
+          "monto": 129.9,
+          "abierta_en": "2026-09-29 15:00:00",
+          "vence_en": "2026-10-13 23:00:00",
+          "nivel_riesgo": "normal",
+          "pais_facturacion": "CO",
+          "pais_ip": "CO",
+          "envio_id": "CS-31574",
+          "transportista": "CargoSur",
+          "region": "Centro",
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "tipo_destino": "domicilio",
+          "prometido_en": "2026-09-07",
+          "entregado_en": "2026-09-06",
+          "entrega_confirmada": true,
+          "entrega_tarde": false,
+          "extraviado": false,
+          "dias_atraso": 0,
+          "zona_con_atrasos": false,
+          "pedidos_previos": 4,
+          "disputas_previas": 0,
+          "reclamo_previo": false,
+          "senal_cliente_nuevo": false,
+          "senal_riesgo_alto": false,
+          "senal_pais_distinto": false,
+          "senal_punto_retiro": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "causa_operativa": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo"
         }
       ],
-      "n_filas": 3,
+      "n_filas": 1,
+      "error": null
+    },
+    {
+      "id": "E2",
+      "sql": "SELECT razon_decision, count(*) AS disputas FROM canonico.disputas GROUP BY razon_decision ORDER BY disputas DESC;",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "disputas": 20
+        },
+        {
+          "razon_decision": "reclamo_previo",
+          "disputas": 12
+        },
+        {
+          "razon_decision": "sin_entrega",
+          "disputas": 4
+        },
+        {
+          "razon_decision": "sin_prueba_de_entrega",
+          "disputas": 3
+        },
+        {
+          "razon_decision": "sospecha_de_fraude",
+          "disputas": 3
+        }
+      ],
+      "n_filas": 5,
       "error": null
     }
   ],
-  "recomendacion": null,
-  "abstencion": {
-    "razon": "El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir."
-  },
+  "recomendacion": "Pelear esta disputa presentando la prueba de entrega (firma) y el historial del cliente. De las disputas totales revisadas, 20 entran en la categoría de entrega confirmada sin reclamo previo y se pueden pelear con la prueba de entrega; 12 tienen reclamo previo y es mejor resolverlas con el cliente (contactarlo, ofrecer un descuento o reembolso parcial y pedir que retire la disputa); 4 son por sin entrega y se recomienda reembolsar; 3 carecen de prueba de entrega; y 3 tienen sospecha de fraude, por lo que no se pelean y se acepta la disputa marcando al cliente.",
+  "abstencion": null,
   "aprobacion": {
-    "item_id": "AP-20261022T144235-54fd7b",
+    "item_id": "AP-20261023T141944-eeac17",
     "estado": "aprobada"
   },
   "metricas": {
-    "iteraciones": 1,
-    "consultas": 1,
-    "ms": 0.6,
+    "iteraciones": 3,
+    "consultas": 2,
+    "ms": 8.2,
     "tokens": 0,
     "costo_usd": 0.0
   },
-  "informe_md": "# Informe de IO · 20261022T144235-54fd7b\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_cuKtmopzODI37h?\n\n## Lo que encontramos\n\n**IO no da una conclusión.** El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir.\n\n## Hipótesis descartadas\n\n_Ninguna en esta corrida._\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo\n```\n\n| motivo | disputas | vale_pelear |\n| --- | --- | --- |\n| fraudulent | 16 | 8 |\n| product_not_received | 16 | 6 |\n| unrecognized | 10 | 6 |\n\n\n## Qué conviene hacer\n\n_Sin recomendación: no hay conclusión._\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 1 · 1 ms\n"
+  "informe_md": "# Informe de IO · 20261023T141944-eeac17\n\n## La pregunta\n\n> ¿Vale la pena pelear la disputa du_cuKtmopzODI37h?\n\n## Lo que encontramos\n\nSí, vale la pena pelear esta disputa de 129.9 dólares. El pedido fue entregado y confirmado con firma, el cliente no había reclamado antes sobre este pedido, no hay señales de fraude (mismo país de facturación y de IP, cliente con historial y riesgo normal), y ya tiene 4 pedidos previos sin ninguna disputa anterior. Cumple todas las condiciones para ganarla.\n\n- **Vale la pena pelear la disputa porque el pedido fue entregado y confirmado, y el cliente no hizo reclamo previo.** — La evidencia E1 (1 fila) muestra que el pedido fue entregado y confirmado con firma, no hubo reclamo previo del cliente, no hay señales de fraude (0 señales), y el campo vale_pelear es true con decisión pelear. (evidencia: E1)\n\n## Hipótesis descartadas\n\n- ~~No vale la pena pelear porque hay sospecha de fraude o no existe prueba de entrega.~~ — La evidencia E1 (1 fila) muestra que esta disputa no tiene sospecha de fraude (senales_fraude = 0) y sí cuenta con prueba de entrega (firma), por lo que los motivos para no pelear no aplican. (evidencia: E1)\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT * FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\n```\n\n| disputa_id | pago_id | pedido_id | cliente_id | motivo | estado | monto | abierta_en | vence_en | nivel_riesgo | pais_facturacion | pais_ip | envio_id | transportista | region | estado_envio | prueba_entrega | tipo_destino | prometido_en | entregado_en | entrega_confirmada | entrega_tarde | extraviado | dias_atraso | zona_con_atrasos | pedidos_previos | disputas_previas | reclamo_previo | senal_cliente_nuevo | senal_riesgo_alto | senal_pais_distinto | senal_punto_retiro | senales_fraude | sospecha_fraude | causa_operativa | vale_pelear | decision | razon_decision |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| du_cuKtmopzODI37h | ch_uc8Ii5EK9OUe4V | ORD-1574 | cus_3QyF0zEKBVKKDb | unrecognized | needs_response | 129.9 | 2026-09-29 15:00:00 | 2026-10-13 23:00:00 | normal | CO | CO | CS-31574 | CargoSur | Centro | entregado | firma | domicilio | 2026-09-07 | 2026-09-06 | True | False | False | 0 | False | 4 | 0 | False | False | False | False | False | 0 | False | False | True | pelear | entrega_confirmada_sin_reclamo |\n\n**E2** · motor: duckdb\n\n```sql\nSELECT razon_decision, count(*) AS disputas FROM canonico.disputas GROUP BY razon_decision ORDER BY disputas DESC;\n```\n\n| razon_decision | disputas |\n| --- | --- |\n| entrega_confirmada_sin_reclamo | 20 |\n| reclamo_previo | 12 |\n| sin_entrega | 4 |\n| sin_prueba_de_entrega | 3 |\n| sospecha_de_fraude | 3 |\n\n\n## Qué conviene hacer\n\nPelear esta disputa presentando la prueba de entrega (firma) y el historial del cliente. De las disputas totales revisadas, 20 entran en la categoría de entrega confirmada sin reclamo previo y se pueden pelear con la prueba de entrega; 12 tienen reclamo previo y es mejor resolverlas con el cliente (contactarlo, ofrecer un descuento o reembolso parcial y pedir que retire la disputa); 4 son por sin entrega y se recomienda reembolsar; 3 carecen de prueba de entrega; y 3 tienen sospecha de fraude, por lo que no se pelean y se acepta la disputa marcando al cliente.\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 2 · 8 ms\n"
 }

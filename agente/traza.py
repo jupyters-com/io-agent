@@ -49,9 +49,15 @@ class Traza:
 
 
 class Cronometro:
+    """Mide milisegundos. `ms` vale también dentro del bloque (tiempo transcurrido hasta ahí)."""
+
     def __enter__(self):
-        self.inicio = time.perf_counter()
+        self.inicio, self.fin = time.perf_counter(), None
         return self
 
     def __exit__(self, *_):
-        self.ms = (time.perf_counter() - self.inicio) * 1000
+        self.fin = time.perf_counter()
+
+    @property
+    def ms(self) -> float:
+        return ((self.fin or time.perf_counter()) - self.inicio) * 1000

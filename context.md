@@ -29,8 +29,8 @@ Cinco tablas en `canonico` (iguales en DuckDB y en Zetaris): `clientes`, `pagos`
 | Pieza | Paso | Estado |
 | --- | --- | --- |
 | Esqueleto, contrato, traza, cola, modo de muestra | 9 (JPTRS-55) | hecho |
-| Investigador que descarta hipótesis | 10 (JPTRS-67) | pruebas en rojo en `tests/test_investigador_rojo.py` |
-| Evaluador que rechaza sin evidencia | 10b (JPTRS-87) | pendiente |
+| Investigador que descarta hipótesis (`agente/investigador.py`) | 10 (JPTRS-67) | hecho; faltan las corridas grabadas de los 3 casos |
+| Evaluador que rechaza sin evidencia (`agente/evaluador.py`) | 10b (JPTRS-87) | versión mínima; falta endurecerlo |
 | Cola de aprobación con decisión humana | 11 (JPTRS-60) | pendiente |
 | Meterless (World Model / H-MEM) dentro del agente | 13 (JPTRS-68) | pendiente |
 

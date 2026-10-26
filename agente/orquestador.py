@@ -1,21 +1,28 @@
-"""El esqueleto del agente: recibe una pregunta y devuelve una respuesta que cumple el contrato.
+"""El orquestador: recibe una pregunta y devuelve una respuesta que cumple el contrato.
 
-Todavía no investiga (eso es el Paso 10, JPTRS-67). Hoy hace el recorrido completo con un
-plan mínimo: mira el panorama de las disputas con consultar(sql) y, como no tiene con qué
-probar hipótesis, se ABSTIENE en vez de inventar. Cada paso queda en la traza JSONL y la
-respuesta pasa por la cola de aprobación.
+1. El Investigador (agente/investigador.py) propone hipótesis, las prueba con consultar(sql) y
+   descarta las que la evidencia no sostiene. El Evaluador revisa cada veredicto y la conclusión.
+2. La respuesta pasa por la cola de aprobación.
+3. Todo queda en logs/: la traza (<run_id>.jsonl), las filas de evidencia (<run_id>.evidencia.jsonl)
+   y la cola (cola_aprobacion.jsonl). La respuesta y el informe van a salidas/.
 
-Topes: AGENTE_TIMEOUT_S por llamada externa (con un reintento), AGENTE_MAX_ITERACIONES por
-corrida y AGENTE_PRESUPUESTO_USD como alerta de gasto en el proveedor del modelo.
+Modo de muestra: repite una corrida real grabada para esa pregunta (samples/corridas/). Con
+AGENTE_GRABAR=true en modo real, la corrida se graba para que el modo de muestra la repita.
 """
 
+import hashlib
 import json
+import os
+import re
+import unicodedata
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 from agente import cola as cola_mod
 from agente import config as config_mod
 from agente import contrato, datos, modelo
+from agente.investigador import Investigador
 from agente.traza import Cronometro, Traza
 
 PANORAMA = """
@@ -25,15 +32,31 @@ GROUP BY motivo
 ORDER BY disputas DESC, motivo
 """
 
-RAZON_ESQUELETO = ("El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de "
-                   "las disputas, pero aún no prueba hipótesis, así que prefiere no concluir.")
-
 
 def nuevo_run_id() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:6]
 
 
-def _consultar(fuente, sql, traza, cfg):
+def _norm_pregunta(p: str) -> str:
+    return " ".join(p.lower().split())
+
+
+def nombre_corrida(pregunta: str) -> str:
+    base = unicodedata.normalize("NFKD", pregunta).encode("ascii", "ignore").decode().lower()
+    base = re.sub(r"[^a-z0-9]+", "-", base).strip("-")[:50]
+    return f"{base}-{hashlib.sha1(_norm_pregunta(pregunta).encode()).hexdigest()[:6]}"
+
+
+def corrida_grabada(cfg, pregunta: str) -> dict | None:
+    carpeta = Path(cfg.muestras).parent / "corridas"
+    for ruta in sorted(carpeta.glob("*.json")) if carpeta.exists() else []:
+        c = json.loads(ruta.read_text(encoding="utf-8"))
+        if _norm_pregunta(c["pregunta"]) == _norm_pregunta(pregunta):
+            return c
+    return None
+
+
+def _consultar(fuente, sql, traza, cfg, etiqueta=""):
     """Una llamada a consultar(sql) con un reintento si se pasa del tiempo."""
     reintentos = 0
     while True:
@@ -46,7 +69,8 @@ def _consultar(fuente, sql, traza, cfg):
         if isinstance(error, TimeoutError) and reintentos < 1:
             reintentos += 1
             continue
-        traza.evento("investigador", "io-engine.consultar", "consultar", entrada=sql,
+        entrada = f"{etiqueta} · {sql}" if etiqueta else sql
+        traza.evento("investigador", "io-engine.consultar", "consultar", entrada=entrada,
                      salida=(f"{r.get('n_filas', 0)} filas · motor={r.get('motor')}" if r.get("ok")
                              else f"error: {r.get('error')}"),
                      estado="ok" if r.get("ok") else "error", reintentos=reintentos, ms=t.ms)
@@ -57,27 +81,26 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
     cfg = cfg or config_mod.cargar()
     run_id = run_id or nuevo_run_id()
     traza = Traza(run_id, cfg.logs)
-    fuente, llm = datos.crear(cfg), modelo.crear(cfg)
+    grabar = not cfg.modo_muestra and os.getenv("AGENTE_GRABAR", "").lower() in ("1", "true", "si", "sí")
+
+    grabada = corrida_grabada(cfg, pregunta) if cfg.modo_muestra else None
+    fuente = datos.crear(cfg, extra=(grabada or {}).get("consultas"))
+    llm = modelo.crear(cfg, turnos=(grabada or {}).get("turnos"))
+    if grabar:
+        fuente, llm = datos.FuenteGrabadora(fuente), modelo.Grabadora(llm)
+
+    ruta_evidencia = Path(cfg.logs) / f"{run_id}.evidencia.jsonl"
+
+    def registrar_evidencia(e, hipotesis):
+        with open(ruta_evidencia, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"run_id": run_id, "hipotesis": hipotesis, **e}, ensure_ascii=False, default=str) + "\n")
 
     with Cronometro() as total:
         traza.evento("orquestador", "agente", "recibir_pregunta", entrada=pregunta,
-                     salida=f"modo={cfg.modo} fuente={fuente.nombre} modelo={llm.nombre}")
+                     salida=f"modo={cfg.modo} fuente={fuente.nombre} modelo={llm.nombre}"
+                            + (f" corrida={grabada['nombre']}" if grabada else ""))
 
-        plan = [("panorama", PANORAMA)]
-        evidencia, iteraciones = [], 0
-        for nombre, sql in plan:
-            if iteraciones >= cfg.max_iteraciones:
-                traza.evento("orquestador", "agente", "tope_iteraciones", entrada=nombre,
-                             salida=f"se alcanzó AGENTE_MAX_ITERACIONES={cfg.max_iteraciones}", estado="alerta")
-                break
-            iteraciones += 1
-            r = _consultar(fuente, sql, traza, cfg)
-            evidencia.append({"id": f"E{len(evidencia) + 1}", "sql": " ".join(sql.split()),
-                              "motor": r.get("motor"), "ok": bool(r.get("ok")), "filas": r.get("filas", []),
-                              "n_filas": int(r.get("n_filas", 0)), "error": r.get("error")})
-
-        traza.evento("investigador", "modelo", "proponer_hipotesis", entrada=pregunta,
-                     salida="omitido: el investigador llega en el Paso 10 (JPTRS-67)", estado="omitido")
+        resultado = Investigador(cfg, fuente, llm, traza, _consultar, registrar_evidencia).investigar(pregunta)
 
         if llm.costo_usd > cfg.presupuesto_usd:
             traza.evento("orquestador", "modelo", "alerta_gasto",
@@ -86,11 +109,12 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
 
         respuesta = {
             "version": "0.1", "run_id": run_id, "pregunta": pregunta, "modo": cfg.modo,
-            "estado": "abstencion", "conclusion": None, "hipotesis": [], "evidencia": evidencia,
-            "recomendacion": None, "abstencion": {"razon": RAZON_ESQUELETO},
+            "estado": resultado["estado"], "conclusion": resultado["conclusion"],
+            "hipotesis": resultado["hipotesis"], "evidencia": resultado["evidencia"],
+            "recomendacion": resultado["recomendacion"], "abstencion": resultado["abstencion"],
             "aprobacion": {"item_id": "", "estado": "pendiente"},
-            "metricas": {"iteraciones": iteraciones, "consultas": len(evidencia), "ms": 0.0,
-                         "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6)},
+            "metricas": {"iteraciones": resultado["iteraciones"], "consultas": len(resultado["evidencia"]),
+                         "ms": 0.0, "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6)},
             "informe_md": "",
         }
 
@@ -107,9 +131,44 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
     contrato.validar_respuesta(respuesta)
 
     cfg.salidas.mkdir(parents=True, exist_ok=True)
-    (cfg.salidas / f"{run_id}.json").write_text(json.dumps(respuesta, ensure_ascii=False, indent=2),
+    (cfg.salidas / f"{run_id}.json").write_text(json.dumps(respuesta, ensure_ascii=False, indent=2, default=str),
                                                 encoding="utf-8")
     (cfg.salidas / f"{run_id}.md").write_text(respuesta["informe_md"], encoding="utf-8")
     traza.evento("orquestador", "salida", "entregar", entrada=respuesta["estado"],
                  salida=f"salidas/{run_id}.json + .md")
+
+    if grabar:
+        motivo = _por_que_no_grabar(cfg, pregunta, resultado)
+        if motivo:
+            traza.evento("orquestador", "salida", "grabar_corrida", estado="omitido", salida=f"no se graba: {motivo}")
+        else:
+            _guardar_corrida(cfg, pregunta, run_id, fuente, llm, resultado["estado"])
+            traza.evento("orquestador", "salida", "grabar_corrida", salida=f"samples/corridas/{nombre_corrida(pregunta)}.json")
     return respuesta
+
+
+def _por_que_no_grabar(cfg, pregunta, resultado) -> str | None:
+    """Una corrida se graba salvo que el modelo no haya respondido, o que vaya a pisar una corrida
+    concluida con una abstención (una buena grabación no se pierde por un mal intento)."""
+    if resultado["fallo_modelo"]:
+        return "el modelo no respondió, la corrida no sirve para el modo de muestra"
+    anterior = corrida_grabada(cfg.__class__(**{**cfg.__dict__, "modo_muestra": True}), pregunta)
+    if anterior and anterior.get("estado") == "concluida" and resultado["estado"] != "concluida":
+        return "ya hay una corrida concluida grabada para esta pregunta y esta se abstuvo"
+    return None
+
+
+def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado):
+    nombre = nombre_corrida(pregunta)
+    carpeta = Path(cfg.muestras).parent / "corridas"
+    carpeta.mkdir(parents=True, exist_ok=True)
+    (carpeta / f"{nombre}.json").write_text(json.dumps({
+        "_synthetic": True,
+        "nombre": nombre,
+        "pregunta": pregunta,
+        "origen": f"corrida real {run_id}: modelo {cfg.meterless_modelo} vía Nightshift, datos de io-engine",
+        "grabado_en": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "estado": estado,
+        "turnos": llm.turnos,
+        "consultas": fuente.consultas,
+    }, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
