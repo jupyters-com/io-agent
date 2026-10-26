@@ -16,6 +16,12 @@ Set: `evaluacion/set_prueba.csv` (42 disputas con su respuesta esperada, según 
 
 **Defensas perdidas sin la capa:** 20 disputas que convenía pelear, por 2,359.45 USD en total; 4 siguen esperando respuesta (377.57 USD).
 
+## Cómo leer estos números
+
+* **Qué mide el 42 de 42.** Que el agente con la capa reproduce la definición del set (`vale_pelear` y `razon_decision` del esquema canónico). El set sale de esa misma definición, así que no es una verdad externa ni una medida de acierto en datos reales.
+* **Las 20 defensas perdidas son un solo error repetido.** Sin la capa, el agente no cruza el pedido `ORD-1574` (pagos) con `1574` (logística), ve la entrega vacía y concluye que no hay prueba. No son 20 errores distintos.
+* **Datos sintéticos.** Las 42 disputas salen de los datos de demostración de io-engine.
+
 ## Disputa por disputa
 
 | disputa | esperada | con la capa | sin la capa |
