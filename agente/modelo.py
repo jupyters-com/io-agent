@@ -14,6 +14,8 @@ import time
 import urllib.error
 import urllib.request
 
+from agente import recibo as recibos
+
 REINTENTAR = (429, 500, 502, 503, 504)
 
 
@@ -24,6 +26,7 @@ class StreamCortado(RuntimeError):
 def _juntar_stream(respuesta) -> dict:
     """Arma una respuesta normal a partir de un stream SSE (líneas "data: {...}")."""
     texto, modelo, uso, termino = [], None, {}, False
+    recibo = None
     for linea in respuesta:
         linea = linea.decode("utf-8", "replace").strip()
         if not linea.startswith("data:"):
@@ -33,6 +36,9 @@ def _juntar_stream(respuesta) -> dict:
             termino = True
             break
         parte = json.loads(dato)
+        nuevo = recibos.buscar(parte)
+        if nuevo:
+            recibo = recibos.juntar(recibo, nuevo)
         if parte.get("error"):
             error = parte["error"]
             detalle = error.get("meterless_detail") or error.get("message") if isinstance(error, dict) else error
@@ -45,7 +51,8 @@ def _juntar_stream(respuesta) -> dict:
     if not "".join(texto).strip():
         raise StreamCortado("Nightshift cerró la respuesta sin contenido"
                             + ("" if termino else " (se cortó antes de terminar, posible provider_deadline)"))
-    return {"model": modelo, "choices": [{"message": {"content": "".join(texto)}}], "usage": uso}
+    return {"model": modelo, "choices": [{"message": {"content": "".join(texto)}}], "usage": uso,
+            "meterless": recibo}
 
 
 class SinMasRespuestas(RuntimeError):
@@ -65,6 +72,7 @@ class ModeloNightshift:
         self.reintentos, self.espera_s = reintentos, espera_s
         self.tokens, self.costo_usd = 0, 0.0
         self.reintentos_usados = 0
+        self.ultimo_recibo = None  # el recibo de la última llamada, con su firma ya verificada
 
     def _post(self, cuerpo: dict) -> dict:  # separado para poder simularlo en las pruebas
         pedido = urllib.request.Request(
@@ -141,8 +149,12 @@ class ModeloNightshift:
         costo = float(uso.get("cost", uso.get("cost_usd", 0.0)) or 0.0)
         self.tokens += tokens
         self.costo_usd += costo
+        recibo = recibos.buscar(r)
+        info = {"modelo": r.get("model", modelo), "pedido": modelo, "recibo": recibo,
+                "firma": recibos.verificar(recibo)}
+        self.ultimo_recibo = info
         return {"texto": r["choices"][0]["message"]["content"] or "", "modelo": r.get("model", modelo),
-                "tokens": tokens, "costo_usd": costo}
+                "tokens": tokens, "costo_usd": costo, "recibo": info}
 
 
 class ModeloGrabado:
@@ -157,10 +169,16 @@ class ModeloGrabado:
 
     def completar(self, mensajes: list[dict]) -> dict:
         if self.i >= len(self.turnos):
-            raise SinMasRespuestas("No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real / For new questions use live mode: SAMPLE_MODE=false (README.md, «Live mode: new questions»; README.es.md, «Modo real: preguntas nuevas»).")
+            raise SinMasRespuestas("No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra.")
         t = self.turnos[self.i]
         self.i += 1
-        return {"texto": t["texto"], "modelo": t.get("modelo", self.modelo), "tokens": 0, "costo_usd": 0.0}
+        info = t.get("recibo")
+        if info:  # la firma del recibo grabado se vuelve a verificar al repetir, no se confía en lo anotado
+            info = {**info, "firma": recibos.verificar(info.get("recibo")), "grabado": True}
+        r = {"texto": t["texto"], "modelo": t.get("modelo", self.modelo), "tokens": 0, "costo_usd": 0.0}
+        if info:  # las grabaciones anteriores a JPTRS-112 no guardaban el recibo
+            r["recibo"] = info
+        return r
 
 
 class Grabadora:
@@ -178,7 +196,10 @@ class Grabadora:
 
     def completar(self, mensajes):
         r = self.modelo.completar(mensajes)
-        self.turnos.append({"texto": r["texto"], "modelo": r["modelo"]})
+        turno = {"texto": r["texto"], "modelo": r["modelo"]}
+        if r.get("recibo"):
+            turno["recibo"] = r["recibo"]
+        self.turnos.append(turno)
         return r
 
 

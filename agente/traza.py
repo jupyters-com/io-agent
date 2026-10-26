@@ -5,6 +5,8 @@ investigador, evaluador y la cola) escriben aquí con el mismo formato.
 """
 
 import json
+import os
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +19,17 @@ def _resumen(valor, largo=300) -> str:
     texto = valor if isinstance(valor, str) else json.dumps(valor, ensure_ascii=False, default=str)
     texto = " ".join(texto.split())
     return texto if len(texto) <= largo else texto[: largo - 1] + "…"
+
+
+def en_vivo(e: dict):
+    """Una línea legible por evento, mientras ocurre (para ver la corrida en la terminal, o grabarla)."""
+    marca = {"ok": " ", "alerta": "!", "error": "x", "omitido": "-"}[e["estado"]]
+    detalle = e["salida"] or e["entrada"]
+    if e["accion"] == "consultar":
+        detalle = f"{e['salida']} · {e['entrada'][:110]}"
+    tiempo = f" · {e['ms'] / 1000:.1f} s" if e["ms"] >= 1000 else ""
+    linea = f"{marca} {e['paso']:>3} {e['agente']:<12} {e['accion']:<18} {detalle[:170]}{tiempo}"
+    print(linea, file=sys.stderr, flush=True)
 
 
 class Traza:
@@ -45,6 +58,8 @@ class Traza:
         }
         with open(self.ruta, "a", encoding="utf-8") as f:
             f.write(json.dumps(registro, ensure_ascii=False) + "\n")
+        if os.getenv("AGENTE_EN_VIVO", "").lower() in ("1", "true", "si", "sí"):
+            en_vivo(registro)
         return registro
 
 

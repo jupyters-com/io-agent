@@ -18,6 +18,7 @@ llamada. Si se acaba el tope sin conclusión aceptada, se abstiene.
 import json
 import re
 
+from agente import recibo as recibos
 from agente import evaluador
 from agente.esquema import ESQUEMA, ESQUEMA_CRUDO
 from agente.modelo import SinMasRespuestas
@@ -292,6 +293,16 @@ class Investigador:
         return None, f"ERROR: acción desconocida {accion!r}."
 
     # -- ciclo -------------------------------------------------------------------------------
+    def _anotar_recibo(self, r: dict):
+        """Una línea por llamada a Nightshift: modelo pedido, modelo que respondió, recibo y su firma."""
+        if "recibo" not in r:  # modelos de prueba sin recibo
+            return
+        entrada, salida, bien = recibos.resumen(r["recibo"], self.cfg.meterless_modelo)
+        if (r["recibo"] or {}).get("grabado"):
+            salida += " · grabado"
+        self.traza.evento("investigador", "nightshift.recibo", "recibo", entrada=entrada, salida=salida,
+                          estado="ok" if bien else "alerta")
+
     def investigar(self, pregunta: str, memoria: str = "") -> dict:
         # La marca de corrida evita que Nightshift responda desde su caché con lo de una corrida anterior
         # (pasaba aunque cambiara el prompt): cada investigación es nueva.
@@ -331,6 +342,7 @@ class Investigador:
             self.traza.evento("investigador", "modelo", "pensar", entrada=f"vuelta {self.iteraciones}",
                               salida=f"{' + '.join(str(a.get('accion')) for a in acciones)} · {r.get('modelo')}",
                               ms=t.ms)
+            self._anotar_recibo(r)
 
             respuestas = []
             for a in acciones:
