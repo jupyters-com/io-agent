@@ -1,0 +1,35 @@
+{
+  "_synthetic": true,
+  "origen": "io-engine en http://localhost:8000/mcp, grabado el 2026-10-22T14:41:31+00:00",
+  "consultas": {
+    "SELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo": {
+      "ok": true,
+      "columnas": [
+        "motivo",
+        "disputas",
+        "vale_pelear"
+      ],
+      "filas": [
+        {
+          "motivo": "fraudulent",
+          "disputas": 16,
+          "vale_pelear": 8
+        },
+        {
+          "motivo": "product_not_received",
+          "disputas": 16,
+          "vale_pelear": 6
+        },
+        {
+          "motivo": "unrecognized",
+          "disputas": 10,
+          "vale_pelear": 6
+        }
+      ],
+      "n_filas": 3,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

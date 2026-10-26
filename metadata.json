@@ -1,0 +1,27 @@
+{
+  "proyecto": "io-agent",
+  "hackathon": "Open Agent Hackathon 2026",
+  "track": "02 · The Agent That Can Explain Why",
+  "ventana_de_construccion_desde": "2026-10-22T00:00:00Z",
+  "herramientas_de_desarrollo": [
+    {
+      "nombre": "Claude (Anthropic) en Cowork",
+      "uso": "Programación en pareja: diseño del contrato, código del agente, pruebas y documentación. Cada cambio lo revisa y lo sube José López."
+    }
+  ],
+  "cursor": {
+    "usado": false,
+    "nota": "La guía de onboarding se actualizó el 22-oct-2026: Cursor pasó a ser opcional y se puede usar cualquier herramienta de programación con IA."
+  },
+  "modelo_en_ejecucion": {
+    "proveedor": "Meterless Nightshift",
+    "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+  },
+  "componentes_previos": [
+    {
+      "nombre": "io-engine",
+      "tag": "previo-22oct",
+      "que_aporta": "datos sintéticos, esquema canónico (dbt) y la herramienta consultar(sql) por MCP, con Zetaris y respaldo en DuckDB"
+    }
+  ]
+}

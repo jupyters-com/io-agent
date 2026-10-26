@@ -1,0 +1,52 @@
+{
+  "version": "0.1",
+  "run_id": "20261022T144235-966c59",
+  "pregunta": "¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?",
+  "modo": "muestra",
+  "estado": "abstencion",
+  "conclusion": null,
+  "hipotesis": [],
+  "evidencia": [
+    {
+      "id": "E1",
+      "sql": "SELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo",
+      "motor": "duckdb",
+      "ok": true,
+      "filas": [
+        {
+          "motivo": "fraudulent",
+          "disputas": 16,
+          "vale_pelear": 8
+        },
+        {
+          "motivo": "product_not_received",
+          "disputas": 16,
+          "vale_pelear": 6
+        },
+        {
+          "motivo": "unrecognized",
+          "disputas": 10,
+          "vale_pelear": 6
+        }
+      ],
+      "n_filas": 3,
+      "error": null
+    }
+  ],
+  "recomendacion": null,
+  "abstencion": {
+    "razon": "El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir."
+  },
+  "aprobacion": {
+    "item_id": "AP-20261022T144235-966c59",
+    "estado": "aprobada"
+  },
+  "metricas": {
+    "iteraciones": 1,
+    "consultas": 1,
+    "ms": 0.3,
+    "tokens": 0,
+    "costo_usd": 0.0
+  },
+  "informe_md": "# Informe de IO · 20261022T144235-966c59\n\n## La pregunta\n\n> ¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?\n\n## Lo que encontramos\n\n**IO no da una conclusión.** El investigador todavía no está implementado (Paso 10): IO puede ver el panorama de las disputas, pero aún no prueba hipótesis, así que prefiere no concluir.\n\n## Hipótesis descartadas\n\n_Ninguna en esta corrida._\n\n## Evidencia\n\n**E1** · motor: duckdb\n\n```sql\nSELECT motivo, count(*) AS disputas, sum(CASE WHEN decision = 'pelear' THEN 1 ELSE 0 END) AS vale_pelear FROM canonico.disputas GROUP BY motivo ORDER BY disputas DESC, motivo\n```\n\n| motivo | disputas | vale_pelear |\n| --- | --- | --- |\n| fraudulent | 16 | 8 |\n| product_not_received | 16 | 6 |\n| unrecognized | 10 | 6 |\n\n\n## Qué conviene hacer\n\n_Sin recomendación: no hay conclusión._\n\n---\nAprobación: **aprobada** · modo muestra · consultas: 1 · 0 ms\n"
+}

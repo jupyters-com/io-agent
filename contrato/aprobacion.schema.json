@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aprobacion.schema.json",
+  "title": "Ítem de la cola de aprobación",
+  "type": "object",
+  "required": ["item_id", "run_id", "tipo", "estado", "creado_en", "decidido_en", "decidido_por", "motivo", "resumen"],
+  "additionalProperties": false,
+  "properties": {
+    "item_id": {"type": "string", "pattern": "^AP-"},
+    "run_id": {"type": "string"},
+    "tipo": {"enum": ["respuesta"]},
+    "estado": {"enum": ["pendiente", "aprobada", "rechazada"]},
+    "creado_en": {"type": "string"},
+    "decidido_en": {"type": ["string", "null"]},
+    "decidido_por": {"type": ["string", "null"], "description": "regla:<nombre> o humano:<correo>"},
+    "motivo": {"type": ["string", "null"]},
+    "resumen": {"type": "string", "description": "conclusión o razón de abstención, en una línea"}
+  }
+}
