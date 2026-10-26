@@ -23,6 +23,8 @@ from agente import cola as cola_mod
 from agente import config as config_mod
 from agente import contrato, datos, modelo
 from agente.investigador import Investigador
+from agente.memoria import Memoria
+from agente.mundo import MundoAgente
 from agente.traza import Cronometro, Traza
 
 PANORAMA = """
@@ -47,13 +49,16 @@ def nombre_corrida(pregunta: str) -> str:
     return f"{base}-{hashlib.sha1(_norm_pregunta(pregunta).encode()).hexdigest()[:6]}"
 
 
-def corrida_grabada(cfg, pregunta: str) -> dict | None:
+def corrida_grabada(cfg, pregunta: str, con_memoria: bool = False) -> dict | None:
+    """La corrida grabada para esa pregunta. Con memoria, prefiere la que se grabó con H-MEM encendido
+    (<nombre>-hmem.json); si no hay, usa la otra."""
     carpeta = Path(cfg.muestras).parent / "corridas"
+    encontradas = {}
     for ruta in sorted(carpeta.glob("*.json")) if carpeta.exists() else []:
         c = json.loads(ruta.read_text(encoding="utf-8"))
         if _norm_pregunta(c["pregunta"]) == _norm_pregunta(pregunta):
-            return c
-    return None
+            encontradas[bool(c.get("con_memoria"))] = c
+    return encontradas.get(con_memoria) or encontradas.get(not con_memoria)
 
 
 def _consultar(fuente, sql, traza, cfg, etiqueta=""):
@@ -83,24 +88,34 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
     traza = Traza(run_id, cfg.logs)
     grabar = not cfg.modo_muestra and os.getenv("AGENTE_GRABAR", "").lower() in ("1", "true", "si", "sí")
 
-    grabada = corrida_grabada(cfg, pregunta) if cfg.modo_muestra else None
+    # H-MEM (Meterless): antes de empezar, lo que IO aprendió en corridas anteriores
+    memoria = Memoria(cfg, traza, nombre_corrida(pregunta))
+    contexto = memoria.recordar(pregunta)
+
+    grabada = corrida_grabada(cfg, pregunta, con_memoria=bool(contexto)) if cfg.modo_muestra else None
     fuente = datos.crear(cfg, extra=(grabada or {}).get("consultas"))
     llm = modelo.crear(cfg, turnos=(grabada or {}).get("turnos"))
     if grabar:
         fuente, llm = datos.FuenteGrabadora(fuente), modelo.Grabadora(llm)
 
     ruta_evidencia = Path(cfg.logs) / f"{run_id}.evidencia.jsonl"
+    mundo = MundoAgente(cfg, traza, run_id)  # World Model (Meterless): las cosas que se vieron y de dónde
 
     def registrar_evidencia(e, hipotesis):
         with open(ruta_evidencia, "a", encoding="utf-8") as f:
             f.write(json.dumps({"run_id": run_id, "hipotesis": hipotesis, **e}, ensure_ascii=False, default=str) + "\n")
+        mundo.ingerir(e)
 
     with Cronometro() as total:
         traza.evento("orquestador", "agente", "recibir_pregunta", entrada=pregunta,
                      salida=f"modo={cfg.modo} fuente={fuente.nombre} modelo={llm.nombre}"
                             + (f" corrida={grabada['nombre']}" if grabada else ""))
+        memoria.publicar()
+        mundo.abrir_corrida(pregunta)
 
-        resultado = Investigador(cfg, fuente, llm, traza, _consultar, registrar_evidencia).investigar(pregunta)
+        investigador = Investigador(cfg, fuente, llm, traza, _consultar, registrar_evidencia, mundo=mundo)
+        resultado = investigador.investigar(pregunta, memoria=contexto)
+        memoria.aprender(pregunta, run_id, resultado, investigador.motivos_devueltos)
 
         if llm.costo_usd > cfg.presupuesto_usd:
             traza.evento("orquestador", "modelo", "alerta_gasto",
@@ -114,7 +129,9 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
             "recomendacion": resultado["recomendacion"], "abstencion": resultado["abstencion"],
             "aprobacion": {"item_id": "", "estado": "pendiente"},
             "metricas": {"iteraciones": resultado["iteraciones"], "consultas": len(resultado["evidencia"]),
-                         "ms": 0.0, "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6)},
+                         "ms": 0.0, "tokens": llm.tokens, "costo_usd": round(llm.costo_usd, 6),
+                         "devoluciones": investigador.n_devoluciones, "memorias_usadas": len(memoria.usadas),
+                         "entidades_ancladas": mundo.verificadas},
             "informe_md": "",
         }
 
@@ -138,28 +155,30 @@ def correr(pregunta: str, cfg=None, run_id: str | None = None) -> dict:
                  salida=f"salidas/{run_id}.json + .md")
 
     if grabar:
-        motivo = _por_que_no_grabar(cfg, pregunta, resultado)
+        motivo = _por_que_no_grabar(cfg, pregunta, resultado, bool(contexto))
         if motivo:
             traza.evento("orquestador", "salida", "grabar_corrida", estado="omitido", salida=f"no se graba: {motivo}")
         else:
-            _guardar_corrida(cfg, pregunta, run_id, fuente, llm, resultado["estado"])
-            traza.evento("orquestador", "salida", "grabar_corrida", salida=f"samples/corridas/{nombre_corrida(pregunta)}.json")
+            archivo = _guardar_corrida(cfg, pregunta, run_id, fuente, llm, resultado["estado"], contexto)
+            traza.evento("orquestador", "salida", "grabar_corrida", salida=f"samples/corridas/{archivo}")
     return respuesta
 
 
-def _por_que_no_grabar(cfg, pregunta, resultado) -> str | None:
+def _por_que_no_grabar(cfg, pregunta, resultado, con_memoria=False) -> str | None:
     """Una corrida se graba salvo que el modelo no haya respondido, o que vaya a pisar una corrida
     concluida con una abstención (una buena grabación no se pierde por un mal intento)."""
     if resultado["fallo_modelo"]:
         return "el modelo no respondió, la corrida no sirve para el modo de muestra"
-    anterior = corrida_grabada(cfg.__class__(**{**cfg.__dict__, "modo_muestra": True}), pregunta)
+    anterior = corrida_grabada(cfg.__class__(**{**cfg.__dict__, "modo_muestra": True}), pregunta, con_memoria)
+    if anterior and bool(anterior.get("con_memoria")) != con_memoria:
+        anterior = None  # la otra variante no cuenta: no se pisan entre sí
     if anterior and anterior.get("estado") == "concluida" and resultado["estado"] != "concluida":
         return "ya hay una corrida concluida grabada para esta pregunta y esta se abstuvo"
     return None
 
 
-def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado):
-    nombre = nombre_corrida(pregunta)
+def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado, contexto=""):
+    nombre = nombre_corrida(pregunta) + ("-hmem" if contexto else "")
     carpeta = Path(cfg.muestras).parent / "corridas"
     carpeta.mkdir(parents=True, exist_ok=True)
     (carpeta / f"{nombre}.json").write_text(json.dumps({
@@ -169,6 +188,9 @@ def _guardar_corrida(cfg, pregunta, run_id, fuente, llm, estado):
         "origen": f"corrida real {run_id}: modelo {cfg.meterless_modelo} vía Nightshift, datos de io-engine",
         "grabado_en": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "estado": estado,
+        "con_memoria": bool(contexto),
+        "memoria": contexto,
         "turnos": llm.turnos,
         "consultas": fuente.consultas,
     }, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+    return f"{nombre}.json"

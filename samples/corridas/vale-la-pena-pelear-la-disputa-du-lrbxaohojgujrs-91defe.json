@@ -2,134 +2,64 @@
   "_synthetic": true,
   "nombre": "vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
   "pregunta": "¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?",
-  "origen": "corrida real 20261022T184531-e2eaf6: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
-  "grabado_en": "2026-10-22T18:53:36+00:00",
+  "origen": "corrida real 20261023T163916-7c3cb3: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-23T16:42:37+00:00",
   "estado": "concluida",
+  "con_memoria": false,
+  "memoria": "",
   "turnos": [
     {
-      "texto": "",
-      "modelo": "meterless/auto"
-    },
-    {
-      "texto": "{\"acciones\": [{\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"SELECT disputa_id, monto, motivo, estado, vale_pelear, decision, razon_decision, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, pedidos_previos, disputas_previas, nivel_riesgo, pais_facturacion, pais_ip, prueba_entrega, estado_envio, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}]}\n\n",
+      "texto": "{\"acciones\": [{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.\"}, {\"id\": \"H2\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque hay sospecha de fraude.\"}, {\"id\": \"H3\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente ya había hecho un reclamo previo sobre este pedido.\"}, {\"id\": \"H4\", \"enunciado\": \"No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque no hay prueba de entrega o el envío no llegó.\"}]}, {\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"SELECT disputa_id, motivo, monto, estado, entrega_confirmada, prueba_entrega, entregado_en, estado_envio, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H2\", \"sql\": \"SELECT disputa_id, motivo, monto, estado, entrega_confirmada, prueba_entrega, entregado_en, estado_envio, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H3\", \"sql\": \"SELECT disputa_id, motivo, monto, estado, entrega_confirmada, prueba_entrega, entregado_en, estado_envio, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H4\", \"sql\": \"SELECT disputa_id, motivo, monto, estado, entrega_confirmada, prueba_entrega, entregado_en, estado_envio, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}]}",
       "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
     },
     {
-      "texto": "",
-      "modelo": "meterless/auto"
+      "texto": "{\n  \"acciones\": [\n    {\n      \"accion\": \"veredicto\",\n      \"hipotesis\": \"H1\",\n      \"veredicto\": \"descartada\",\n      \"razon\": \"En la fila 1 de la evidencia E1, senales_fraude = 4 y sospecha_fraude = true, por lo que vale_pelear = false y decision = no_pelear, razon_decision = sospecha_de_fraude. No se peleará por sospecha de fraude.\",\n      \"evidencia\": [\"E1\"]\n    },\n    {\n      \"accion\": \"veredicto\",\n      \"hipotesis\": \"H2\",\n      \"veredicto\": \"sostenida\",\n      \"razon\": \"En la fila 1 de la evidencia E2, sospecha_fraude = true, lo que hace que vale_pelear = false y decision = no_pelear. La hipótesis de que no vale pelear por fraude es correcta.\",\n      \"evidencia\": [\"E2\"]\n    },\n    {\n      \"accion\": \"veredicto\",\n      \"hipotesis\": \"H3\",\n      \"veredicto\": \"descartada\",\n      \"razon\": \"En la fila 1 de la evidencia E3, reclamo_previo = false, por lo que la hipótesis de que hubo reclamo previo es falsa.\",\n      \"evidencia\": [\"E3\"]\n    },\n    {\n      \"accion\": \"veredicto\",\n      \"hipotesis\": \"H4\",\n      \"veredicto\": \"descartada\",\n      \"razon\": \"En la fila 1 de la evidencia E4, prueba_entrega = 'foto' y entrega_confirmada = true, entregado_en = 2026-09-13, estado_envio = 'entregado', por lo que la hipótesis de falta de prueba es falsa.\",\n      \"evidencia\": [\"E4\"]\n    },\n    {\n      \"accion\": \"concluir\",\n      \"conclusion\": \"La disputa du_LRbXAOhoJgujrS (monto 489.0 USD, motivo fraudulent) no vale la pena pelearla porque hay 4 señales de fraude y sospecha_fraude = true, a pesar de que el pedido fue entregado con foto y no hubo reclamo previo. Se recomienda aceptar la disputa y marcar al cliente por sospecha de fraude.\",\n      \"recomendacion\": \"No pelear; aceptar la disputa y marcar al cliente por sospecha de fraude.\"\n    }\n  ]\n}",
+      "modelo": "nvidia/nemotron-3.5-lightning-30b-a3b"
     },
     {
-      "texto": "",
-      "modelo": "meterless/auto"
-    },
-    {
-      "texto": "",
-      "modelo": "meterless/auto"
-    },
-    {
-      "texto": "",
-      "modelo": "meterless/auto"
-    },
-    {
-      "texto": "",
-      "modelo": "meterless/auto"
-    },
-    {
-      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"descartada\", \"razon\": \"Según la evidencia E1, vale_pelear es false, la decisión es no_pelear y la razón es sospecha_de_fraude. La disputa registra 4 señales de fraude y sospecha_fraude es true. Aunque la entrega está confirmada con foto y no hay reclamo previo, las señales de fraude impiden pelearla.\", \"evidencia\": [\"E1\"]}, {\"accion\": \"concluir\", \"conclusion\": \"No, no vale la pena pelear esta disputa de 489 dólares. Aunque el envío fue entregado y tiene prueba de entrega, hay 4 señales de fraude: el cliente no tiene pedidos previos, el nivel de riesgo es el más alto, el país de facturación (CO) es distinto al país de la IP (NL), y el sistema detectó sospecha de fraude.\", \"recomendacion\": \"No pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.\"}]}",
-      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
-    },
-    {
-      "texto": "{\"acciones\": [{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"Vale la pena pelear la disputa porque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo.\"}, {\"id\": \"H2\", \"enunciado\": \"No vale la pena pelear la disputa porque hay múltiples señales de fraude y sospecha de fraude.\"}]}]}",
-      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
-    },
-    {
-      "texto": "{\"acciones\": [{\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"SELECT entrega_confirmada, reclamo_previo FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H2\", \"sql\": \"SELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';\"}]}",
-      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
-    },
-    {
-      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"descartada\", \"razon\": \"La evidencia E2 confirma entrega_confirmada=true y reclamo_previo=false, pero la evidencia E3 muestra senales_fraude=4 y sospecha_fraude=true. Como hay 2 o más señales de fraude, vale_pelear es false, por lo que no vale la pena pelear la disputa.\", \"evidencia\": [\"E2\", \"E3\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H2\", \"veredicto\": \"sostenida\", \"razon\": \"La evidencia E3 registra 4 señales de fraude y sospecha_fraude=true, lo que impide pelear la disputa según la regla de vale_pelear.\", \"evidencia\": [\"E3\"]}, {\"accion\": \"concluir\", \"conclusion\": \"No, no vale la pena pelear esta disputa de 489 dólares. Aunque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo, hay 4 señales de fraude: el cliente no tiene pedidos previos, el nivel de riesgo es el más alto, el país de facturación (CO) es distinto al país de la IP (NL), y el sistema detectó sospecha de fraude.\", \"recomendacion\": \"No pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.\"}]}",
+      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"descartada\", \"razon\": \"Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no vale la pena pelear.\", \"evidencia\": [\"E1\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H2\", \"veredicto\": \"sostenida\", \"razon\": \"Hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear esta disputa.\", \"evidencia\": [\"E2\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H3\", \"veredicto\": \"descartada\", \"razon\": \"El cliente no había hecho un reclamo previo sobre este pedido.\", \"evidencia\": [\"E3\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H4\", \"veredicto\": \"descartada\", \"razon\": \"El pedido fue entregado y hay una foto como prueba de entrega, por lo que no aplica falta de prueba ni envío no entregado.\", \"evidencia\": [\"E4\"]}, {\"accion\": \"concluir\", \"conclusion\": \"No, no vale la pena pelear esta disputa de 489 dólares. Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear.\", \"recomendacion\": \"De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente. No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude.\"}]}",
       "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
     }
   ],
   "consultas": {
-    "SELECT disputa_id, monto, motivo, estado, vale_pelear, decision, razon_decision, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, pedidos_previos, disputas_previas, nivel_riesgo, pais_facturacion, pais_ip, prueba_entrega, estado_envio, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS'": {
+    "SELECT disputa_id, motivo, monto, estado, entrega_confirmada, prueba_entrega, entregado_en, estado_envio, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS'": {
       "ok": true,
       "columnas": [
         "disputa_id",
-        "monto",
         "motivo",
+        "monto",
         "estado",
-        "vale_pelear",
-        "decision",
-        "razon_decision",
         "entrega_confirmada",
+        "prueba_entrega",
+        "entregado_en",
+        "estado_envio",
+        "extraviado",
         "reclamo_previo",
         "senales_fraude",
         "sospecha_fraude",
-        "pedidos_previos",
-        "disputas_previas",
-        "nivel_riesgo",
-        "pais_facturacion",
-        "pais_ip",
-        "prueba_entrega",
-        "estado_envio",
+        "vale_pelear",
+        "decision",
+        "razon_decision",
         "causa_operativa"
       ],
       "filas": [
         {
           "disputa_id": "du_LRbXAOhoJgujrS",
-          "monto": 489.0,
           "motivo": "fraudulent",
+          "monto": 489.0,
           "estado": "needs_response",
-          "vale_pelear": false,
-          "decision": "no_pelear",
-          "razon_decision": "sospecha_de_fraude",
           "entrega_confirmada": true,
+          "prueba_entrega": "foto",
+          "entregado_en": "2026-09-13",
+          "estado_envio": "entregado",
+          "extraviado": false,
           "reclamo_previo": false,
           "senales_fraude": 4,
           "sospecha_fraude": true,
-          "pedidos_previos": 0,
-          "disputas_previas": 0,
-          "nivel_riesgo": "highest",
-          "pais_facturacion": "CO",
-          "pais_ip": "NL",
-          "prueba_entrega": "foto",
-          "estado_envio": "entregado",
+          "vale_pelear": false,
+          "decision": "no_pelear",
+          "razon_decision": "sospecha_de_fraude",
           "causa_operativa": false
-        }
-      ],
-      "n_filas": 1,
-      "truncado": false,
-      "motor": "duckdb",
-      "respaldo": false
-    },
-    "SELECT entrega_confirmada, reclamo_previo FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS'": {
-      "ok": true,
-      "columnas": [
-        "entrega_confirmada",
-        "reclamo_previo"
-      ],
-      "filas": [
-        {
-          "entrega_confirmada": true,
-          "reclamo_previo": false
-        }
-      ],
-      "n_filas": 1,
-      "truncado": false,
-      "motor": "duckdb",
-      "respaldo": false
-    },
-    "SELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS'": {
-      "ok": true,
-      "columnas": [
-        "senales_fraude",
-        "sospecha_fraude"
-      ],
-      "filas": [
-        {
-          "senales_fraude": 4,
-          "sospecha_fraude": true
         }
       ],
       "n_filas": 1,

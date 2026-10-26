@@ -1,0 +1,65 @@
+{
+  "_synthetic": true,
+  "nombre": "vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02-hmem",
+  "pregunta": "¿Vale la pena pelear la disputa du_cuKtmopzODI37h?",
+  "origen": "corrida real 20261023T165244-abf40f: modelo nvidia/nemotron-3.5-super-vl-120b-a12b vía Nightshift, datos de io-engine",
+  "grabado_en": "2026-10-23T16:54:35+00:00",
+  "estado": "concluida",
+  "con_memoria": true,
+  "memoria": "MEMORIA DE IO (H-MEM): lo aprendido en corridas anteriores.\n- Las lecciones del método son reglas que el Evaluador ya te hizo cumplir: síguelas desde el principio.\n- Los hallazgos son pistas, NO evidencia. Aunque creas saber la respuesta, haz el método completo en\n  ESTA corrida: 2 o más hipótesis (incluida la contraria), una consulta por hipótesis, veredictos,\n  contar las decisiones con razon_decision y recién entonces concluir.\n## metodo\n- [WK] Lección del Evaluador: Hay hipótesis sin veredicto: H#, H#, H#. Pruébalas o descártalas. <mem-5>\n- [WK] Lección del Evaluador: Hay hipótesis sin veredicto: H#, H#, H#, H#. Pruébalas o descártalas. <mem-17>\n- [WK] Lección del Evaluador: Para concluir hace falta al menos una hipótesis sostenida con evidencia. <mem-6>\n- [WK] Lección del Evaluador: Explicar por qué exige comparar: prueba al menos 2 hipótesis distintas (incluida la explicación contraria a tu conclusión) y dales veredicto antes de concluir. <mem-4>\n- [WK] Lección del Evaluador: La razón de H# la lee la dueña de la tienda: reescríbela sin términos técnicos (sospecha_fraude). Ejemplo: 'producto no recibido' en vez de product_not_received. <mem-2>\n## disputa/du_cuktmopzodi37h\n- [WK] Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?» IO concluyó: La disputa du_cuKtmopzODI37h, por un monto de 129.9 dólares por un cargo no reconocido, vale la pena pelearla: el pedido fue entregado y confirmado con firma, el cliente no había reclamado antes y no hay indicios de fraude. Recomendación: Pelear la disputa presentando la prueba de entrega (firma) y el historial del cliente como evidencia. (entidades: du_cuktmopzodi37h, pelear, disputa, fraude, entrega) <mem-7>\n- [WK] Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «Vale la pena pelear la disputa du_cuKtmopzODI37h porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.»: sostenida. En la fila 1 de la evidencia E1, el envío está entregado con prueba de entrega (firma), el cliente no hizo un reclamo previo, no hay señales de fraude, y se puede pelear la disputa. (entidades: du_cuktmopzodi37h, pelear, disputa, reclamo, entrega) <mem-8>\n- [WK] Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque no hay prueba de entrega o el envío no llegó.»: descartada. En la fila 1 de la evidencia E4, el envío está entregado, no está extraviado, la entrega está confirmada y la prueba de entrega es firma, así que sí hay entrega y prueba de ella. (entidades: du_cuktmopzodi37h, pelear, disputa, entrega, extraviado) <mem-11>\n- [WK] Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque el cliente ya había hecho un reclamo previo sobre este pedido.»: descartada. En la fila 1 de la evidencia E3, el cliente no hizo un reclamo previo sobre este pedido. (entidades: du_cuktmopzodi37h, pelear, disputa, reclamo) <mem-10>\n- [WK] Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque hay sospecha de fraude en este caso.»: descartada. En la fila 1 de la evidencia E2, no hay sospecha de fraude y no hay señales de fraude, así que no hay fraude en este caso. (entidades: du_cuktmopzodi37h, pelear, disputa, fraude) <mem-9>",
+  "turnos": [
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"hipotesis\", \"hipotesis\": [{\"id\": \"H1\", \"enunciado\": \"Vale la pena pelear la disputa du_cuKtmopzODI37h porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.\"}, {\"id\": \"H2\", \"enunciado\": \"No vale la pena pelear la disputa du_cuKtmopzODI37h porque hay sospecha de fraude en este caso.\"}, {\"id\": \"H3\", \"enunciado\": \"No vale la pena pelear la disputa du_cuKtmopzODI37h porque el pedido no llegó o no hay prueba de entrega.\"}, {\"id\": \"H4\", \"enunciado\": \"No vale la pena pelear la disputa du_cuKtmopzODI37h porque el cliente ya había hecho un reclamo previo sobre este pedido.\"}]}, {\"accion\": \"consultar\", \"hipotesis\": \"H1\", \"sql\": \"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H2\", \"sql\": \"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H3\", \"sql\": \"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\"}, {\"accion\": \"consultar\", \"hipotesis\": \"H4\", \"sql\": \"SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h';\"}]}\n\n</scratchpad>",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    },
+    {
+      "texto": "{\"acciones\": [{\"accion\": \"veredicto\", \"hipotesis\": \"H1\", \"veredicto\": \"sostenida\", \"razon\": \"En la fila 1 de la evidencia E1, el envío está entregado con prueba de entrega (firma), el cliente no hizo un reclamo previo, no hay señales de fraude y se indica que vale la pena pelear la disputa.\", \"evidencia\": [\"E1\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H2\", \"veredicto\": \"descartada\", \"razon\": \"En la fila 1 de la evidencia E2, no hay señales de fraude ni sospecha de fraude, así que no hay fraude en este caso.\", \"evidencia\": [\"E2\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H3\", \"veredicto\": \"descartada\", \"razon\": \"En la fila 1 de la evidencia E3, el envío está entregado, no está extraviado y la prueba de entrega es firma, así que sí hay entrega y prueba de ella.\", \"evidencia\": [\"E3\"]}, {\"accion\": \"veredicto\", \"hipotesis\": \"H4\", \"veredicto\": \"descartada\", \"razon\": \"En la fila 1 de la evidencia E4, el cliente no hizo un reclamo previo sobre este pedido.\", \"evidencia\": [\"E4\"]}, {\"accion\": \"concluir\", \"conclusion\": \"Sí, vale la pena pelear la disputa du_cuKtmopzODI37h, por 129.9 dólares. El pedido fue entregado y confirmado con firma, el cliente no había reclamado antes y no hay indicios de fraude. Cumple todas las condiciones para ganarla.\", \"recomendacion\": \"Pelear la disputa presentando la prueba de entrega (firma) y el historial del cliente. Como es una sola disputa con entrega confirmada y sin reclamo previo, se recomienda pelearla en lugar de reembolsar o contactar al cliente.\"}]}",
+      "modelo": "nvidia/nemotron-3.5-super-vl-120b-a12b"
+    }
+  ],
+  "consultas": {
+    "SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, entrega_confirmada, extraviado, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_cuKtmopzODI37h'": {
+      "ok": true,
+      "columnas": [
+        "disputa_id",
+        "motivo",
+        "monto",
+        "estado_envio",
+        "prueba_entrega",
+        "entregado_en",
+        "entrega_confirmada",
+        "extraviado",
+        "reclamo_previo",
+        "senales_fraude",
+        "sospecha_fraude",
+        "vale_pelear",
+        "decision",
+        "razon_decision",
+        "causa_operativa"
+      ],
+      "filas": [
+        {
+          "disputa_id": "du_cuKtmopzODI37h",
+          "motivo": "unrecognized",
+          "monto": 129.9,
+          "estado_envio": "entregado",
+          "prueba_entrega": "firma",
+          "entregado_en": "2026-09-06",
+          "entrega_confirmada": true,
+          "extraviado": false,
+          "reclamo_previo": false,
+          "senales_fraude": 0,
+          "sospecha_fraude": false,
+          "vale_pelear": true,
+          "decision": "pelear",
+          "razon_decision": "entrega_confirmada_sin_reclamo",
+          "causa_operativa": false
+        }
+      ],
+      "n_filas": 1,
+      "truncado": false,
+      "motor": "duckdb",
+      "respaldo": false
+    }
+  }
+}

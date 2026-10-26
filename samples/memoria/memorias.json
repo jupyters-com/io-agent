@@ -1,0 +1,1028 @@
+{
+  "seq": 25,
+  "records": [
+    {
+      "id": "mem-1",
+      "content": "Lección del Evaluador: La razón de H# la lee la dueña de la tienda: reescríbela sin términos técnicos (vale_pelear). Ejemplo: 'producto no recibido' en vez de product_not_received.",
+      "type": "preference",
+      "layer": "long_term",
+      "timestamp": 1792775589523,
+      "lastAccessed": 1792775595650,
+      "accessCount": 3,
+      "tags": [
+        "leccion",
+        "regla:981023288a"
+      ],
+      "domain": "metodo",
+      "namespace": "metodo/profile",
+      "confidence": 0.92,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "decision",
+        "learnedAt": 1792775589523,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [],
+      "relatedTo": [],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-2",
+      "content": "Lección del Evaluador: Explicar por qué exige comparar: prueba al menos 2 hipótesis distintas (incluida la explicación contraria a tu conclusión) y dales veredicto antes de concluir.",
+      "type": "preference",
+      "layer": "working",
+      "timestamp": 1792775589524,
+      "lastAccessed": 1792775595650,
+      "accessCount": 2,
+      "tags": [
+        "leccion",
+        "regla:de29c4f13d"
+      ],
+      "domain": "metodo",
+      "namespace": "metodo/profile",
+      "confidence": 0.87,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "decision",
+        "learnedAt": 1792775589524,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [],
+      "relatedTo": [],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-3",
+      "content": "Lección del Evaluador: Hay hipótesis sin veredicto: H#. Pruébalas o descártalas.",
+      "type": "preference",
+      "layer": "working",
+      "timestamp": 1792775589524,
+      "lastAccessed": 1792775595650,
+      "accessCount": 2,
+      "tags": [
+        "leccion",
+        "regla:6b04c23c45"
+      ],
+      "domain": "metodo",
+      "namespace": "metodo/profile",
+      "confidence": 0.87,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "decision",
+        "learnedAt": 1792775589524,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [],
+      "relatedTo": [],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-4",
+      "content": "Lección del Evaluador: Para concluir hace falta al menos una hipótesis sostenida con evidencia.",
+      "type": "preference",
+      "layer": "working",
+      "timestamp": 1792775589525,
+      "lastAccessed": 1792775595650,
+      "accessCount": 2,
+      "tags": [
+        "leccion",
+        "regla:5070abcc36"
+      ],
+      "domain": "metodo",
+      "namespace": "metodo/profile",
+      "confidence": 0.87,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "decision",
+        "learnedAt": 1792775589525,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [],
+      "relatedTo": [],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-5",
+      "content": "Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?» IO concluyó: La disputa du_cuKtmopzODI37h, por un monto de 129.9 dólares por un cargo no reconocido, vale la pena pelearla: el pedido fue entregado y confirmado con firma, el cliente no había reclamado antes y no hay indicios de fraude. Recomendación: Pelear la disputa presentando la prueba de entrega (firma) y el historial del cliente como evidencia.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589525,
+      "lastAccessed": 1792775589525,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+        "conclusion"
+      ],
+      "domain": "disputa/du_cuktmopzodi37h",
+      "namespace": "disputa/du_cuktmopzodi37h/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589525,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [
+        "du_cuktmopzodi37h",
+        "pelear",
+        "disputa",
+        "fraude",
+        "entrega"
+      ],
+      "relatedTo": [
+        "mem-6",
+        "mem-7",
+        "mem-8",
+        "mem-9"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-6",
+      "content": "Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «Vale la pena pelear la disputa du_cuKtmopzODI37h porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.»: sostenida. En la fila 1 de la evidencia E1, el envío está entregado con prueba de entrega (firma), el cliente no hizo un reclamo previo, no hay señales de fraude, y se puede pelear la disputa.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589525,
+      "lastAccessed": 1792775589525,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputa/du_cuktmopzodi37h",
+      "namespace": "disputa/du_cuktmopzodi37h/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589525,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [
+        "du_cuktmopzodi37h",
+        "pelear",
+        "disputa",
+        "reclamo",
+        "entrega",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-5",
+        "mem-7",
+        "mem-8",
+        "mem-9"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-5"
+      ]
+    },
+    {
+      "id": "mem-7",
+      "content": "Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque hay sospecha de fraude en este caso.»: descartada. En la fila 1 de la evidencia E2, no hay sospecha de fraude y no hay señales de fraude, así que no hay fraude en este caso.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589525,
+      "lastAccessed": 1792775589525,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_cuktmopzodi37h",
+      "namespace": "disputa/du_cuktmopzodi37h/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589525,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [
+        "du_cuktmopzodi37h",
+        "pelear",
+        "disputa",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-5",
+        "mem-6",
+        "mem-8",
+        "mem-9"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-5"
+      ]
+    },
+    {
+      "id": "mem-8",
+      "content": "Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque el cliente ya había hecho un reclamo previo sobre este pedido.»: descartada. En la fila 1 de la evidencia E3, el cliente no hizo un reclamo previo sobre este pedido.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589526,
+      "lastAccessed": 1792775589526,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_cuktmopzodi37h",
+      "namespace": "disputa/du_cuktmopzodi37h/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589526,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [
+        "du_cuktmopzodi37h",
+        "pelear",
+        "disputa",
+        "reclamo"
+      ],
+      "relatedTo": [
+        "mem-5",
+        "mem-6",
+        "mem-7",
+        "mem-9"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-5"
+      ]
+    },
+    {
+      "id": "mem-9",
+      "content": "Para «¿Vale la pena pelear la disputa du_cuKtmopzODI37h?», hipótesis «No vale la pena pelear la disputa du_cuKtmopzODI37h porque no hay prueba de entrega o el envío no llegó.»: descartada. En la fila 1 de la evidencia E4, el envío está entregado, no está extraviado, la entrega está confirmada y la prueba de entrega es firma, así que sí hay entrega y prueba de ella.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589526,
+      "lastAccessed": 1792775589526,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-cuktmopzodi37h-696f02",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_cuktmopzodi37h",
+      "namespace": "disputa/du_cuktmopzodi37h/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-c61acf",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589526,
+        "label": "corrida:20261023T171309-c61acf",
+        "refs": {
+          "goalRunId": "20261023T171309-c61acf"
+        }
+      },
+      "entities": [
+        "du_cuktmopzodi37h",
+        "pelear",
+        "disputa",
+        "entrega",
+        "extraviado"
+      ],
+      "relatedTo": [
+        "mem-5",
+        "mem-6",
+        "mem-7",
+        "mem-8"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-5"
+      ]
+    },
+    {
+      "id": "mem-10",
+      "content": "Lección del Evaluador: La conclusión y la recomendación son para la dueña de la tienda: reescríbelas sin términos técnicos (= true, fraudulent, sospecha_fraude). Ejemplo: 'producto no recibido' en vez de product_not_received.",
+      "type": "preference",
+      "layer": "working",
+      "timestamp": 1792775589584,
+      "lastAccessed": 1792775595651,
+      "accessCount": 2,
+      "tags": [
+        "leccion",
+        "regla:f456223eeb"
+      ],
+      "domain": "metodo",
+      "namespace": "metodo/profile",
+      "confidence": 0.9,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "decision",
+        "learnedAt": 1792775589584,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [],
+      "relatedTo": [],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-11",
+      "content": "Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?» IO concluyó: No, no vale la pena pelear esta disputa de 489 dólares. Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear. Recomendación: De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente. No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589586,
+      "lastAccessed": 1792775589586,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
+        "conclusion"
+      ],
+      "domain": "disputa/du_lrbxaohojgujrs",
+      "namespace": "disputa/du_lrbxaohojgujrs/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589586,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [
+        "du_lrbxaohojgujrs",
+        "pelear",
+        "disputa",
+        "fraude",
+        "disputas",
+        "aceptar"
+      ],
+      "relatedTo": [
+        "mem-12",
+        "mem-13",
+        "mem-14",
+        "mem-15"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-12",
+      "content": "Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo.»: descartada. Aunque el pedido llegó y hay una foto como prueba, hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no vale la pena pelear.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589586,
+      "lastAccessed": 1792775589586,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_lrbxaohojgujrs",
+      "namespace": "disputa/du_lrbxaohojgujrs/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589586,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [
+        "du_lrbxaohojgujrs",
+        "pelear",
+        "disputa",
+        "reclamo",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-11",
+        "mem-13",
+        "mem-14",
+        "mem-15"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-11"
+      ]
+    },
+    {
+      "id": "mem-13",
+      "content": "Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque hay sospecha de fraude.»: sostenida. Hay 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear esta disputa.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589586,
+      "lastAccessed": 1792775589586,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputa/du_lrbxaohojgujrs",
+      "namespace": "disputa/du_lrbxaohojgujrs/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589586,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [
+        "du_lrbxaohojgujrs",
+        "pelear",
+        "disputa",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-11",
+        "mem-12",
+        "mem-14",
+        "mem-15"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-11"
+      ]
+    },
+    {
+      "id": "mem-14",
+      "content": "Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente ya había hecho un reclamo previo sobre este pedido.»: descartada. El cliente no había hecho un reclamo previo sobre este pedido.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589587,
+      "lastAccessed": 1792775589587,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_lrbxaohojgujrs",
+      "namespace": "disputa/du_lrbxaohojgujrs/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589587,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [
+        "du_lrbxaohojgujrs",
+        "pelear",
+        "disputa",
+        "reclamo"
+      ],
+      "relatedTo": [
+        "mem-11",
+        "mem-12",
+        "mem-13",
+        "mem-15"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-11"
+      ]
+    },
+    {
+      "id": "mem-15",
+      "content": "Para «¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?», hipótesis «No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque no hay prueba de entrega o el envío no llegó.»: descartada. El pedido fue entregado y hay una foto como prueba de entrega, por lo que no aplica falta de prueba ni envío no entregado.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589587,
+      "lastAccessed": 1792775589587,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:vale-la-pena-pelear-la-disputa-du-lrbxaohojgujrs-91defe",
+        "veredicto:descartada"
+      ],
+      "domain": "disputa/du_lrbxaohojgujrs",
+      "namespace": "disputa/du_lrbxaohojgujrs/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-24f8e3",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589587,
+        "label": "corrida:20261023T171309-24f8e3",
+        "refs": {
+          "goalRunId": "20261023T171309-24f8e3"
+        }
+      },
+      "entities": [
+        "du_lrbxaohojgujrs",
+        "pelear",
+        "disputa",
+        "entrega"
+      ],
+      "relatedTo": [
+        "mem-11",
+        "mem-12",
+        "mem-13",
+        "mem-14"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-11"
+      ]
+    },
+    {
+      "id": "mem-16",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?» IO concluyó: Las disputas subieron de 4 a 18 entre la primera y segunda quincena de septiembre porque RapidEnvio en la región Norte tuvo muchos problemas de entrega (retrasos y paquetes extraviados). De las 18 disputas de la segunda quincena, 14 son de RapidEnvio en Norte y todas tienen causa operativa. El motivo que más creció fue producto no recibido, que pasó de 1 a 8, y 7 de esas 8 tuvieron entrega tardía o paquete extraviado. No fue principalmente fraude ni cargos no reconocidos. Recomendación: De las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay que resolverlas con el cliente (contactarlo, disculparse, ofrecer un descuento o reembolso parcial y pedirle que retire la disputa). 4 son por sin entrega: no pelearlas y reembolsar. 4 tienen entrega confirmada y sin reclamo previo: pelear esas disputas con la prueba de entrega y el historial del cliente. 1 no tiene prueba de entrega: no pelear y reembolsar. 1 tiene sospecha de fraude: no pelear; aceptar la disputa y marcar al cliente. Además, reclamarle a RapidEnvio por la ruta al Norte y revisar esa ruta de entrega para evitar más problemas.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589645,
+      "lastAccessed": 1792775589645,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "conclusion"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171309-025c05",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589645,
+        "label": "corrida:20261023T171309-025c05",
+        "refs": {
+          "goalRunId": "20261023T171309-025c05"
+        }
+      },
+      "entities": [
+        "rapidenvio",
+        "norte",
+        "disputas",
+        "region",
+        "entrega",
+        "extraviado",
+        "fraude",
+        "reclamo",
+        "reembolso",
+        "disputa"
+      ],
+      "relatedTo": [
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20",
+        "mem-21"
+      ],
+      "supersedes": null,
+      "supersededBy": "mem-21",
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-17",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento se debe principalmente a disputas por producto no recibido vinculadas a entregas tardías o paquetes extraviados.»: sostenida. En la segunda quincena las disputas por producto no recibido subieron de 1 a 8 (un aumento de 700 por ciento), y de esas 8, 7 tienen entrega tardía o paquete extraviado. Es el motivo que más creció en la quincena.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589645,
+      "lastAccessed": 1792775595652,
+      "accessCount": 1,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.75,
+      "source": "corrida:20261023T171309-025c05",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589645,
+        "label": "corrida:20261023T171309-025c05",
+        "refs": {
+          "goalRunId": "20261023T171309-025c05"
+        }
+      },
+      "entities": [
+        "disputas",
+        "entrega",
+        "extraviado"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-18",
+        "mem-19",
+        "mem-20",
+        "mem-21"
+      ],
+      "supersedes": null,
+      "supersededBy": "mem-21",
+      "derivedFrom": [
+        "mem-16"
+      ]
+    },
+    {
+      "id": "mem-18",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento se debe principalmente a disputas por fraude, con señales como cliente nuevo, riesgo alto, país de IP distinto al de facturación o envío a punto de retiro.»: descartada. Las disputas por fraude subieron de 3 a 6 (un aumento de 100 por ciento), menor que las de producto no recibido (de 1 a 8). De las 6 disputas por fraude de la segunda quincena, solo 1 tiene sospecha de fraude, por lo que el fraude no es la causa principal.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589646,
+      "lastAccessed": 1792775595652,
+      "accessCount": 1,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:descartada"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.75,
+      "source": "corrida:20261023T171309-025c05",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589646,
+        "label": "corrida:20261023T171309-025c05",
+        "refs": {
+          "goalRunId": "20261023T171309-025c05"
+        }
+      },
+      "entities": [
+        "disputas",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-19",
+        "mem-20",
+        "mem-21"
+      ],
+      "supersedes": null,
+      "supersededBy": "mem-21",
+      "derivedFrom": [
+        "mem-16"
+      ]
+    },
+    {
+      "id": "mem-19",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento se debe principalmente a disputas por cargo no reconocido.»: descartada. Las disputas por cargo no reconocido pasaron de 0 a 4 en la segunda quincena, muy por debajo de las disputas por producto no recibido (8) y por fraude (6). No explican el aumento principal.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589646,
+      "lastAccessed": 1792775595652,
+      "accessCount": 1,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:descartada"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.75,
+      "source": "corrida:20261023T171309-025c05",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589646,
+        "label": "corrida:20261023T171309-025c05",
+        "refs": {
+          "goalRunId": "20261023T171309-025c05"
+        }
+      },
+      "entities": [
+        "disputas",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-20",
+        "mem-21"
+      ],
+      "supersedes": null,
+      "supersededBy": "mem-21",
+      "derivedFrom": [
+        "mem-16"
+      ]
+    },
+    {
+      "id": "mem-20",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento está concentrado en transportistas y regiones con problemas de entregas tardías, es decir, un problema operativo de envíos.»: sostenida. En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775589646,
+      "lastAccessed": 1792775595653,
+      "accessCount": 1,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.75,
+      "source": "corrida:20261023T171309-025c05",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775589646,
+        "label": "corrida:20261023T171309-025c05",
+        "refs": {
+          "goalRunId": "20261023T171309-025c05"
+        }
+      },
+      "entities": [
+        "rapidenvio",
+        "norte",
+        "disputas",
+        "region",
+        "transportista"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-21"
+      ],
+      "supersedes": null,
+      "supersededBy": "mem-21",
+      "derivedFrom": [
+        "mem-16"
+      ]
+    },
+    {
+      "id": "mem-21",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?» IO concluyó: Las disputas subieron de 4 a 18 entre la primera y segunda quincena de septiembre porque el transportista RapidEnvio en la región Norte tuvo muchos problemas de entrega (retrasos y paquetes extraviados). De las 18 disputas de la segunda quincena, 14 son de RapidEnvio en Norte y todas tienen causa operativa. El motivo que más creció fue producto no recibido, que pasó de 1 disputa a 8, y 7 de esas 8 tuvieron entrega tardía o paquete extraviado. No fue principalmente fraude ni cargos no reconocidos. Recomendación: De las 18 disputas de la segunda quincena: 8 tienen reclamo previo, así que hay que resolverlas con el cliente (contactarlo, disculparse, ofrecer un descuento o reembolso parcial y pedirle que retire la disputa). 4 son por sin entrega: no pelearlas y reembolsar. 4 tienen entrega confirmada y sin reclamo previo: pelear esas disputas con la prueba de entrega y el historial del cliente. 1 no tiene prueba de entrega: no pelear y reembolsar. 1 tiene sospecha de fraude: no pelear; aceptar la disputa y marcar al cliente. Además, reclamarle a RapidEnvio por la ruta al Norte y revisar esa ruta de entrega para evitar más problemas.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775881018,
+      "lastAccessed": 1792775881018,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "conclusion"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171315-c45866",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775881018,
+        "label": "corrida:20261023T171315-c45866",
+        "refs": {
+          "goalRunId": "20261023T171315-c45866"
+        }
+      },
+      "entities": [
+        "rapidenvio",
+        "norte",
+        "disputas",
+        "transportista",
+        "region",
+        "entrega",
+        "disputa",
+        "extraviado",
+        "fraude",
+        "reclamo"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20"
+      ],
+      "supersedes": "mem-20",
+      "supersededBy": null,
+      "derivedFrom": []
+    },
+    {
+      "id": "mem-22",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento de disputas en la segunda quincena de septiembre se debe principalmente a un aumento de disputas por producto no recibido asociadas a entregas tardías o paquetes extraviados.»: sostenida. En la segunda quincena las disputas por producto no recibido subieron de 1 a 8 (un aumento de 700 por ciento), y de esas 8, 7 tienen entrega tardía o paquete extraviado. Es el motivo que más creció en la quincena.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775881020,
+      "lastAccessed": 1792775881020,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171315-c45866",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775881020,
+        "label": "corrida:20261023T171315-c45866",
+        "refs": {
+          "goalRunId": "20261023T171315-c45866"
+        }
+      },
+      "entities": [
+        "disputas",
+        "entrega",
+        "extraviado"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-21"
+      ]
+    },
+    {
+      "id": "mem-23",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento se debe principalmente a disputas por cargo no reconocido.»: descartada. Las disputas por cargo no reconocido pasaron de 0 a 4 en la segunda quincena, muy por debajo de las disputas por producto no recibido (8) y por fraude (6). No explican el aumento principal.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775881021,
+      "lastAccessed": 1792775881021,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:descartada"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171315-c45866",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775881021,
+        "label": "corrida:20261023T171315-c45866",
+        "refs": {
+          "goalRunId": "20261023T171315-c45866"
+        }
+      },
+      "entities": [
+        "disputas",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-21"
+      ]
+    },
+    {
+      "id": "mem-24",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento se debe principalmente a disputas por fraude, con señales de sospecha de fraude.»: descartada. Las disputas por fraude subieron de 3 a 6 (un aumento de 100 por ciento), menor que las de producto no recibido (de 1 a 8). De las 6 disputas por fraude de la segunda quincena, solo 1 tiene sospecha de fraude, por lo que el fraude no es la causa principal.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775881022,
+      "lastAccessed": 1792775881022,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:descartada"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171315-c45866",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775881022,
+        "label": "corrida:20261023T171315-c45866",
+        "refs": {
+          "goalRunId": "20261023T171315-c45866"
+        }
+      },
+      "entities": [
+        "disputas",
+        "fraude"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-21"
+      ]
+    },
+    {
+      "id": "mem-25",
+      "content": "Para «¿Por qué subieron las disputas en la segunda quincena de septiembre de 2026?», hipótesis «El aumento está concentrado en transportistas y regiones con problemas de entregas tardías, específicamente RapidEnvio en la region Norte.»: sostenida. En la segunda quincena, 14 de las 18 disputas son de RapidEnvio en la región Norte con zona con atrasos, y las 14 tienen causa operativa. Las demás combinaciones de transportista y región tienen solo 1 o 2 disputas cada una y sin causa operativa.",
+      "type": "factual",
+      "layer": "working",
+      "timestamp": 1792775881022,
+      "lastAccessed": 1792775881022,
+      "accessCount": 0,
+      "tags": [
+        "hallazgo",
+        "pregunta:por-que-subieron-las-disputas-en-la-segunda-quince-3e2bab",
+        "veredicto:sostenida"
+      ],
+      "domain": "disputas",
+      "namespace": "disputas/facts",
+      "confidence": 0.7,
+      "source": "corrida:20261023T171315-c45866",
+      "provenance": {
+        "origin": "goal_run",
+        "learnedAt": 1792775881022,
+        "label": "corrida:20261023T171315-c45866",
+        "refs": {
+          "goalRunId": "20261023T171315-c45866"
+        }
+      },
+      "entities": [
+        "rapidenvio",
+        "norte",
+        "disputas",
+        "region",
+        "transportista"
+      ],
+      "relatedTo": [
+        "mem-16",
+        "mem-17",
+        "mem-18",
+        "mem-19",
+        "mem-20"
+      ],
+      "supersedes": null,
+      "supersededBy": null,
+      "derivedFrom": [
+        "mem-21"
+      ]
+    }
+  ]
+}

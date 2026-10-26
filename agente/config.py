@@ -44,6 +44,15 @@ class Config:
     reintentos_modelo: int    # reintentos por llamada al modelo si Nightshift corta o falla
     modelo_respaldo: str      # se intenta una vez si el modelo principal falla tras sus reintentos
     tope_devoluciones: int    # devoluciones del Evaluador por afirmación antes de abstenerse
+    hmem: bool                # H-MEM (memoria de Meterless) encendido
+    hmem_timeout_s: float     # tope de cada operación de memoria; si se pasa, sigue sin memoria
+    hmem_umbral: float        # puntaje mínimo para que una memoria se reinyecte
+    memoria: Path             # dónde vive la memoria (memorias.json + ledger.jsonl)
+    memoria_semilla: Path | None  # memoria grabada que se copia si la carpeta está vacía (modo de muestra)
+    mundo_activo: bool        # World Model (Meterless) encendido
+    mundo_timeout_s: float    # tope de cada operación del World Model; si se pasa, sigue sin él
+    mundo: Path               # dónde vive el World Model (eventos.jsonl)
+    mundo_semilla: Path | None  # World Model grabado que se copia si la carpeta está vacía (modo de muestra)
 
     @property
     def modo(self) -> str:
@@ -52,12 +61,18 @@ class Config:
 
 def cargar() -> Config:
     _cargar_env_local()
+    muestra = _si(os.getenv("SAMPLE_MODE", "true"))
+    salidas = Path(os.getenv("AGENTE_SALIDAS", RAIZ / "salidas"))
+    # Modo real: la memoria del agente vive en memoria/. Modo de muestra: en salidas/memoria, que arranca
+    # como copia de la memoria grabada en samples/memoria (así la demo no toca la memoria real).
+    memoria = os.getenv("AGENTE_MEMORIA") or (salidas / "memoria" if muestra else RAIZ / "memoria")
+    mundo = os.getenv("AGENTE_MUNDO_DIR") or (salidas / "mundo" if muestra else RAIZ / "mundo")
     return Config(
-        modo_muestra=_si(os.getenv("SAMPLE_MODE", "true")),
+        modo_muestra=muestra,
         motor_url=os.getenv("IO_MOTOR_URL", "http://localhost:8000/mcp"),
         muestras=Path(os.getenv("AGENTE_MUESTRAS", RAIZ / "samples" / "consultas.json")),
         logs=Path(os.getenv("AGENTE_LOGS", RAIZ / "logs")),
-        salidas=Path(os.getenv("AGENTE_SALIDAS", RAIZ / "salidas")),
+        salidas=salidas,
         timeout_s=float(os.getenv("AGENTE_TIMEOUT_S", "60")),
         max_iteraciones=int(os.getenv("AGENTE_MAX_ITERACIONES", "16")),
         presupuesto_usd=float(os.getenv("AGENTE_PRESUPUESTO_USD", "1.0")),
@@ -70,4 +85,15 @@ def cargar() -> Config:
         reintentos_modelo=int(os.getenv("AGENTE_REINTENTOS_MODELO", "2")),
         modelo_respaldo=os.getenv("METERLESS_MODELO_RESPALDO", ""),
         tope_devoluciones=int(os.getenv("AGENTE_TOPE_DEVOLUCIONES", "2")),
+        hmem=_si(os.getenv("AGENTE_HMEM", "true")),
+        hmem_timeout_s=float(os.getenv("AGENTE_HMEM_TIMEOUT_S", "2")),
+        hmem_umbral=float(os.getenv("AGENTE_HMEM_UMBRAL", "0.30")),
+        memoria=Path(memoria),
+        memoria_semilla=(Path(os.getenv("AGENTE_MEMORIA_SEMILLA") or RAIZ / "samples" / "memoria")
+                         if muestra and os.getenv("AGENTE_MEMORIA_SEMILLA") != "" else None),
+        mundo_activo=_si(os.getenv("AGENTE_MUNDO", "true")),
+        mundo_timeout_s=float(os.getenv("AGENTE_MUNDO_TIMEOUT_S", "2")),
+        mundo=Path(mundo),
+        mundo_semilla=(Path(os.getenv("AGENTE_MUNDO_SEMILLA") or RAIZ / "samples" / "mundo")
+                       if muestra and os.getenv("AGENTE_MUNDO_SEMILLA") != "" else None),
     )

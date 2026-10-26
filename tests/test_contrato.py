@@ -43,7 +43,7 @@ def test_en_modo_muestra_una_regla_aprueba_y_queda_registrado(entorno):
 
 
 def test_sin_corrida_grabada_el_agente_se_abstiene_en_vez_de_inventar(entorno, monkeypatch):
-    monkeypatch.setattr(orq, "corrida_grabada", lambda cfg, p: None)
+    monkeypatch.setattr(orq, "corrida_grabada", lambda cfg, p, con_memoria=False: None)
     r = orq.correr(pregunta("caso3"))
     assert r["estado"] == "abstencion" and r["conclusion"] is None and r["abstencion"]["razon"]
     assert "IO no da una conclusión" in r["informe_md"]

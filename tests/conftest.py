@@ -13,6 +13,8 @@ def entorno(tmp_path, monkeypatch):
     monkeypatch.setenv("AGENTE_LOGS", str(tmp_path / "logs"))
     monkeypatch.setenv("AGENTE_SALIDAS", str(tmp_path / "salidas"))
     monkeypatch.setenv("METERLESS_RUNTIME_TOKEN", "")
+    monkeypatch.setenv("AGENTE_MEMORIA", str(tmp_path / "memoria"))
+    monkeypatch.setenv("AGENTE_MUNDO_DIR", str(tmp_path / "mundo"))
     return tmp_path
 
 

@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T143418-45e62b
+# Informe de IO · 20261023T171916-c9840a
 
 ## La pregunta
 
@@ -6,50 +6,68 @@
 
 ## Lo que encontramos
 
-No, no vale la pena pelear esta disputa de 489 dólares. Aunque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo, hay 4 señales de fraude: el cliente no tiene pedidos previos, el nivel de riesgo es el más alto, el país de facturación (CO) es distinto al país de la IP (NL), y el sistema detectó sospecha de fraude.
+No, no vale la pena pelear la disputa du_LRbXAOhoJgujrS de 489 dólares. El pedido llegó y hay una foto como prueba de entrega, y el cliente no había hecho un reclamo previo sobre este pedido. Sin embargo, se detectaron 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que no se debe pelear.
 
-- **No vale la pena pelear la disputa porque hay múltiples señales de fraude y sospecha de fraude.** — La evidencia E3 registra 4 señales de fraude y sospecha_fraude=true, lo que impide pelear la disputa según la regla de vale_pelear. (evidencia: E3)
+- **No vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el cliente está bajo sospecha de fraude.** — La evidencia E2 (1 fila) muestra que el cliente tiene 4 señales de fraude y está bajo sospecha de fraude. Con 4 señales de fraude (2 o más), no se debe pelear esta disputa. (evidencia: E2)
 
 ## Hipótesis descartadas
 
-- ~~Vale la pena pelear la disputa porque el envío fue entregado con prueba de entrega y el cliente no hizo un reclamo previo.~~ — La evidencia E2 confirma entrega_confirmada=true y reclamo_previo=false, pero la evidencia E3 muestra senales_fraude=4 y sospecha_fraude=true. Como hay 2 o más señales de fraude, vale_pelear es false, por lo que no vale la pena pelear la disputa. (evidencia: E2, E3)
+- ~~Vale la pena pelear la disputa du_LRbXAOhoJgujrS porque el pedido fue entregado y confirmado, y el cliente no hizo un reclamo previo sobre este pedido.~~ — La evidencia E1 (1 fila) confirma que el pedido fue entregado y hay una foto como prueba de entrega, y que el cliente no había hecho un reclamo previo. Pero la misma fila registra 4 señales de fraude y el cliente está bajo sospecha de fraude, por lo que la decisión es no pelear. Con 4 señales de fraude (2 o más), no vale la pena pelear aunque haya entrega confirmada. (evidencia: E1)
 
 ## Evidencia
 
 **E1** · motor: duckdb
 
 ```sql
-SELECT disputa_id, monto, motivo, estado, vale_pelear, decision, razon_decision, entrega_confirmada, reclamo_previo, senales_fraude, sospecha_fraude, pedidos_previos, disputas_previas, nivel_riesgo, pais_facturacion, pais_ip, prueba_entrega, estado_envio, causa_operativa FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';
+SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';
 ```
 
-| disputa_id | monto | motivo | estado | vale_pelear | decision | razon_decision | entrega_confirmada | reclamo_previo | senales_fraude | sospecha_fraude | pedidos_previos | disputas_previas | nivel_riesgo | pais_facturacion | pais_ip | prueba_entrega | estado_envio | causa_operativa |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| du_LRbXAOhoJgujrS | 489.0 | fraudulent | needs_response | False | no_pelear | sospecha_de_fraude | True | False | 4 | True | 0 | 0 | highest | CO | NL | foto | entregado | False |
+| disputa_id | motivo | monto | estado_envio | prueba_entrega | entregado_en | reclamo_previo | senales_fraude | sospecha_fraude | vale_pelear | decision | razon_decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| du_LRbXAOhoJgujrS | fraudulent | 489.0 | entregado | foto | 2026-09-13 | False | 4 | True | False | no_pelear | sospecha_de_fraude |
 
 **E2** · motor: duckdb
 
 ```sql
-SELECT entrega_confirmada, reclamo_previo FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';
+SELECT disputa_id, motivo, monto, estado_envio, prueba_entrega, entregado_en, reclamo_previo, senales_fraude, sospecha_fraude, vale_pelear, decision, razon_decision FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';
 ```
 
-| entrega_confirmada | reclamo_previo |
-| --- | --- |
-| True | False |
+| disputa_id | motivo | monto | estado_envio | prueba_entrega | entregado_en | reclamo_previo | senales_fraude | sospecha_fraude | vale_pelear | decision | razon_decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| du_LRbXAOhoJgujrS | fraudulent | 489.0 | entregado | foto | 2026-09-13 | False | 4 | True | False | no_pelear | sospecha_de_fraude |
 
 **E3** · motor: duckdb
 
 ```sql
-SELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id = 'du_LRbXAOhoJgujrS';
+SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razon_decision;
 ```
 
-| senales_fraude | sospecha_fraude |
+| razon_decision | cantidad |
 | --- | --- |
-| 4 | True |
+| sin_prueba_de_entrega | 3 |
+| sospecha_de_fraude | 3 |
+| sin_entrega | 4 |
+| entrega_confirmada_sin_reclamo | 20 |
+| reclamo_previo | 12 |
+
+**E4** · motor: duckdb
+
+```sql
+SELECT razon_decision, count(*) as cantidad FROM canonico.disputas GROUP BY razon_decision;
+```
+
+| razon_decision | cantidad |
+| --- | --- |
+| sin_prueba_de_entrega | 3 |
+| sospecha_de_fraude | 3 |
+| sin_entrega | 4 |
+| entrega_confirmada_sin_reclamo | 20 |
+| reclamo_previo | 12 |
 
 
 ## Qué conviene hacer
 
-No pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.
+No pelear esta disputa; aceptarla y marcar al cliente por sospecha de fraude. De las 1 disputas del grupo, 1 se debe aceptar por sospecha de fraude y marcar al cliente.
 
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 3 · 7 ms
+Aprobación: **aprobada** · modo muestra · consultas: 4 · 46 ms

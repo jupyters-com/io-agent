@@ -267,6 +267,7 @@ def test_una_abstencion_no_pisa_una_corrida_concluida(entorno, modo_real, monkey
     muestras.write_text(json.dumps({"origen": "io-engine en prueba", "consultas": {}}), encoding="utf-8")
     monkeypatch.setenv("AGENTE_MUESTRAS", str(muestras))
     monkeypatch.setenv("AGENTE_GRABAR", "true")
+    monkeypatch.setenv("AGENTE_HMEM", "false")  # sin memoria: las dos corridas son la misma variante
     modo_real(GUION_CASO3)
     orq.correr("¿Por qué subieron las disputas?")
     (archivo,) = (tmp_path / "samples" / "corridas").glob("*.json")
@@ -443,3 +444,46 @@ def test_el_tope_de_devoluciones_se_configura(entorno, modo_real, monkeypatch):
     modo_real([GUION_CASO3[0], GUION_CASO3[1], malo, *GUION_CASO3[2:]])
     r = orq.correr("¿Por qué subieron las disputas?")
     assert r["estado"] == "abstencion" and "1 vez " in r["abstencion"]["razon"]
+
+
+def test_los_ids_de_la_pregunta_van_tal_cual_al_modelo(entorno, modo_real):
+    m = modo_real([GUION_CASO3[0], {"accion": "abstenerse", "razon": "no sé"}])
+    orq.correr("¿Vale la pena pelear la disputa du_LRbXAOhoJgujrS?")
+    assert "Ids exactos" in m.recibidos[0] and "du_LRbXAOhoJgujrS" in m.recibidos[0].split("Ids exactos")[1]
+
+
+def test_el_id_de_la_disputa_no_cuenta_como_jerga():
+    from agente import evaluador
+    problemas = evaluador.revisar_conclusion({}, {}, "Vale la pena pelear la disputa du_cuKtmopzODI37h.", "")
+    assert not any("términos técnicos" in p for p in problemas)
+    problemas = evaluador.revisar_conclusion({}, {}, "Hay zona_con_atrasos=true.", "")
+    assert any("zona_con_atrasos" in p for p in problemas)
+
+
+def test_cualquier_forma_del_verbo_se_entiende_al_revisar_cantidades():
+    from agente import evaluador
+    evidencia = {"E1": {"id": "E1", "ok": True, "n_filas": 1, "sql": "SELECT razon_decision, count(*) AS disputas ...",
+                        "filas": [{"razon_decision": "entrega_confirmada_sin_reclamo", "disputas": 4}]}}
+    for texto in ("Que se pelee 9 de ellas.", "Peleó 9.", "Pelearlas: 9."):
+        problemas = evaluador._cantidades_fuera_de_la_evidencia(texto, evidencia)
+        assert problemas and "solo hay 4" in problemas[0]
+    assert evaluador._cantidades_fuera_de_la_evidencia("Pelear 4.", evidencia) == []
+
+
+def test_el_evaluador_devuelve_razones_y_enunciados_con_jerga(entorno, modo_real):
+    con_jerga = {"accion": "hipotesis", "hipotesis": [{"id": "H1", "enunciado": "Ola de fraudulent"},
+                                                      {"id": "H2", "enunciado": "Hay zona_con_atrasos"}]}
+    razon_jerga = {**GUION_CASO3[2], "razon": "Solo 2 con senales_fraude >= 2"}
+    m = modo_real([con_jerga, GUION_CASO3[0], GUION_CASO3[1], razon_jerga, *GUION_CASO3[2:]])
+    r = orq.correr("¿Por qué subieron las disputas?")
+    assert r["estado"] == "concluida" and r["metricas"]["devoluciones"] == 2
+    assert any("fraudulent" in msg and "zona_con_atrasos" in msg for msg in m.recibidos)
+    assert any("senales_fraude" in msg and "La razón de H1" in msg for msg in m.recibidos)
+    acciones = [e["accion"] for e in eventos(entorno, r) if e["estado"] == "alerta"]
+    assert "revisar_hipotesis" in acciones and "revisar_veredicto" in acciones
+    assert all(not evaluador_jerga(h["enunciado"] + " " + h["razon"]) for h in r["hipotesis"])
+
+
+def evaluador_jerga(texto):
+    from agente import evaluador
+    return evaluador.jerga(texto)

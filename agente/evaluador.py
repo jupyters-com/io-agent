@@ -25,7 +25,27 @@ ACCION_A_RAZONES = {
 }
 VERBO = re.compile(r"\b(pele\w*|resolver\w*|reembols\w*|acept\w*)", re.I)
 NUMERO = re.compile(r"\b(\d{1,4})\b")
-JERGA = re.compile(r"\b[a-z]+(?:_[a-z0-9]+)+\b|=\s*(?:true|false)\b", re.I)
+JERGA = re.compile(r"\b[a-z]+(?:_[a-z0-9]+)+\b|=\s*(?:true|false)\b"
+                   r"|\b(?:fraudulent|unrecognized|highest|elevated)\b", re.I)  # también los valores en inglés
+ID_DISPUTA = re.compile(r"^du_[A-Za-z0-9]+$")  # el id de una disputa no es jerga: la dueña lo ve en su panel
+# Cualquier forma del verbo ("pelee", "peleó", "resolverlas", "acepte") lleva a su acción.
+PREFIJO_A_ACCION = {"pele": "pelear", "reso": "resolver", "reem": "reembolsar", "acep": "aceptar"}
+
+
+def jerga(texto: str) -> list[str]:
+    """Nombres de columnas, valores en inglés o expresiones como "=true": lo que la dueña no entiende."""
+    return sorted({m.group(0) for m in JERGA.finditer(texto or "") if not ID_DISPUTA.match(m.group(0))})
+
+
+def revisar_hipotesis(hipotesis: list[dict]) -> list[str]:
+    """Los enunciados también salen en el informe: en español simple."""
+    problemas = []
+    for h in hipotesis:
+        palabras = jerga(str(h.get("enunciado", "")))
+        if palabras:
+            problemas.append(f"El enunciado de {h.get('id', 'una hipótesis')} lo lee la dueña de la tienda: "
+                             f"reescríbelo sin términos técnicos ({', '.join(palabras[:6])}).")
+    return problemas
 
 
 def revisar_veredicto(veredicto: dict, evidencia: dict) -> list[str]:
@@ -43,6 +63,11 @@ def revisar_veredicto(veredicto: dict, evidencia: dict) -> list[str]:
                 problemas.append(f"{veredicto['hipotesis']} cita {ref}, que no devolvió filas.")
     if not veredicto.get("razon", "").strip():
         problemas.append(f"{veredicto['hipotesis']} no explica su veredicto.")
+    palabras = jerga(veredicto.get("razon", ""))
+    if palabras:
+        problemas.append(f"La razón de {veredicto['hipotesis']} la lee la dueña de la tienda: reescríbela sin "
+                         f"términos técnicos ({', '.join(palabras[:6])}). Ejemplo: 'producto no recibido' en vez "
+                         "de product_not_received.")
     return problemas
 
 
@@ -72,7 +97,9 @@ def _cantidades_fuera_de_la_evidencia(recomendacion: str, evidencia: dict) -> li
     problemas = []
     for m in VERBO.finditer(recomendacion):
         verbo = m.group(1).lower()
-        accion = next(a for a in ACCION_A_RAZONES if verbo.startswith(a[:5]))
+        accion = PREFIJO_A_ACCION.get(verbo[:4])
+        if accion is None:
+            continue
         tramo = recomendacion[m.end(): m.end() + 60]
         n = next((int(x) for x in NUMERO.findall(tramo) if int(x) < 1900), None)
         if n is None:
@@ -96,10 +123,10 @@ def revisar_conclusion(hipotesis: dict, evidencia: dict, conclusion: str = "", r
                              "decisiones. Consulta cuántas disputas del grupo hay por razon_decision y usa esos "
                              "números en la recomendación.")
     problemas += _cantidades_fuera_de_la_evidencia(recomendacion or "", evidencia)
-    jerga = sorted({m.group(0) for m in JERGA.finditer(f"{conclusion} {recomendacion}")})
-    if jerga:
+    palabras = jerga(f"{conclusion} {recomendacion}")
+    if palabras:
         problemas.append(f"La conclusión y la recomendación son para la dueña de la tienda: reescríbelas sin "
-                         f"términos técnicos ({', '.join(jerga[:6])}). Ejemplo: 'producto no recibido' en vez "
+                         f"términos técnicos ({', '.join(palabras[:6])}). Ejemplo: 'producto no recibido' en vez "
                          f"de product_not_received.")
     sin_veredicto = [h["id"] for h in hipotesis.values() if h["veredicto"] == "sin_decidir"]
     if sin_veredicto:
