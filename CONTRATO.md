@@ -65,8 +65,8 @@ Una línea por consulta, con lo mismo que `evidencia[]` de la respuesta (`id`, `
 | `paso` | orden del evento en la corrida (1, 2, 3…) |
 | `agente` | `orquestador`, `investigador`, `evaluador` o `cola` |
 | `destino` | a quién le habla: `io-engine.consultar`, `modelo`, `cola_aprobacion`, `salida`… |
-| `accion` | qué hizo: `recibir_pregunta`, `pensar`, `proponer_hipotesis`, `consultar`, `revisar_veredicto`, `devolver`, `descartar`, `sostener`, `revisar_conclusion`, `encolar`, `entregar`, `tope_iteraciones`, `alerta_gasto` |
+| `accion` | qué hizo: `recibir_pregunta`, `pensar`, `proponer_hipotesis`, `consultar`, `revisar_veredicto`, `devolver`, `descartar`, `sostener`, `revisar_conclusion`, `tope_devoluciones`, `encolar`, `entregar`, `tope_iteraciones`, `alerta_gasto` |
 | `entrada` / `salida` | resumen de lo que entró y salió (máx. 300 caracteres) |
 | `estado` | `ok`, `error`, `alerta` u `omitido` |
-| `reintentos` | cuántas veces se reintentó |
+| `reintentos` | cuántas veces se reintentó; en `revisar_veredicto` y `revisar_conclusion`, cuántas veces el Evaluador ya había devuelto esa misma afirmación. Pasado `AGENTE_TOPE_DEVOLUCIONES` (2), el agente se abstiene (`tope_devoluciones`) |
 | `ms` | cuánto tardó |

@@ -410,3 +410,36 @@ def test_si_el_modelo_principal_falla_se_intenta_una_vez_el_de_respaldo():
     r = m.completar([{"role": "user", "content": "hola"}])
     assert r["modelo"] == "nvidia/nemotron-lightning" and m.respaldos_usados == 1
     assert pedidos == ["nvidia/nemotron-3-super", "nvidia/nemotron-3-super", "nvidia/nemotron-lightning"]
+
+
+def test_la_misma_afirmacion_devuelta_mas_del_tope_termina_en_abstencion(entorno, modo_real):
+    malo = {"accion": "veredicto", "hipotesis": "H1", "veredicto": "descartada", "razon": "no es", "evidencia": ["E9"]}
+    m = modo_real([GUION_CASO3[0], GUION_CASO3[1], malo, malo, malo, *GUION_CASO3[2:]])
+    r = orq.correr("¿Por qué subieron las disputas?")
+    assert r["estado"] == "abstencion"
+    contrato.validar_respuesta(r)
+    razon = r["abstencion"]["razon"]
+    assert "3 veces" in razon and "veredicto de H1" in razon
+    ev = eventos(entorno, r)
+    revisiones = [e["reintentos"] for e in ev if e["accion"] == "revisar_veredicto"]
+    assert revisiones == [0, 1, 2]
+    tope = [e for e in ev if e["accion"] == "tope_devoluciones"]
+    assert len(tope) == 1 and tope[0]["estado"] == "alerta"
+    assert len(m.acciones) == 4  # no siguió pidiéndole más vueltas al modelo
+
+
+def test_dos_devoluciones_y_luego_la_correccion_si_concluye(entorno, modo_real):
+    malo = {"accion": "veredicto", "hipotesis": "H1", "veredicto": "descartada", "razon": "no es", "evidencia": ["E9"]}
+    modo_real([GUION_CASO3[0], GUION_CASO3[1], malo, malo, *GUION_CASO3[2:]])
+    r = orq.correr("¿Por qué subieron las disputas?")
+    assert r["estado"] == "concluida"
+    revisiones = [(e["reintentos"], e["estado"]) for e in eventos(entorno, r) if e["accion"] == "revisar_veredicto"]
+    assert revisiones[:3] == [(0, "alerta"), (1, "alerta"), (2, "ok")]
+
+
+def test_el_tope_de_devoluciones_se_configura(entorno, modo_real, monkeypatch):
+    monkeypatch.setenv("AGENTE_TOPE_DEVOLUCIONES", "0")
+    malo = {"accion": "veredicto", "hipotesis": "H1", "veredicto": "descartada", "razon": "no es", "evidencia": ["E9"]}
+    modo_real([GUION_CASO3[0], GUION_CASO3[1], malo, *GUION_CASO3[2:]])
+    r = orq.correr("¿Por qué subieron las disputas?")
+    assert r["estado"] == "abstencion" and "1 vez " in r["abstencion"]["razon"]

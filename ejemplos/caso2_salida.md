@@ -1,4 +1,4 @@
-# Informe de IO · 20261023T141944-9c5b23
+# Informe de IO · 20261023T143418-45e62b
 
 ## La pregunta
 
@@ -52,4 +52,4 @@ SELECT senales_fraude, sospecha_fraude FROM canonico.disputas WHERE disputa_id =
 No pelear la disputa. Aceptarla y marcar al cliente por sospecha de fraude.
 
 ---
-Aprobación: **aprobada** · modo muestra · consultas: 3 · 8 ms
+Aprobación: **aprobada** · modo muestra · consultas: 3 · 7 ms
