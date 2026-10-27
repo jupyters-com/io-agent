@@ -235,8 +235,8 @@ They run without network or keys. Most use a scripted model and a fake engine (`
     - without H-MEM, every run starts from zero: the Investigator repeats mistakes the Evaluator had already corrected (more returns and rounds);
     - without the World Model, the Evaluator can no longer check that what the conclusion names came out of a query in that run, so a remembered or invented dispute, carrier or region can reach the answer;
     - `python scripts/comparar_memoria.py` shows the difference in `logs/`.
-- **NVIDIA:** the model is Nemotron (`nvidia/nemotron-3.5-super-vl-120b-a12b`), served through Nightshift.
-- **Zetaris:** answers `consultar(sql)` in io-engine by joining the three sources without copying them, with DuckDB as a fallback; each answer records which engine responded.
+- **NVIDIA:** the model is Nemotron, served through Nightshift: `nvidia/nemotron-3.5-super-vl-120b-a12b` as primary and `nvidia/nemotron-3.5-lightning-30b-a3b` as fallback. The recorded runs in `samples/corridas/` include answers from both; the trace records which model answered each round.
+- **Zetaris:** answers `consultar(sql)` in io-engine by joining the three sources without copying them, with DuckDB as a fallback; each answer records which engine responded. The sample-mode recordings used the DuckDB fallback; the live runs in `samples/corridas/jptrs112/` (case 3) were answered by Zetaris (`motor=zetaris`), with each Nightshift call's signed receipt verified (`tests/test_recibo.py` checks a real Nightshift receipt).
 - **Development tool:** see `metadata.json`.
 
 ## License

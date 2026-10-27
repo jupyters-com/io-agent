@@ -231,8 +231,8 @@ Corren sin red ni claves. La mayoría usa un modelo de guion y un motor falso (`
     - sin H-MEM, cada corrida empieza de cero: el Investigador repite errores que el Evaluador ya le había corregido (más devoluciones y vueltas);
     - sin World Model, el Evaluador ya no puede comprobar que lo que nombra la conclusión salió de una consulta de esa corrida, así que una disputa, transportista o región recordados o inventados pasan a la respuesta;
     - `python scripts/comparar_memoria.py` muestra la diferencia en `logs/`.
-- **NVIDIA:** el modelo es Nemotron (`nvidia/nemotron-3.5-super-vl-120b-a12b`), servido a través de Nightshift.
-- **Zetaris:** responde `consultar(sql)` en io-engine uniendo las tres fuentes sin copiarlas, con respaldo en DuckDB; cada respuesta registra qué motor respondió.
+- **NVIDIA:** el modelo es Nemotron, servido a través de Nightshift: `nvidia/nemotron-3.5-super-vl-120b-a12b` como principal y `nvidia/nemotron-3.5-lightning-30b-a3b` como respaldo. Las corridas grabadas en `samples/corridas/` tienen respuestas de los dos; la traza registra qué modelo respondió en cada vuelta.
+- **Zetaris:** responde `consultar(sql)` en io-engine uniendo las tres fuentes sin copiarlas, con respaldo en DuckDB; cada respuesta registra qué motor respondió. Las grabaciones del modo de muestra usaron el respaldo DuckDB; las corridas reales en `samples/corridas/jptrs112/` (caso 3) las respondió Zetaris (`motor=zetaris`), con el recibo firmado de cada llamada a Nightshift verificado (`tests/test_recibo.py` lo prueba con un recibo real de Nightshift).
 - **Herramienta de desarrollo:** ver `metadata.json`.
 
 ## License

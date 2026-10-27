@@ -4,6 +4,7 @@
     python run.py ejemplos/caso3_entrada.json
     echo {"pregunta": "..."} | python run.py -
     python run.py --servir            # POST /run en http://localhost:8080/run
+    python run.py --en-vivo ejemplos/caso3_entrada.json   # muestra la traza mientras corre y al final el informe
 
 Con SAMPLE_MODE=true (por defecto) corre sin credenciales y sin el motor.
 Deja la traza en logs/<run_id>.jsonl y la respuesta + informe en salidas/<run_id>.json y .md.
@@ -57,11 +58,19 @@ def main(argv):
         print(f"Agente escuchando en http://0.0.0.0:{puerto}/run", flush=True)
         ThreadingHTTPServer(("0.0.0.0", puerto), Manejador).serve_forever()
         return 0
+    en_vivo = "--en-vivo" in argv
+    argv = [a for a in argv if a != "--en-vivo"]
     if not argv:
         print(__doc__)
         return 2
+    if en_vivo:
+        os.environ["AGENTE_EN_VIVO"] = "true"
     respuesta = correr(leer_entrada(argv[0])["pregunta"])
-    print(json.dumps(respuesta, ensure_ascii=False, indent=2))
+    if en_vivo:  # en vivo, la traza ya salió por pantalla: al final, el informe legible
+        print("\n" + respuesta["informe_md"])
+        print(f"Traza: logs/{respuesta['run_id']}.jsonl · informe: salidas/{respuesta['run_id']}.md")
+    else:
+        print(json.dumps(respuesta, ensure_ascii=False, indent=2))
     return 0
 
 
