@@ -169,7 +169,7 @@ class ModeloGrabado:
 
     def completar(self, mensajes: list[dict]) -> dict:
         if self.i >= len(self.turnos):
-            raise SinMasRespuestas("No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra.")
+            raise SinMasRespuestas("No hay una corrida grabada (o se terminó) para esta pregunta en modo de muestra. Para preguntas nuevas usa el modo real / For new questions use live mode: SAMPLE_MODE=false (README.md, «Live mode: new questions»; README.es.md, «Modo real: preguntas nuevas»).")
         t = self.turnos[self.i]
         self.i += 1
         info = t.get("recibo")
